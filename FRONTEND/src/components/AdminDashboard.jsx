@@ -20,6 +20,9 @@ import {
   Avatar,
   Divider,
   Grid,
+  IconButton,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 import {
   Dashboard,
@@ -28,6 +31,8 @@ import {
   ReportProblem,
   People,
   Settings,
+  Menu as MenuIcon,
+  Close as CloseIcon,
 } from "@mui/icons-material";
 import { useNavigate } from 'react-router-dom';
 import Navbar from "./Navbar";
@@ -51,6 +56,8 @@ const drawerWidth = 240;
 const AdminDashboard = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [tab, setTab] = useState('overview');
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   
   // Data States
   const [wastes, setWastes] = useState([]);
@@ -93,6 +100,14 @@ const AdminDashboard = () => {
 
   const navigate = useNavigate();
   const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
+  
+  // Close drawer when tab changes on mobile
+  const handleTabChange = (newTab) => {
+    setTab(newTab);
+    if (isMobile) {
+      setMobileOpen(false);
+    }
+  };
 
   // 🔹 Helper: Get Headers from Session Storage
   const getAuthHeaders = () => {
@@ -266,14 +281,14 @@ const AdminDashboard = () => {
         ].map((item) => (
           <ListItem key={item.key} disablePadding sx={{ display: 'block' }}>
             <ListItemButton 
-                onClick={() => setTab(item.key)} 
+                onClick={() => handleTabChange(item.key)} 
                 selected={tab === item.key}
                 sx={{ 
                     "&.Mui-selected": { bgcolor: "rgba(0,150,136,0.1)", borderLeft: "4px solid #009688" },
                     "&:hover": { bgcolor: "rgba(0,150,136,0.05)" }
                 }}
             >
-              <ListItemIcon sx={{ color: tab === item.key ? "#009688" : "inherit" }}>{item.icon}</ListItemIcon>
+              <ListItemIcon sx={{ color: tab === item.key ? "#009688" : "inherit", minWidth: 40 }}>{item.icon}</ListItemIcon>
               <ListItemText primary={item.text} sx={{ color: tab === item.key ? "#009688" : "inherit" }} />
             </ListItemButton>
           </ListItem>
@@ -287,11 +302,30 @@ const AdminDashboard = () => {
       <CssBaseline />
       <Navbar />
 
-      <Box sx={{ display: "flex" }}>
+      <Box sx={{ display: "flex", position: 'relative' }}>
+        
+        {/* Mobile Hamburger Button */}
+        <IconButton
+          onClick={handleDrawerToggle}
+          sx={{
+            display: { xs: 'flex', sm: 'none' },
+            position: 'fixed',
+            left: 16,
+            top: 80,
+            zIndex: 1200,
+            bgcolor: 'primary.main',
+            color: 'white',
+            '&:hover': {
+              bgcolor: 'primary.dark',
+            }
+          }}
+        >
+          {mobileOpen ? <CloseIcon /> : <MenuIcon />}
+        </IconButton>
         
         {/* 🔹 Sidebar Drawer */}
         <Box component="nav" sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}>
-          {/* Mobile */}
+          {/* Mobile Drawer */}
           <Drawer
             variant="temporary"
             open={mobileOpen}
@@ -299,17 +333,17 @@ const AdminDashboard = () => {
             ModalProps={{ keepMounted: true }}
             sx={{
               display: { xs: "block", sm: "none" },
-              "& .MuiDrawer-paper": { boxSizing: "border-box", width: drawerWidth },
+              "& .MuiDrawer-paper": { boxSizing: "border-box", width: drawerWidth, top: '70px', height: 'calc(100% - 70px)' },
             }}
           >
             {drawer}
           </Drawer>
-          {/* Desktop */}
+          {/* Desktop Drawer */}
           <Drawer
             variant="permanent"
             sx={{
               display: { xs: "none", sm: "block" },
-              "& .MuiDrawer-paper": { boxSizing: "border-box", width: drawerWidth, top: '64px', height: 'calc(100% - 64px)' },
+              "& .MuiDrawer-paper": { boxSizing: "border-box", width: drawerWidth, top: '70px', height: 'calc(100% - 70px)' },
             }}
             open
           >
@@ -318,7 +352,7 @@ const AdminDashboard = () => {
         </Box>
 
         {/* 🔹 Main Content */}
-        <Box component="main" sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` }, mt: 8 }}>
+        <Box component="main" sx={{ flexGrow: 1, p: { xs: 2, sm: 3 }, width: { sm: `calc(100% - ${drawerWidth}px)` }, mt: { xs: 7, sm: 8 } }}>
           
           {tab === 'overview' && (
             <>
