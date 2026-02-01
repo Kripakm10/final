@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import API_BASE_URL from '../config/api';
 import {
   Box,
   CssBaseline,
@@ -131,10 +132,10 @@ const AdminDashboard = () => {
       const headers = getAuthHeaders();
       
       const [wRes, rRes, uRes, lRes] = await Promise.all([
-        fetch('http://localhost:3000/api/waste', { headers }),
-        fetch('http://localhost:3000/api/registrations', { headers }),
-        fetch('http://localhost:3000/api/users', { headers }),
-        fetch('http://localhost:3000/api/logs', { headers }),
+        fetch(`${API_BASE_URL}/api/waste`, { headers }),
+        fetch(`${API_BASE_URL}/api/registrations`, { headers }),
+        fetch(`${API_BASE_URL}/api/users`, { headers }),
+        fetch(`${API_BASE_URL}/api/logs`, { headers }),
       ]);
 
       if (handleAuthError(wRes)) return;
@@ -159,7 +160,7 @@ const AdminDashboard = () => {
   const fetchWastes = async () => {
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:3000/api/waste', { headers: getAuthHeaders() });
+      const res = await fetch(`${API_BASE_URL}/api/waste`, { headers: getAuthHeaders() });
       if (handleAuthError(res)) return;
       const data = await res.json();
       setWastes(data);
@@ -169,7 +170,7 @@ const AdminDashboard = () => {
   const fetchWaters = async () => {
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:3000/api/water', { headers: getAuthHeaders() });
+      const res = await fetch(`${API_BASE_URL}/api/water`, { headers: getAuthHeaders() });
       if (handleAuthError(res)) return;
       setWaters(await res.json());
     } catch (err) { console.error(err); } finally { setLoading(false); }
@@ -178,7 +179,7 @@ const AdminDashboard = () => {
   const fetchGrievances = async () => {
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:3000/api/grievance', { headers: getAuthHeaders() });
+      const res = await fetch(`${API_BASE_URL}/api/grievance`, { headers: getAuthHeaders() });
       if (handleAuthError(res)) return;
       setGrievances(await res.json());
     } catch (err) { console.error(err); } finally { setLoading(false); }
@@ -187,7 +188,7 @@ const AdminDashboard = () => {
   const fetchRegistrations = async () => {
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:3000/api/registrations', { headers: getAuthHeaders() });
+      const res = await fetch(`${API_BASE_URL}/api/registrations`, { headers: getAuthHeaders() });
       if (handleAuthError(res)) return;
       setRegistrations(await res.json());
     } catch (err) { console.error(err); } finally { setLoading(false); }
@@ -216,7 +217,7 @@ const AdminDashboard = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:3000/api/users', { headers: getAuthHeaders() });
+      const res = await fetch(`${API_BASE_URL}/api/users`, { headers: getAuthHeaders() });
       if (handleAuthError(res)) return;
       const data = await res.json();
       setUsers(data || []);
@@ -227,7 +228,7 @@ const AdminDashboard = () => {
 
   const updateStatus = async (endpoint, id, status, refresh) => {
     try {
-      await fetch(`http://localhost:3000/api/${endpoint}/${id}`, {
+      await fetch(`${API_BASE_URL}/api/${endpoint}/${id}`, {
         method: 'PUT',
         headers: getAuthHeaders(),
         body: JSON.stringify({ status })
@@ -239,7 +240,7 @@ const AdminDashboard = () => {
   const deleteItem = async (endpoint, id, refresh) => {
     if(!window.confirm("Are you sure?")) return;
     try {
-      await fetch(`http://localhost:3000/api/${endpoint}/${id}`, {
+      await fetch(`${API_BASE_URL}/api/${endpoint}/${id}`, {
         method: 'DELETE',
         headers: getAuthHeaders()
       });

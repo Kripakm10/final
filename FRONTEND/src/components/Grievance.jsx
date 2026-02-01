@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from 'axios';
+import API_BASE_URL from '../config/api';
 import {
   Box,
   Typography,
@@ -35,7 +36,7 @@ const Grievance = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-      const resp = await axios.post('http://localhost:3000/api/grievance', formData, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+      const resp = await axios.post(`${API_BASE_URL}/api/grievance`, formData, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
       setSuccess(resp.data?.message || 'Grievance submitted');
       setFormData({ name: "", email: "", subject: "", description: "" });
     } catch (err) {

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, FormControl, InputLabel, Select, MenuItem, Box, CircularProgress, Alert } from '@mui/material';
 import axios from 'axios';
+import API_BASE_URL from '../config/api';
 import LocationPicker from './LocationPicker';
 import { Typography } from '@mui/material';
 
@@ -19,7 +20,7 @@ const RegistrationModal = ({ open, onClose, onSuccess }) => {
       const token = localStorage.getItem('token') || sessionStorage.getItem('token');
       const payload = { firstName: formData.firstName, lastName: formData.lastName, email: formData.email, phone: formData.phone, department: formData.department, subOption: formData.subOption };
       if (formData.lat !== null && formData.lng !== null) { payload.lat = Number(formData.lat); payload.lng = Number(formData.lng); }
-      const res = await axios.post('http://localhost:3000/api/registrations', payload, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+      const res = await axios.post(`${API_BASE_URL}/api/registrations`, payload, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
       onSuccess && onSuccess(res.data);
       setFormData({ firstName: '', lastName: '', email: '', phone: '', department: '', subOption: '', lat: null, lng: null });
       onClose();

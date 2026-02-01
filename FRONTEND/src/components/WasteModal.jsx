@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, MenuItem, CircularProgress, Alert, Box, Typography } from '@mui/material';
 import axios from 'axios';
+import API_BASE_URL from '../config/api';
 import LocationPicker from './LocationPicker';
 
 const WasteModal = ({ open, onClose, onSuccess }) => {
@@ -18,7 +19,7 @@ const WasteModal = ({ open, onClose, onSuccess }) => {
       const token = localStorage.getItem('token') || sessionStorage.getItem('token');
       const payload = { name: formData.name, address: formData.address, contact: formData.contact, wasteType: formData.wasteType };
       if (formData.lat !== null && formData.lng !== null) { payload.lat = Number(formData.lat); payload.lng = Number(formData.lng); }
-      const res = await axios.post('http://localhost:3000/api/waste', payload, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+      const res = await axios.post(`${API_BASE_URL}/api/waste`, payload, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
       onSuccess && onSuccess(res.data);
       setFormData({ name: '', address: '', contact: '', wasteType: '', lat: null, lng: null });
       onClose();

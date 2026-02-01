@@ -5,6 +5,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import API_BASE_URL from '../config/api';
 
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
@@ -94,10 +95,10 @@ const AdminLocations = () => {
       setLoading(true);
       try {
         const [wRes, waRes, gRes, rRes] = await Promise.all([
-          fetch('http://localhost:3000/api/waste', { headers: getAuthHeaders() }),
-          fetch('http://localhost:3000/api/water', { headers: getAuthHeaders() }),
-          fetch('http://localhost:3000/api/grievance', { headers: getAuthHeaders() }),
-          fetch('http://localhost:3000/api/registrations', { headers: getAuthHeaders() }),
+          fetch(`${API_BASE_URL}/api/waste`, { headers: getAuthHeaders() }),
+          fetch(`${API_BASE_URL}/api/water`, { headers: getAuthHeaders() }),
+          fetch(`${API_BASE_URL}/api/grievance`, { headers: getAuthHeaders() }),
+          fetch(`${API_BASE_URL}/api/registrations`, { headers: getAuthHeaders() }),
         ]);
 
         const [waste, water, grievance, regs] = await Promise.all([

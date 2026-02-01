@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, MenuItem, CircularProgress, Alert, Box, Typography } from '@mui/material';
 import axios from 'axios';
+import API_BASE_URL from '../config/api';
 import LocationPicker from './LocationPicker';
 
 const WaterModal = ({ open, onClose, onSuccess }) => {
@@ -18,7 +19,7 @@ const WaterModal = ({ open, onClose, onSuccess }) => {
       const token = localStorage.getItem('token') || sessionStorage.getItem('token');
       const payload = { name: formData.name, email: formData.email, phone: formData.phone, address: formData.address, issueType: formData.issueType, description: formData.description };
       if (formData.lat !== null && formData.lng !== null) { payload.lat = Number(formData.lat); payload.lng = Number(formData.lng); }
-      const res = await axios.post('http://localhost:3000/api/water', payload, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+      const res = await axios.post(`${API_BASE_URL}/api/water`, payload, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
       onSuccess && onSuccess(res.data);
       setFormData({ name: '', email: '', phone: '', address: '', issueType: '', description: '', lat: null, lng: null });
       onClose();

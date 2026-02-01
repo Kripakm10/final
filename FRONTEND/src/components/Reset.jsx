@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import API_BASE_URL from '../config/api';
 import {
   Box,
   Button,
@@ -30,7 +31,7 @@ const Reset = () => {
     e.preventDefault();
     // Example API call
     axios
-      .post('http://localhost:3000/api/forgot-password', { email })
+      .post(`${API_BASE_URL}/api/forgot-password`, { email })
       .then(() => {
         setMessage('If this email exists, a reset link has been sent.');
       })

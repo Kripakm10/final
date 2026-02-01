@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, CircularProgress, Alert, Box, Typography } from '@mui/material';
 import axios from 'axios';
 import LocationPicker from './LocationPicker';
+import API_BASE_URL from '../config/api';
 
 const GrievanceModal = ({ open, onClose, onSuccess }) => {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', description: '', lat: null, lng: null });
@@ -18,7 +19,7 @@ const GrievanceModal = ({ open, onClose, onSuccess }) => {
       const token = localStorage.getItem('token') || sessionStorage.getItem('token');
       const payload = { name: formData.name, email: formData.email, subject: formData.subject, description: formData.description };
       if (formData.lat !== null && formData.lng !== null) { payload.lat = Number(formData.lat); payload.lng = Number(formData.lng); }
-      const res = await axios.post('http://localhost:3000/api/grievance', payload, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+      const res = await axios.post(`${API_BASE_URL}/api/grievance`, payload, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
       onSuccess && onSuccess(res.data);
       setFormData({ name: '', email: '', subject: '', description: '', lat: null, lng: null });
       onClose();

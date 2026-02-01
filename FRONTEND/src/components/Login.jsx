@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import API_BASE_URL from '../config/api';
 import {
   Box,
   Button,
@@ -52,7 +53,7 @@ const Login = () => {
     }
 
     axios
-      .post('http://localhost:3000/api/', input)
+      .post(`${API_BASE_URL}/api/`, input)
       .then((response) => {
         console.log("Login Response:", response.data);
         const { token, user, message } = response.data;

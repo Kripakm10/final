@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, Paper, Button, Avatar, Stack , Grid, Chip, Alert } from '@mui/material';
 import Navbar from './Navbar';
+import API_BASE_URL from '../config/api';
 import { useNavigate } from 'react-router-dom';
 import ReportNotCollectedModal from './ReportNotCollectedModal';
 import ReportNotResolvedModal from './ReportNotResolvedModal';
@@ -61,9 +62,9 @@ const UserDashboard = () => {
       const headers = authHeaders(token);
 
       const [w, wa, g] = await Promise.all([
-        fetch('http://localhost:3000/api/waste/mine', { headers }),
-        fetch('http://localhost:3000/api/water/mine', { headers }),
-        fetch('http://localhost:3000/api/grievance/mine', { headers }),
+        fetch(`${API_BASE_URL}/api/waste/mine`, { headers }),
+        fetch(`${API_BASE_URL}/api/water/mine`, { headers }),
+        fetch(`${API_BASE_URL}/api/grievance/mine`, { headers }),
       ]);
 
       if (w.ok) {

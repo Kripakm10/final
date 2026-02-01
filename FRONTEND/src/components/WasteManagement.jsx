@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from 'axios';
+import API_BASE_URL from '../config/api';
 import {
   Box,
   Typography,
@@ -59,7 +60,7 @@ const WasteManagement = () => {
 
     try {
       setLoading(true);
-      const resp = await axios.post('http://localhost:3000/api/waste', formData);
+      const resp = await axios.post(`${API_BASE_URL}/api/waste`, formData);
       setSuccess(resp.data?.message || 'Request submitted');
       setFormData({ name: "", address: "", contact: "", wasteType: "" });
     } catch (err) {

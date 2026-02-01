@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from 'axios';
+import API_BASE_URL from '../config/api';
 import {
   Box,
   Typography,
@@ -36,7 +37,7 @@ const WaterManagement = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-      const resp = await axios.post('http://localhost:3000/api/water', formData, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+      const resp = await axios.post(`${API_BASE_URL}/api/water`, formData, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
       setSuccess(resp.data?.message || 'Request submitted');
       setFormData({ name: "", email: "", phone: "", address: "", issueType: "", description: "" });
     } catch (err) {

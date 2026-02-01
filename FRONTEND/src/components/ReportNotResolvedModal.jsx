@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import API_BASE_URL from '../config/api';
 import {
   Dialog,
   DialogTitle,
@@ -38,7 +39,7 @@ const ReportNotResolvedModal = ({ open, onClose, item, onReport }) => {
         'Content-Type': 'application/json'
       };
 
-      const response = await fetch(`http://localhost:3000/api/water/${item._id}/report`, {
+      const response = await fetch(`${API_BASE_URL}/api/water/${item._id}/report`, {
         method: 'POST',
         headers,
         body: JSON.stringify({ reason })

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, Paper, Button, Grid } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import API_BASE_URL from '../config/api';
 
 const UserRegistrations = () => {
   const [items, setItems] = useState([]);
@@ -16,7 +17,7 @@ const UserRegistrations = () => {
     const fetchMine = async () => {
       setLoading(true);
       try {
-        const res = await fetch('http://localhost:3000/api/registrations/mine', { headers: headers() });
+        const res = await fetch(`${API_BASE_URL}/api/registrations/mine`, { headers: headers() });
         if (res.status === 401 || res.status === 403) {
           sessionStorage.clear();
           navigate('/login');

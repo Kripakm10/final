@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import API_BASE_URL from '../config/api';
 import {
   Box,
   Button,
@@ -89,7 +90,7 @@ const Registration = () => {
 
     try {
       setLoading(true);
-      const res = await axios.post('http://localhost:3000/api/registrations', formData);
+      const res = await axios.post(`${API_BASE_URL}/api/registrations`, formData);
       setSuccess(res.data?.message || 'Registration submitted');
       setFormData({ firstName: "", lastName: "", email: "", phone: "", address1: "", address2: "", city: "", district: "", zip: "", department: "", subOption: "" });
     } catch (err) {

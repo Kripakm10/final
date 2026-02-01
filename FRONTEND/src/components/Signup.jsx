@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import API_BASE_URL from '../config/api';
 import {
   Box,
   Button,
@@ -61,7 +62,7 @@ const Signup = () => {
     if (!agree) return setErrorMessage('You must agree to the terms');
 
     axios
-      .post('http://localhost:3000/api/s', {
+      .post(`${API_BASE_URL}/api/s`, {
         fullName: input.fullName,
         email: input.email,
         password: input.password,
