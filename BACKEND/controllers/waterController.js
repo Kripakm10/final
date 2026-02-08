@@ -6,7 +6,9 @@ const createWater = async (req, res) => {
   try {
     const { name, email, phone, address, issueType, description, lat, lng } = req.body;
     const submittedBy = req.user?.id;
-    const payload = { name, email, phone, address, issueType, description, submittedBy };
+    // Generate 4-digit PIN
+    const verificationPin = Math.floor(1000 + Math.random() * 9000).toString();
+    const payload = { name, email, phone, address, issueType, description, submittedBy, verificationPin };
     if (typeof lat === 'number' && typeof lng === 'number') payload.location = { lat, lng };
     const doc = new WaterRequest(payload);
     await doc.save();
@@ -138,4 +140,81 @@ const reportNotResolved = async (req, res) => {
   }
 };
 
-module.exports = { createWater, listWater, listMine, updateWater, deleteWater, scheduleWater, reportNotResolved };
+// Assign water request to a worker (Admin only)
+const assignWater = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { workerId } = req.body;
+    
+    if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({ message: 'Invalid request id' });
+    if (!workerId) return res.status(400).json({ message: 'Worker ID is required' });
+
+    const doc = await WaterRequest.findByIdAndUpdate(
+      id, 
+      { assignedTo: workerId, status: 'scheduled' }, // Auto-schedule
+      { new: true }
+    ).populate('assignedTo', 'fullName email phone');
+
+    if (!doc) return res.status(404).json({ message: 'Request not found' });
+    
+    createLog({ action: 'assign', entityType: 'water', entityId: doc._id, message: `Assigned to worker ${workerId}`, createdBy: req.user?.id });
+
+    return res.status(200).json({ message: 'Assigned successfully', request: doc });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Worker verifies and closes the request
+const verifyWater = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { pin } = req.body;
+
+    if (!pin) return res.status(400).json({ message: 'PIN is required' });
+    
+    const doc = await WaterRequest.findById(id);
+    if (!doc) return res.status(404).json({ message: 'Request not found' });
+
+    if (doc.verificationPin !== pin) {
+      return res.status(400).json({ message: 'Invalid PIN. Please ask the citizen for the correct code.' });
+    }
+
+    doc.status = 'Resolved';
+    doc.completionDate = new Date();
+    await doc.save();
+
+    createLog({ action: 'complete', entityType: 'water', entityId: doc._id, message: `Request resolved with PIN`, createdBy: req.user?.id });
+
+    return res.status(200).json({ message: 'Request resolved successfully', request: doc });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// List tasks assigned to the current worker
+const listAssignedWater = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const items = await WaterRequest.find({ assignedTo: userId }).sort({ createdAt: -1 });
+    return res.status(200).json(items);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+module.exports = { 
+  createWater, 
+  listWater, 
+  listMine, 
+  updateWater, 
+  deleteWater, 
+  scheduleWater, 
+  reportNotResolved,
+  assignWater,
+  verifyWater,
+  listAssignedWater
+};

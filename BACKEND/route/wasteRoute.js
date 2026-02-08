@@ -54,6 +54,12 @@ router.post('/:id/schedule', adminOnly, wasteController.scheduleWaste);
 router.post('/:id/report', auth, wasteController.reportNotCollected);
 
 // delete (admin)
+// delete (admin)
 router.delete('/:id', adminOnly, wasteController.deleteWaste);
+
+// Worker / Assignment Routes
+router.get('/assigned', auth, wasteController.listAssignedWaste); // Worker sees their tasks
+router.post('/:id/assign', adminOnly, wasteController.assignWaste); // Admin assigns
+router.post('/:id/verify', auth, wasteController.verifyWaste); // Worker verifies
 
 module.exports = router;

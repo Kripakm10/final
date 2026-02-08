@@ -9,7 +9,10 @@ const waterSchema = new Schema(
     address: { type: String, required: true, trim: true },
     issueType: { type: String, enum: ['leak', 'supply', 'quality', 'other'], default: 'other' },
     description: { type: String, trim: true },
-    status: { type: String, enum: ['pending', 'in-progress', 'resolved', 'scheduled', 'not-resolved'], default: 'pending' },
+    status: { type: String, enum: ['pending', 'in-progress', 'resolved', 'scheduled', 'not-resolved', 'Resolved'], default: 'pending' },
+    assignedTo: { type: Schema.Types.ObjectId, ref: 'User' },
+    verificationPin: { type: String },
+    completionDate: { type: Date },
     submittedBy: { type: Schema.Types.ObjectId, ref: 'User' },
     // optional geo location
     location: {

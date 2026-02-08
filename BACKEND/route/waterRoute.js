@@ -49,4 +49,9 @@ router.post('/:id/report', auth, waterController.reportNotResolved);
 // delete (admin)
 router.delete('/:id', adminOnly, waterController.deleteWater);
 
+// Worker / Assignment Routes
+router.get('/assigned', auth, waterController.listAssignedWater); // Worker sees their tasks
+router.post('/:id/assign', adminOnly, waterController.assignWater); // Admin assigns
+router.post('/:id/verify', auth, waterController.verifyWater); // Worker verifies
+
 module.exports = router;

@@ -55,4 +55,8 @@ router.get('/users/:id', auth, param('id').isMongoId(), userController.getUser);
 router.put('/users/:id', auth, param('id').isMongoId(), userController.updateUser);
 router.delete('/users/:id', auth, param('id').isMongoId(), userController.deleteUser);
 
+// Worker Management
+router.get('/workers', adminOnly, userController.listWorkers);
+router.patch('/workers/:id/verify', adminOnly, userController.verifyWorker);
+
 module.exports = router;

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import API_BASE_URL from '../config/api';
+import React, { useState } from "react";
+import axios from "axios";
+import API_BASE_URL from "../config/api";
 import {
   Box,
   Button,
@@ -14,34 +14,42 @@ import {
   Checkbox,
   IconButton,
   InputAdornment,
-} from '@mui/material';
-import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+} from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 
 // 🌈 Aesthetic Theme
 const theme = createTheme({
   palette: {
-    mode: 'light',
+    mode: "light",
     primary: {
-      main: '#009688', // Teal
+      main: "#009688", // Teal
     },
     secondary: {
-      main: '#ff7043', // Coral
+      main: "#ff7043", // Coral
     },
     background: {
-      default: '#f0f4f8',
+      default: "#f0f4f8",
     },
   },
   typography: {
-    fontFamily: 'Roboto, sans-serif',
+    fontFamily: "Roboto, sans-serif",
   },
 });
 
 const Signup = () => {
-  const [input, setInput] = useState({ fullName: '', email: '', password: '', confirmPassword: '', phone: '', city: '' });
-  const [successMessage, setSuccessMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [input, setInput] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    phone: "",
+    city: "",
+  });
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const [agree, setAgree] = useState(false);
+  const [isWorker, setIsWorker] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
@@ -52,14 +60,18 @@ const Signup = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setErrorMessage('');
-    setSuccessMessage('');
+    setErrorMessage("");
+    setSuccessMessage("");
 
-    if (!input.fullName || input.fullName.length < 2) return setErrorMessage('Full name is required');
-    if (!input.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email)) return setErrorMessage('Valid email is required');
-    if (!input.password || input.password.length < 6) return setErrorMessage('Password must be at least 6 characters');
-    if (input.password !== input.confirmPassword) return setErrorMessage('Passwords do not match');
-    if (!agree) return setErrorMessage('You must agree to the terms');
+    if (!input.fullName || input.fullName.length < 2)
+      return setErrorMessage("Full name is required");
+    if (!input.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email))
+      return setErrorMessage("Valid email is required");
+    if (!input.password || input.password.length < 6)
+      return setErrorMessage("Password must be at least 6 characters");
+    if (input.password !== input.confirmPassword)
+      return setErrorMessage("Passwords do not match");
+    if (!agree) return setErrorMessage("You must agree to the terms");
 
     axios
       .post(`${API_BASE_URL}/api/s`, {
@@ -68,34 +80,38 @@ const Signup = () => {
         password: input.password,
         phone: input.phone,
         city: input.city,
+        role: isWorker ? "worker" : "user",
       })
       .then((response) => {
         // --- LOGIC CORRECTION ---
         // 1. Handle Flat Data
         const data = response.data;
-        const user = data; 
-        const token = data.token; 
+        const user = data;
+        const token = data.token;
 
         // 2. FIX: Save to sessionStorage (so Dashboard can find it immediately)
-        if (token) sessionStorage.setItem('token', token);
-        if (user) sessionStorage.setItem('user', JSON.stringify(user));
+        if (token) sessionStorage.setItem("token", token);
+        if (user) sessionStorage.setItem("user", JSON.stringify(user));
 
-        setSuccessMessage('Signup successful!');
-        setErrorMessage('');
-        
+        setSuccessMessage("Signup successful!");
+        setErrorMessage("");
+
         setTimeout(() => {
           // Check role directly from the flat data object
-          navigate(user?.role === 'admin' ? '/admin' : '/user');
+          if (user?.role === "admin") navigate("/admin");
+          else if (user?.role === "worker") navigate("/worker");
+          else navigate("/user");
         }, 700);
       })
       .catch((error) => {
-        console.error('Signup error:', error, error?.response?.data);
+        console.error("Signup error:", error, error?.response?.data);
         const msg =
           error?.response?.data?.message ||
-          (error?.response?.data?.errors && error.response.data.errors[0]?.msg) ||
-          'Signup failed. Please try again.';
+          (error?.response?.data?.errors &&
+            error.response.data.errors[0]?.msg) ||
+          "Signup failed. Please try again.";
         setErrorMessage(msg);
-        setSuccessMessage('');
+        setSuccessMessage("");
       });
   };
 
@@ -105,22 +121,22 @@ const Signup = () => {
       <Box
         sx={{
           backgroundImage: `url('https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1950&q=80')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
           padding: 2,
         }}
       >
         <Box
           sx={{
-            width: '100%',
+            width: "100%",
             maxWidth: 480,
-            bgcolor: 'rgba(255, 255, 255, 0.98)',
+            bgcolor: "rgba(255, 255, 255, 0.98)",
             borderRadius: 4,
-            boxShadow: '0 10px 30px rgba(0,0,0,0.12)',
+            boxShadow: "0 10px 30px rgba(0,0,0,0.12)",
             padding: 4,
           }}
         >
@@ -128,13 +144,33 @@ const Signup = () => {
             Create an account
           </Typography>
 
-          <Typography variant="subtitle1" align="center" sx={{ color: 'text.secondary', mb: 3 }}>
+          <Typography
+            variant="subtitle1"
+            align="center"
+            sx={{ color: "text.secondary", mb: 3 }}
+          >
             Get started with Smart City services
           </Typography>
 
           <form onSubmit={handleSubmit}>
-            <TextField fullWidth label="Full Name" variant="outlined" margin="normal" name="fullName" value={input.fullName} onChange={inputHandler} />
-            <TextField fullWidth label="Email" variant="outlined" margin="normal" name="email" value={input.email} onChange={inputHandler} />
+            <TextField
+              fullWidth
+              label="Full Name"
+              variant="outlined"
+              margin="normal"
+              name="fullName"
+              value={input.fullName}
+              onChange={inputHandler}
+            />
+            <TextField
+              fullWidth
+              label="Email"
+              variant="outlined"
+              margin="normal"
+              name="email"
+              value={input.email}
+              onChange={inputHandler}
+            />
 
             <TextField
               fullWidth
@@ -143,12 +179,16 @@ const Signup = () => {
               margin="normal"
               name="password"
               value={input.password}
-              type={showPassword ? 'text' : 'password'}
+              type={showPassword ? "text" : "password"}
               onChange={inputHandler}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
-                    <IconButton aria-label="toggle password visibility" onClick={() => setShowPassword((s) => !s)} edge="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={() => setShowPassword((s) => !s)}
+                      edge="end"
+                    >
                       {showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
                   </InputAdornment>
@@ -156,34 +196,110 @@ const Signup = () => {
               }}
             />
 
-            <TextField fullWidth label="Confirm Password" variant="outlined" margin="normal" name="confirmPassword" value={input.confirmPassword} type={showPassword ? 'text' : 'password'} onChange={inputHandler} />
+            <TextField
+              fullWidth
+              label="Confirm Password"
+              variant="outlined"
+              margin="normal"
+              name="confirmPassword"
+              value={input.confirmPassword}
+              type={showPassword ? "text" : "password"}
+              onChange={inputHandler}
+            />
 
-            <TextField fullWidth label="Phone (optional)" variant="outlined" margin="normal" name="phone" value={input.phone} onChange={inputHandler} />
-            <TextField fullWidth label="City (optional)" variant="outlined" margin="normal" name="city" value={input.city} onChange={inputHandler} />
+            <TextField
+              fullWidth
+              label="Phone (optional)"
+              variant="outlined"
+              margin="normal"
+              name="phone"
+              value={input.phone}
+              onChange={inputHandler}
+            />
+            <TextField
+              fullWidth
+              label="City (optional)"
+              variant="outlined"
+              margin="normal"
+              name="city"
+              value={input.city}
+              onChange={inputHandler}
+            />
 
-            <FormControlLabel control={<Checkbox checked={agree} onChange={(e) => setAgree(e.target.checked)} />} label={<Typography variant="body2">I agree to the <Link href="#">terms</Link> and privacy policy</Typography>} />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={isWorker}
+                  onChange={(e) => setIsWorker(e.target.checked)}
+                />
+              }
+              label={
+                <Typography variant="body2" color="primary" fontWeight="bold">
+                  Sign up as Field Worker
+                </Typography>
+              }
+            />
 
-            <Button fullWidth variant="contained" color="primary" type="submit" sx={{ mt: 2, py: 1.1 }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={agree}
+                  onChange={(e) => setAgree(e.target.checked)}
+                />
+              }
+              label={
+                <Typography variant="body2">
+                  I agree to the <Link href="#">terms</Link> and privacy policy
+                </Typography>
+              }
+            />
+
+            <Button
+              fullWidth
+              variant="contained"
+              color="primary"
+              type="submit"
+              sx={{ mt: 2, py: 1.1 }}
+            >
               Sign up
             </Button>
           </form>
 
           {successMessage && (
-            <Typography variant="body1" align="center" color="success.main" sx={{ mt: 2 }}>
+            <Typography
+              variant="body1"
+              align="center"
+              color="success.main"
+              sx={{ mt: 2 }}
+            >
               {successMessage}
             </Typography>
           )}
           {errorMessage && (
-            <Typography variant="body1" align="center" color="error.main" sx={{ mt: 2 }}>
+            <Typography
+              variant="body1"
+              align="center"
+              color="error.main"
+              sx={{ mt: 2 }}
+            >
               {errorMessage}
             </Typography>
           )}
 
-          <Typography variant="body2" align="center" sx={{ mt: 3, color: 'text.secondary' }}>
-            Already have an account?{' '}
-            <Link component={RouterLink} to="/login" underline="hover" color="secondary">
+          <Typography
+            variant="body2"
+            align="center"
+            sx={{ mt: 3, color: "text.secondary" }}
+          >
+            Already have an account?{" "}
+            <Link
+              component={RouterLink}
+              to="/login"
+              underline="hover"
+              color="secondary"
+            >
               Sign in
-            </Link> 
+            </Link>
           </Typography>
         </Box>
       </Box>

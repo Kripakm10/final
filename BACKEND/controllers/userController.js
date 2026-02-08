@@ -6,12 +6,23 @@ const { createLog } = require('./logController');
 
 const signup = async (req, res) => {
   try {
-    const { fullName, email, password, phone, city } = req.body;
+    const { fullName, email, password, phone, city, role } = req.body;
     const existing = await User.findOne({ email });
     if (existing) return res.status(409).json({ message: 'Email already registered' });
 
     const hashed = await bcrypt.hash(password, 10);
-    const user = new User({ fullName, email, password: hashed, phone, city });
+    
+    // Determine status based on role
+    let status = 'active';
+    let userRole = 'user';
+    if (role === 'worker') {
+      userRole = 'worker';
+      status = 'pending';
+    } else if (role === 'admin') {
+      userRole = 'admin'; 
+    }
+
+    const user = new User({ fullName, email, password: hashed, phone, city, role: userRole, status });
     await user.save();
 
     // Auto-login: create JWT token
@@ -145,6 +156,28 @@ const deleteUser = async (req, res) => {
   }
 };
 
+const listWorkers = async (req, res) => {
+  try {
+    const workers = await User.find({ role: 'worker' }).select('-password');
+    return res.status(200).json(workers);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+const verifyWorker = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const user = await User.findByIdAndUpdate(id, { status: 'active' }, { new: true }).select('-password');
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    return res.status(200).json({ message: 'Worker approved', user });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
 module.exports = {
   signup,
   login,
@@ -153,4 +186,6 @@ module.exports = {
   getUser,
   updateUser,
   deleteUser,
+  listWorkers,
+  verifyWorker,
 };

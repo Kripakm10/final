@@ -7,7 +7,9 @@ const createWaste = async (req, res) => {
   try {
     const { name, address, contact, wasteType, lat, lng } = req.body;
     const submittedBy = req.user?.id;
-    const payload = { name, address, contact, wasteType, submittedBy };
+    // Generate 4-digit PIN
+    const verificationPin = Math.floor(1000 + Math.random() * 9000).toString();
+    const payload = { name, address, contact, wasteType, submittedBy, verificationPin };
     if (typeof lat === 'number' && typeof lng === 'number') payload.location = { lat, lng };
     const doc = new WasteRequest(payload);
     await doc.save();
@@ -143,4 +145,84 @@ const reportNotCollected = async (req, res) => {
   }
 };
 
-module.exports = { createWaste, listWastes, listMine, updateWaste, deleteWaste, scheduleWaste, reportNotCollected };
+// Assign waste request to a worker (Admin only)
+const assignWaste = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { workerId } = req.body;
+    
+    if (!mongoose.Types.ObjectId.isValid(id)) return res.status(400).json({ message: 'Invalid request id' });
+    if (!workerId) return res.status(400).json({ message: 'Worker ID is required' });
+
+    const doc = await WasteRequest.findByIdAndUpdate(
+      id, 
+      { assignedTo: workerId, status: 'scheduled' }, // Auto-schedule on assignment? Or keep pending? Let's say scheduled.
+      { new: true }
+    ).populate('assignedTo', 'fullName email phone');
+
+    if (!doc) return res.status(404).json({ message: 'Request not found' });
+    
+    createLog({ action: 'assign', entityType: 'waste', entityId: doc._id, message: `Assigned to worker ${workerId}`, createdBy: req.user?.id });
+
+    return res.status(200).json({ message: 'Assigned successfully', request: doc });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// Worker verifies and closes the request
+const verifyWaste = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { pin } = req.body;
+
+    if (!pin) return res.status(400).json({ message: 'PIN is required' });
+    
+    const doc = await WasteRequest.findById(id);
+    if (!doc) return res.status(404).json({ message: 'Request not found' });
+
+    if (doc.verificationPin !== pin) {
+      return res.status(400).json({ message: 'Invalid PIN. Please ask the citizen for the correct code.' });
+    }
+
+    doc.status = 'Resolved';
+    doc.completionDate = new Date();
+    await doc.save();
+
+    createLog({ action: 'complete', entityType: 'waste', entityId: doc._id, message: `Request resolved with PIN`, createdBy: req.user?.id });
+
+    return res.status(200).json({ message: 'Request resolved successfully', request: doc });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// List tasks assigned to the current worker
+const listAssignedWaste = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    // Filter by assignedTo AND status not resolved? Or all? Usually "My Tasks" implies active ones.
+    // Brief says "My Tasks" view. Let's return all assigned, frontend can filter or we filter here.
+    // Let's return active ones primarily, or all sorted by date.
+    const items = await WasteRequest.find({ assignedTo: userId }).sort({ submittedAt: -1 });
+    return res.status(200).json(items);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
+module.exports = { 
+  createWaste, 
+  listWastes, 
+  listMine, 
+  updateWaste, 
+  deleteWaste, 
+  scheduleWaste, 
+  reportNotCollected,
+  assignWaste,
+  verifyWaste,
+  listAssignedWaste
+};

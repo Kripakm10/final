@@ -1,10 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Typography, Paper, Button, Avatar, Stack , Grid, Chip, Alert } from '@mui/material';
-import Navbar from './Navbar';
-import API_BASE_URL from '../config/api';
-import { useNavigate } from 'react-router-dom';
-import ReportNotCollectedModal from './ReportNotCollectedModal';
-import ReportNotResolvedModal from './ReportNotResolvedModal';
+import React, { useEffect, useState } from "react";
+import {
+  Box,
+  Typography,
+  Paper,
+  Button,
+  Avatar,
+  Stack,
+  Grid,
+  Chip,
+  Alert,
+} from "@mui/material";
+import Navbar from "./Navbar";
+import API_BASE_URL from "../config/api";
+import { useNavigate } from "react-router-dom";
+import ReportNotCollectedModal from "./ReportNotCollectedModal";
+import ReportNotResolvedModal from "./ReportNotResolvedModal";
 
 const UserDashboard = () => {
   const [user, setUser] = useState(null);
@@ -18,19 +28,20 @@ const UserDashboard = () => {
   const [selectedWater, setSelectedWater] = useState(null);
 
   const statusColor = (s) => {
-    if (!s) return 'red';
+    if (!s) return "red";
     const st = String(s).toLowerCase();
-    if (st === 'collected' || st === 'resolved' || st === 'approved') return 'green';
-    if (st === 'pending' || st === 'open' || st === 'rejected') return 'red';
-    if (st === 'in-progress' || st === 'in progress') return 'orange';
-    return 'inherit';
+    if (st === "collected" || st === "resolved" || st === "approved")
+      return "green";
+    if (st === "pending" || st === "open" || st === "rejected") return "red";
+    if (st === "in-progress" || st === "in progress") return "orange";
+    return "inherit";
   };
-  
+
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUser = sessionStorage.getItem('user');
-    const storedToken = sessionStorage.getItem('token');
+    const storedUser = sessionStorage.getItem("user");
+    const storedToken = sessionStorage.getItem("token");
 
     console.log("Session Storage User:", storedUser); // Debugging
 
@@ -39,20 +50,20 @@ const UserDashboard = () => {
         const parsedUser = JSON.parse(storedUser);
         setUser(parsedUser);
         if (storedToken) {
-            fetchMine(storedToken);
+          fetchMine(storedToken);
         }
       } catch (err) {
         console.error("Error parsing user data:", err);
       }
     } else {
-        navigate('/login');
+      navigate("/login");
     }
   }, []);
 
   const authHeaders = (token) => {
-    return { 
-        'Authorization': `Bearer ${token}`, 
-        'Content-Type': 'application/json' 
+    return {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
     };
   };
 
@@ -80,42 +91,54 @@ const UserDashboard = () => {
         setGrievances(grievanceData);
       }
     } catch (err) {
-      console.error('fetch mine error', err);
+      console.error("fetch mine error", err);
     } finally {
       setLoading(false);
     }
   };
 
   const handleLogout = () => {
-    sessionStorage.clear(); 
+    sessionStorage.clear();
     setUser(null);
-    navigate('/login'); 
+    navigate("/login");
   };
 
   return (
     <Box>
       <Navbar />
       <Box sx={{ p: 4, mt: 8 }}>
-        <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-            <Typography variant="h4" color="primary">My Dashboard</Typography>
-            {user && (
-                <Button variant="outlined" color="error" onClick={handleLogout}>
-                    Logout
-                </Button>
-            )}
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignItems="center"
+          sx={{ mb: 3 }}
+        >
+          <Typography variant="h4" color="primary">
+            My Dashboard
+          </Typography>
+          {user && (
+            <Button variant="outlined" color="error" onClick={handleLogout}>
+              Logout
+            </Button>
+          )}
         </Stack>
 
         {user ? (
-          <Paper sx={{ p: 3, mb: 4, bgcolor: '#F6F7FA' }}>
+          <Paper sx={{ p: 3, mb: 4, bgcolor: "#F6F7FA" }}>
             <Stack direction="row" spacing={2} alignItems="center">
-              <Avatar sx={{ bgcolor: '#0a4572ff', width: 56, height: 56 }}>
-                {(user.fullName || user.email || 'U')[0].toUpperCase()}
+              <Avatar sx={{ bgcolor: "#0a4572ff", width: 56, height: 56 }}>
+                {(user.fullName || user.email || "U")[0].toUpperCase()}
               </Avatar>
               <Box>
                 <Typography variant="h5">{user.fullName}</Typography>
-                <Typography variant="body1" color="text.secondary">{user.email}</Typography>
-                <Typography variant="caption" sx={{ textTransform: 'uppercase', fontWeight: 'bold' }}>
-                    {user.role || 'User'}
+                <Typography variant="body1" color="text.secondary">
+                  {user.email}
+                </Typography>
+                <Typography
+                  variant="caption"
+                  sx={{ textTransform: "uppercase", fontWeight: "bold" }}
+                >
+                  {user.role || "User"}
                 </Typography>
               </Box>
             </Stack>
@@ -127,163 +150,333 @@ const UserDashboard = () => {
         )}
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 6 }}>
-            <Paper sx={{ p: 2, height: '100%' }}>
-              <Typography variant="h6" sx={{ mb: 2, borderBottom: '2px solid #7AA2C1', display:'inline-block' }}>
+            <Paper sx={{ p: 2, height: "100%" }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  mb: 2,
+                  borderBottom: "2px solid #7AA2C1",
+                  display: "inline-block",
+                }}
+              >
                 My Waste Requests
               </Typography>
-              {wastes.length ? wastes.map((w, i) => {
-                const isScheduled = w.status === 'scheduled' && w.scheduledTime;
-                const scheduledDate = isScheduled ? new Date(w.scheduledTime) : null;
-                const isPast = scheduledDate && new Date() > scheduledDate;
-                const canReport = isPast && (w.status === 'scheduled' || w.status === 'not-collected');
-                
-                return (
-                  <Paper key={w._id || i} variant="outlined" sx={{ p: 2, mb: 2, bgcolor: '#fafafaff' }}>
-                    <Typography variant="subtitle1" fontWeight="bold">{w.wasteType || 'Waste Collection'}</Typography>
-                    <Typography variant="body2">{w.address}</Typography>
-                    
-                    {isScheduled && (
-                      <Box sx={{ mt: 1, p: 1, bgcolor: '#e3f2fd', borderRadius: 1 }}>
-                        <Typography variant="caption" sx={{ fontWeight: 'bold', color: '#1976d2' }}>
-                          📅 Scheduled: {scheduledDate.toLocaleString()}
-                        </Typography>
-                      </Box>
-                    )}
-                    
-                    {w.reports && w.reports.length > 0 && (
-                      <Alert severity="warning" sx={{ mt: 1, py: 0.5 }}>
-                        {w.reports.length} report(s) submitted - Status: {w.status}
-                      </Alert>
-                    )}
-                    
-                    <Stack direction="row" spacing={1} sx={{ mt: 1, alignItems: 'center' }}>
-                      <Chip 
-                        label={w.status || 'Pending'} 
-                        size="small"
-                        color={w.status === 'collected' ? 'success' : w.status === 'not-collected' ? 'error' : 'default'}
-                        variant="outlined"
-                      />
-                      {canReport && (
-                        <Button 
-                          size="small" 
-                          color="error"
-                          variant="outlined"
-                          onClick={() => {
-                            setSelectedWaste(w);
-                            setReportModalOpen(true);
+              {wastes.length ? (
+                wastes.map((w, i) => {
+                  const isScheduled =
+                    w.status === "scheduled" && w.scheduledTime;
+                  const scheduledDate = isScheduled
+                    ? new Date(w.scheduledTime)
+                    : null;
+                  const isPast = scheduledDate && new Date() > scheduledDate;
+                  const canReport =
+                    isPast &&
+                    (w.status === "scheduled" || w.status === "not-collected");
+
+                  return (
+                    <Paper
+                      key={w._id || i}
+                      variant="outlined"
+                      sx={{ p: 2, mb: 2, bgcolor: "#fafafaff" }}
+                    >
+                      <Typography variant="subtitle1" fontWeight="bold">
+                        {w.wasteType || "Waste Collection"}
+                      </Typography>
+                      <Typography variant="body2">{w.address}</Typography>
+
+                      {(isScheduled ||
+                        (w.assignedTo && w.status !== "collected")) && (
+                        <Box
+                          sx={{
+                            mt: 1,
+                            p: 1,
+                            bgcolor: "#e3f2fd",
+                            borderRadius: 1,
                           }}
                         >
-                          Report Not Collected
-                        </Button>
+                          {isScheduled && (
+                            <Typography
+                              variant="caption"
+                              sx={{ fontWeight: "bold", color: "#1976d2" }}
+                            >
+                              📅 Scheduled: {scheduledDate.toLocaleString()}
+                            </Typography>
+                          )}
+                          {w.verificationPin &&
+                            w.status !== "Resolved" &&
+                            w.status !== "collected" && (
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  fontWeight: "bold",
+                                  color: "#d32f2f",
+                                  mt: 0.5,
+                                  display: "block",
+                                }}
+                              >
+                                🔐 Verification PIN: {w.verificationPin}
+                              </Typography>
+                            )}
+                        </Box>
                       )}
-                    </Stack>
-                  </Paper>
-                );
-              }) : <Typography color="text.secondary">No waste requests yet.</Typography>}
+
+                      {w.reports && w.reports.length > 0 && (
+                        <Alert severity="warning" sx={{ mt: 1, py: 0.5 }}>
+                          {w.reports.length} report(s) submitted - Status:{" "}
+                          {w.status}
+                        </Alert>
+                      )}
+
+                      <Stack
+                        direction="row"
+                        spacing={1}
+                        sx={{ mt: 1, alignItems: "center" }}
+                      >
+                        <Chip
+                          label={w.status || "Pending"}
+                          size="small"
+                          color={
+                            w.status === "collected"
+                              ? "success"
+                              : w.status === "not-collected"
+                                ? "error"
+                                : "default"
+                          }
+                          variant="outlined"
+                        />
+                        {canReport && (
+                          <Button
+                            size="small"
+                            color="error"
+                            variant="outlined"
+                            onClick={() => {
+                              setSelectedWaste(w);
+                              setReportModalOpen(true);
+                            }}
+                          >
+                            Report Not Collected
+                          </Button>
+                        )}
+                      </Stack>
+                    </Paper>
+                  );
+                })
+              ) : (
+                <Typography color="text.secondary">
+                  No waste requests yet.
+                </Typography>
+              )}
             </Paper>
           </Grid>
 
-          <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 2, height: '100%' }}>
-              <Typography variant="h6" sx={{ mb: 2, borderBottom: '2px solid #467ce0ff', display:'inline-block' }}>
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Paper sx={{ p: 2, height: "100%" }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  mb: 2,
+                  borderBottom: "2px solid #467ce0ff",
+                  display: "inline-block",
+                }}
+              >
                 My Water Reports
               </Typography>
-              {waters.length ? waters.map((w, i) => {
-                const isScheduled = w.status === 'scheduled' && w.scheduledTime;
-                const scheduledDate = isScheduled ? new Date(w.scheduledTime) : null;
-                const isPast = scheduledDate && new Date() > scheduledDate;
-                const canReport = isPast && (w.status === 'scheduled' || w.status === 'not-resolved');
-                
-                return (
-                  <Paper key={w._id || i} variant="outlined" sx={{ p: 2, mb: 2, bgcolor: '#fafafa' }}>
-                    <Typography variant="subtitle1" fontWeight="bold">{w.issueType || 'Water Issue'}</Typography>
-                    <Typography variant="body2">{w.address}</Typography>
-                    {w.location && w.location.lat && (
-                      <Typography variant="caption" color="text.secondary" display="block">Location: {w.location.lat.toFixed(5)}, {w.location.lng.toFixed(5)}</Typography>
-                    )}
-                    
-                    {isScheduled && (
-                      <Box sx={{ mt: 1, p: 1, bgcolor: '#e3f2fd', borderRadius: 1 }}>
-                        <Typography variant="caption" sx={{ fontWeight: 'bold', color: '#1976d2' }}>
-                          📅 Scheduled: {scheduledDate.toLocaleString()}
+              {waters.length ? (
+                waters.map((w, i) => {
+                  const isScheduled =
+                    w.status === "scheduled" && w.scheduledTime;
+                  const scheduledDate = isScheduled
+                    ? new Date(w.scheduledTime)
+                    : null;
+                  const isPast = scheduledDate && new Date() > scheduledDate;
+                  const canReport =
+                    isPast &&
+                    (w.status === "scheduled" || w.status === "not-resolved");
+
+                  return (
+                    <Paper
+                      key={w._id || i}
+                      variant="outlined"
+                      sx={{ p: 2, mb: 2, bgcolor: "#fafafa" }}
+                    >
+                      <Typography variant="subtitle1" fontWeight="bold">
+                        {w.issueType || "Water Issue"}
+                      </Typography>
+                      <Typography variant="body2">{w.address}</Typography>
+                      {w.location && w.location.lat && (
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          display="block"
+                        >
+                          Location: {w.location.lat.toFixed(5)},{" "}
+                          {w.location.lng.toFixed(5)}
                         </Typography>
-                      </Box>
-                    )}
-                    
-                    {w.reports && w.reports.length > 0 && (
-                      <Alert severity="warning" sx={{ mt: 1, py: 0.5 }}>
-                        {w.reports.length} report(s) submitted - Status: {w.status}
-                      </Alert>
-                    )}
-                    
-                    <Stack direction="row" spacing={1} sx={{ mt: 1, alignItems: 'center' }}>
-                      <Chip 
-                        label={w.status || 'Pending'} 
-                        size="small"
-                        color={w.status === 'resolved' ? 'success' : w.status === 'not-resolved' ? 'error' : 'default'}
-                        variant="outlined"
-                      />
-                      {canReport && (
-                        <Button 
-                          size="small" 
-                          color="error"
-                          variant="outlined"
-                          onClick={() => {
-                            setSelectedWater(w);
-                            setReportWaterModalOpen(true);
+                      )}
+
+                      {(isScheduled ||
+                        (w.assignedTo && w.status !== "resolved")) && (
+                        <Box
+                          sx={{
+                            mt: 1,
+                            p: 1,
+                            bgcolor: "#e3f2fd",
+                            borderRadius: 1,
                           }}
                         >
-                          Report Not Resolved
-                        </Button>
+                          {isScheduled && (
+                            <Typography
+                              variant="caption"
+                              sx={{
+                                fontWeight: "bold",
+                                color: "#1976d2",
+                                display: "block",
+                              }}
+                            >
+                              📅 Scheduled: {scheduledDate.toLocaleString()}
+                            </Typography>
+                          )}
+                          {w.verificationPin &&
+                            w.status !== "Resolved" &&
+                            w.status !== "resolved" && (
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  fontWeight: "bold",
+                                  color: "#d32f2f",
+                                  mt: 0.5,
+                                  display: "block",
+                                }}
+                              >
+                                🔐 Verification PIN: {w.verificationPin}
+                              </Typography>
+                            )}
+                        </Box>
                       )}
-                    </Stack>
-                  </Paper>
-                );
-              }) : <Typography color="text.secondary">No water reports yet.</Typography>}
+
+                      {w.reports && w.reports.length > 0 && (
+                        <Alert severity="warning" sx={{ mt: 1, py: 0.5 }}>
+                          {w.reports.length} report(s) submitted - Status:{" "}
+                          {w.status}
+                        </Alert>
+                      )}
+
+                      <Stack
+                        direction="row"
+                        spacing={1}
+                        sx={{ mt: 1, alignItems: "center" }}
+                      >
+                        <Chip
+                          label={w.status || "Pending"}
+                          size="small"
+                          color={
+                            w.status === "resolved"
+                              ? "success"
+                              : w.status === "not-resolved"
+                                ? "error"
+                                : "default"
+                          }
+                          variant="outlined"
+                        />
+                        {canReport && (
+                          <Button
+                            size="small"
+                            color="error"
+                            variant="outlined"
+                            onClick={() => {
+                              setSelectedWater(w);
+                              setReportWaterModalOpen(true);
+                            }}
+                          >
+                            Report Not Resolved
+                          </Button>
+                        )}
+                      </Stack>
+                    </Paper>
+                  );
+                })
+              ) : (
+                <Typography color="text.secondary">
+                  No water reports yet.
+                </Typography>
+              )}
             </Paper>
           </Grid>
 
-          <Grid item xs={12} md={6}>
-            <Paper sx={{ p: 2, height: '100%' }}>
-              <Typography variant="h6" sx={{ mb: 2, borderBottom: '2px solid #1976d2', display:'inline-block' }}>
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Paper sx={{ p: 2, height: "100%" }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  mb: 2,
+                  borderBottom: "2px solid #1976d2",
+                  display: "inline-block",
+                }}
+              >
                 My Grievances
               </Typography>
-              {grievances.length ? grievances.map((g, i) => (
-                <Paper key={g._id || i} variant="outlined" sx={{ p: 2, mb: 2, bgcolor: '#fafafa' }}>
-                  <Typography variant="subtitle1" fontWeight="bold">{g.subject}</Typography>
-                  <Typography variant="body2">{g.description}</Typography>
-                  {g.location && g.location.lat && (
-                    <Typography variant="caption" color="text.secondary" display="block">Location: {g.location.lat.toFixed(5)}, {g.location.lng.toFixed(5)}</Typography>
-                  )}
-                  <Typography variant="caption" sx={{ color: statusColor(g.status), fontWeight:'bold', mt: 1, display: 'block' }}>
-                    Status: {g.status || 'Open'}
-                  </Typography>
-                </Paper>
-              )) : <Typography color="text.secondary">No grievances yet.</Typography>}
+              {grievances.length ? (
+                grievances.map((g, i) => (
+                  <Paper
+                    key={g._id || i}
+                    variant="outlined"
+                    sx={{ p: 2, mb: 2, bgcolor: "#fafafa" }}
+                  >
+                    <Typography variant="subtitle1" fontWeight="bold">
+                      {g.subject}
+                    </Typography>
+                    <Typography variant="body2">{g.description}</Typography>
+                    {g.location && g.location.lat && (
+                      <Typography
+                        variant="caption"
+                        color="text.secondary"
+                        display="block"
+                      >
+                        Location: {g.location.lat.toFixed(5)},{" "}
+                        {g.location.lng.toFixed(5)}
+                      </Typography>
+                    )}
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: statusColor(g.status),
+                        fontWeight: "bold",
+                        mt: 1,
+                        display: "block",
+                      }}
+                    >
+                      Status: {g.status || "Open"}
+                    </Typography>
+                  </Paper>
+                ))
+              ) : (
+                <Typography color="text.secondary">
+                  No grievances yet.
+                </Typography>
+              )}
             </Paper>
           </Grid>
         </Grid>
 
-        <ReportNotCollectedModal 
+        <ReportNotCollectedModal
           open={reportModalOpen}
           onClose={() => setReportModalOpen(false)}
           item={selectedWaste}
           onReport={() => {
-            const storedToken = sessionStorage.getItem('token');
+            const storedToken = sessionStorage.getItem("token");
             if (storedToken) fetchMine(storedToken);
           }}
         />
 
-        <ReportNotResolvedModal 
+        <ReportNotResolvedModal
           open={reportWaterModalOpen}
           onClose={() => setReportWaterModalOpen(false)}
           item={selectedWater}
           onReport={() => {
-            const storedToken = sessionStorage.getItem('token');
+            const storedToken = sessionStorage.getItem("token");
             if (storedToken) fetchMine(storedToken);
           }}
         />
-
       </Box>
     </Box>
   );

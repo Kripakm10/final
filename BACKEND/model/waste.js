@@ -7,7 +7,10 @@ const wasteSchema = new Schema(
     address: { type: String, required: true, trim: true },
     contact: { type: String, required: true, trim: true },
     wasteType: { type: String, required: true, trim: true },
-    status: { type: String, enum: ['pending', 'scheduled', 'collected', 'not-collected'], default: 'pending' },
+    status: { type: String, enum: ['pending', 'scheduled', 'collected', 'not-collected', 'Resolved'], default: 'pending' },
+    assignedTo: { type: Schema.Types.ObjectId, ref: 'User' },
+    verificationPin: { type: String },
+    completionDate: { type: Date },
     submittedBy: { type: Schema.Types.ObjectId, ref: 'User' },
     // optional geo location
     location: {

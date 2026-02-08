@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import API_BASE_URL from '../config/api';
+import API_BASE_URL from "../config/api";
 import {
   Box,
   CssBaseline,
@@ -34,11 +34,11 @@ import {
   Menu as MenuIcon,
   Close as CloseIcon,
 } from "@mui/icons-material";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
-import AdminLocations from './AdminLocations';
-import ScheduleModal from './ScheduleModal';
-import ReportDetailsModal from './ReportDetailsModal';
+import AdminLocations from "./AdminLocations";
+import ScheduleModal from "./ScheduleModal";
+import ReportDetailsModal from "./ReportDetailsModal";
 
 // 🎨 Theme
 const theme = createTheme({
@@ -55,10 +55,10 @@ const drawerWidth = 240;
 
 const AdminDashboard = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [tab, setTab] = useState('overview');
+  const [tab, setTab] = useState("overview");
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   // Data States
   const [wastes, setWastes] = useState([]);
   const [waters, setWaters] = useState([]);
@@ -67,29 +67,33 @@ const AdminDashboard = () => {
   const [logs, setLogs] = useState([]);
   const [userLogins, setUserLogins] = useState([]);
   const [users, setUsers] = useState([]);
-  const [selectedUser, setSelectedUser] = useState('all');
+  const [workers, setWorkers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState("all");
   // derived
-  const selectedUserObj = users.find(u => u._id === selectedUser) || null;
-  const selectedUserLogins = userLogins.filter(l => {
-    if (selectedUser === 'all') return true;
+  const selectedUserObj = users.find((u) => u._id === selectedUser) || null;
+  const selectedUserLogins = userLogins.filter((l) => {
+    if (selectedUser === "all") return true;
     if (l.createdBy && l.createdBy._id) return l.createdBy._id === selectedUser;
-    if (l.meta && l.meta.email && selectedUserObj) return l.meta.email === selectedUserObj.email;
+    if (l.meta && l.meta.email && selectedUserObj)
+      return l.meta.email === selectedUserObj.email;
     return false;
   });
   const lastLogin = selectedUserLogins
-    .filter(l => l.action === 'login')
+    .filter((l) => l.action === "login")
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0];
-  const failedCount = selectedUserLogins.filter(l => l.action === 'login_failed').length;
-  
+  const failedCount = selectedUserLogins.filter(
+    (l) => l.action === "login_failed",
+  ).length;
+
   // Loading & Overview States
   const [loading, setLoading] = useState(false);
-  const [overview, setOverview] = useState({ 
-    wasteCount: 0, 
-    registrationCount: 0, 
-    userCount: 0, 
-    recentWastes: [], 
-    recentRegs: [], 
-    recentLogs: [] 
+  const [overview, setOverview] = useState({
+    wasteCount: 0,
+    registrationCount: 0,
+    userCount: 0,
+    recentWastes: [],
+    recentRegs: [],
+    recentLogs: [],
   });
   const [overviewLoading, setOverviewLoading] = useState(false);
   const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
@@ -100,7 +104,7 @@ const AdminDashboard = () => {
 
   const navigate = useNavigate();
   const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
-  
+
   // Close drawer when tab changes on mobile
   const handleTabChange = (newTab) => {
     setTab(newTab);
@@ -111,32 +115,38 @@ const AdminDashboard = () => {
 
   // 🔹 Helper: Get Headers from Session Storage
   const getAuthHeaders = () => {
-    const token = sessionStorage.getItem('token') || localStorage.getItem('token');
-    return token ? { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
+    const token =
+      sessionStorage.getItem("token") || localStorage.getItem("token");
+    return token
+      ? { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
+      : { "Content-Type": "application/json" };
   };
 
   // 🔹 Helper: Handle Unauthorized Access
   const handleAuthError = (res) => {
     if (res.status === 401 || res.status === 403) {
-      alert('Session expired or unauthorized. Please login again.');
+      alert("Session expired or unauthorized. Please login again.");
       sessionStorage.clear();
-      navigate('/login');
+      navigate("/login");
       return true;
     }
     return false;
   };
 
   useEffect(() => {
-    if (tab === 'waste') fetchWastes();
-    if (tab === 'water') fetchWaters();
-    if (tab === 'grievances') fetchGrievances();
-    if (tab === 'registrations') fetchRegistrations();
-    if (tab === 'logs') fetchLogs();
-    if (tab === 'userlogins') {
+    if (tab === "waste") fetchWastes();
+    if (tab === "water") fetchWaters();
+    if (tab === "grievances") fetchGrievances();
+    if (tab === "registrations") fetchRegistrations();
+    if (tab === "logs") fetchLogs();
+    if (tab === "workforce") fetchWorkers();
+    if (tab === "waste" || tab === "water") fetchWorkers(); // Ensure workers are loaded for assignment
+    if (tab === "userlogins") {
       fetchUserLogins();
       fetchUsers();
     }
-    if (tab === 'overview') fetchOverview();
+    if (tab === "workforce") fetchWorkers();
+    if (tab === "overview") fetchOverview();
   }, [tab]);
 
   // --- API CALLS ---
@@ -145,7 +155,7 @@ const AdminDashboard = () => {
     try {
       setOverviewLoading(true);
       const headers = getAuthHeaders();
-      
+
       const [wRes, rRes, uRes, lRes] = await Promise.all([
         fetch(`${API_BASE_URL}/api/waste`, { headers }),
         fetch(`${API_BASE_URL}/api/registrations`, { headers }),
@@ -155,7 +165,12 @@ const AdminDashboard = () => {
 
       if (handleAuthError(wRes)) return;
 
-      const [wData, rData, uData, lData] = await Promise.all([wRes.json(), rRes.json(), uRes.json(), lRes.json()]);
+      const [wData, rData, uData, lData] = await Promise.all([
+        wRes.json(),
+        rRes.json(),
+        uRes.json(),
+        lRes.json(),
+      ]);
 
       setOverview({
         wasteCount: wData.length || 0,
@@ -166,7 +181,7 @@ const AdminDashboard = () => {
         recentLogs: lData.slice(0, 8),
       });
     } catch (err) {
-      console.error('fetch overview', err);
+      console.error("fetch overview", err);
     } finally {
       setOverviewLoading(false);
     }
@@ -175,68 +190,159 @@ const AdminDashboard = () => {
   const fetchWastes = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_BASE_URL}/api/waste`, { headers: getAuthHeaders() });
+      const res = await fetch(`${API_BASE_URL}/api/waste`, {
+        headers: getAuthHeaders(),
+      });
       if (handleAuthError(res)) return;
       const data = await res.json();
       setWastes(data);
-    } catch (err) { console.error(err); } finally { setLoading(false); }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchWaters = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_BASE_URL}/api/water`, { headers: getAuthHeaders() });
+      const res = await fetch(`${API_BASE_URL}/api/water`, {
+        headers: getAuthHeaders(),
+      });
       if (handleAuthError(res)) return;
       setWaters(await res.json());
-    } catch (err) { console.error(err); } finally { setLoading(false); }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchGrievances = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_BASE_URL}/api/grievance`, { headers: getAuthHeaders() });
+      const res = await fetch(`${API_BASE_URL}/api/grievance`, {
+        headers: getAuthHeaders(),
+      });
       if (handleAuthError(res)) return;
       setGrievances(await res.json());
-    } catch (err) { console.error(err); } finally { setLoading(false); }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchRegistrations = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_BASE_URL}/api/registrations`, { headers: getAuthHeaders() });
+      const res = await fetch(`${API_BASE_URL}/api/registrations`, {
+        headers: getAuthHeaders(),
+      });
       if (handleAuthError(res)) return;
       setRegistrations(await res.json());
-    } catch (err) { console.error(err); } finally { setLoading(false); }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchLogs = async () => {
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:3000/api/logs', { headers: getAuthHeaders() });
+      const res = await fetch("http://localhost:3000/api/logs", {
+        headers: getAuthHeaders(),
+      });
       if (handleAuthError(res)) return;
       setLogs(await res.json());
-    } catch (err) { console.error(err); } finally { setLoading(false); }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchUserLogins = async () => {
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:3000/api/logs', { headers: getAuthHeaders() });
+      const res = await fetch("http://localhost:3000/api/logs", {
+        headers: getAuthHeaders(),
+      });
       if (handleAuthError(res)) return;
       const all = await res.json();
-      const logins = all.filter(l => l.action === 'login' || l.action === 'login_failed');
+      const logins = all.filter(
+        (l) => l.action === "login" || l.action === "login_failed",
+      );
       setUserLogins(logins);
-    } catch (err) { console.error(err); } finally { setLoading(false); }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_BASE_URL}/api/users`, { headers: getAuthHeaders() });
+      const res = await fetch(`${API_BASE_URL}/api/users`, {
+        headers: getAuthHeaders(),
+      });
       if (handleAuthError(res)) return;
       const data = await res.json();
       setUsers(data || []);
-    } catch (err) { console.error('fetchUsers', err); } finally { setLoading(false); }
+    } catch (err) {
+      console.error("fetchUsers", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchWorkers = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`${API_BASE_URL}/api/users?role=worker`, {
+        headers: getAuthHeaders(),
+      }); // Simple filter if backend supports or just use /api/workers
+      // I created /api/workers endpoint in userController. Let's use that.
+      const wRes = await fetch(`${API_BASE_URL}/api/workers`, {
+        headers: getAuthHeaders(),
+      });
+      if (handleAuthError(wRes)) return;
+      const data = await wRes.json();
+      setWorkers(data || []);
+    } catch (err) {
+      console.error("fetchWorkers", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const verifyWorker = async (id) => {
+    try {
+      await fetch(`${API_BASE_URL}/api/workers/${id}/verify`, {
+        method: "PATCH",
+        headers: getAuthHeaders(),
+      });
+      fetchWorkers();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const assignTask = async (endpoint, taskId, workerId) => {
+    try {
+      if (!workerId) return alert("Select a worker");
+      await fetch(`${API_BASE_URL}/api/${endpoint}/${taskId}/assign`, {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ workerId }),
+      });
+      if (endpoint === "waste") fetchWastes();
+      if (endpoint === "water") fetchWaters();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   // --- ACTIONS ---
@@ -244,52 +350,74 @@ const AdminDashboard = () => {
   const updateStatus = async (endpoint, id, status, refresh) => {
     try {
       await fetch(`${API_BASE_URL}/api/${endpoint}/${id}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: getAuthHeaders(),
-        body: JSON.stringify({ status })
+        body: JSON.stringify({ status }),
       });
       refresh();
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const deleteItem = async (endpoint, id, refresh) => {
-    if(!window.confirm("Are you sure?")) return;
+    if (!window.confirm("Are you sure?")) return;
     try {
       await fetch(`${API_BASE_URL}/api/${endpoint}/${id}`, {
-        method: 'DELETE',
-        headers: getAuthHeaders()
+        method: "DELETE",
+        headers: getAuthHeaders(),
       });
       refresh();
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const drawer = (
     <Box sx={{ bgcolor: "#fff", height: "100%" }}>
-      <Typography variant="h5" color="primary" sx={{ p: 2, fontWeight: "bold", textAlign: "center", mt: 2 }}>
+      <Typography
+        variant="h5"
+        color="primary"
+        sx={{ p: 2, fontWeight: "bold", textAlign: "center", mt: 2 }}
+      >
         Admin Panel
       </Typography>
       <Divider />
       <List>
         {[
-          { key: 'overview', text: "Dashboard Overview", icon: <Dashboard /> },
-          { key: 'waste', text: "Waste Management", icon: <DeleteOutline /> },
-          { key: 'water', text: "Water Issues", icon: <Opacity /> },
-          { key: 'grievances', text: "Grievances", icon: <ReportProblem /> },
-          { key: 'locations', text: "Locations", icon: <Dashboard /> },
-          { key: 'userlogins', text: "User Logins", icon: <People /> },
-          { key: 'logs', text: "Activity Logs", icon: <ReportProblem /> },
+          { key: "overview", text: "Dashboard Overview", icon: <Dashboard /> },
+          { key: "waste", text: "Waste Management", icon: <DeleteOutline /> },
+          { key: "water", text: "Water Issues", icon: <Opacity /> },
+          { key: "workforce", text: "Workforce", icon: <People /> },
+          { key: "grievances", text: "Grievances", icon: <ReportProblem /> },
+          { key: "locations", text: "Locations", icon: <Dashboard /> },
+          { key: "userlogins", text: "User Logins", icon: <People /> },
+          { key: "logs", text: "Activity Logs", icon: <ReportProblem /> },
         ].map((item) => (
-          <ListItem key={item.key} disablePadding sx={{ display: 'block' }}>
-            <ListItemButton 
-                onClick={() => handleTabChange(item.key)} 
-                selected={tab === item.key}
-                sx={{ 
-                    "&.Mui-selected": { bgcolor: "rgba(0,150,136,0.1)", borderLeft: "4px solid #009688" },
-                    "&:hover": { bgcolor: "rgba(0,150,136,0.05)" }
-                }}
+          <ListItem key={item.key} disablePadding sx={{ display: "block" }}>
+            <ListItemButton
+              onClick={() => handleTabChange(item.key)}
+              selected={tab === item.key}
+              sx={{
+                "&.Mui-selected": {
+                  bgcolor: "rgba(0,150,136,0.1)",
+                  borderLeft: "4px solid #009688",
+                },
+                "&:hover": { bgcolor: "rgba(0,150,136,0.05)" },
+              }}
             >
-              <ListItemIcon sx={{ color: tab === item.key ? "#009688" : "inherit", minWidth: 40 }}>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.text} sx={{ color: tab === item.key ? "#009688" : "inherit" }} />
+              <ListItemIcon
+                sx={{
+                  color: tab === item.key ? "#009688" : "inherit",
+                  minWidth: 40,
+                }}
+              >
+                {item.icon}
+              </ListItemIcon>
+              <ListItemText
+                primary={item.text}
+                sx={{ color: tab === item.key ? "#009688" : "inherit" }}
+              />
             </ListItemButton>
           </ListItem>
         ))}
@@ -302,29 +430,31 @@ const AdminDashboard = () => {
       <CssBaseline />
       <Navbar />
 
-      <Box sx={{ display: "flex", position: 'relative' }}>
-        
+      <Box sx={{ display: "flex", position: "relative" }}>
         {/* Mobile Hamburger Button */}
         <IconButton
           onClick={handleDrawerToggle}
           sx={{
-            display: { xs: 'flex', sm: 'none' },
-            position: 'fixed',
+            display: { xs: "flex", sm: "none" },
+            position: "fixed",
             left: 16,
             top: 80,
             zIndex: 1200,
-            bgcolor: 'primary.main',
-            color: 'white',
-            '&:hover': {
-              bgcolor: 'primary.dark',
-            }
+            bgcolor: "primary.main",
+            color: "white",
+            "&:hover": {
+              bgcolor: "primary.dark",
+            },
           }}
         >
           {mobileOpen ? <CloseIcon /> : <MenuIcon />}
         </IconButton>
-        
+
         {/* 🔹 Sidebar Drawer */}
-        <Box component="nav" sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}>
+        <Box
+          component="nav"
+          sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
+        >
           {/* Mobile Drawer */}
           <Drawer
             variant="temporary"
@@ -333,7 +463,12 @@ const AdminDashboard = () => {
             ModalProps={{ keepMounted: true }}
             sx={{
               display: { xs: "block", sm: "none" },
-              "& .MuiDrawer-paper": { boxSizing: "border-box", width: drawerWidth, top: '70px', height: 'calc(100% - 70px)' },
+              "& .MuiDrawer-paper": {
+                boxSizing: "border-box",
+                width: drawerWidth,
+                top: "70px",
+                height: "calc(100% - 70px)",
+              },
             }}
           >
             {drawer}
@@ -343,7 +478,12 @@ const AdminDashboard = () => {
             variant="permanent"
             sx={{
               display: { xs: "none", sm: "block" },
-              "& .MuiDrawer-paper": { boxSizing: "border-box", width: drawerWidth, top: '70px', height: 'calc(100% - 70px)' },
+              "& .MuiDrawer-paper": {
+                boxSizing: "border-box",
+                width: drawerWidth,
+                top: "70px",
+                height: "calc(100% - 70px)",
+              },
             }}
             open
           >
@@ -352,25 +492,72 @@ const AdminDashboard = () => {
         </Box>
 
         {/* 🔹 Main Content */}
-        <Box component="main" sx={{ flexGrow: 1, p: { xs: 2, sm: 3 }, width: { sm: `calc(100% - ${drawerWidth}px)` }, mt: { xs: 7, sm: 8 } }}>
-          
-          {tab === 'overview' && (
+        <Box
+          component="main"
+          sx={{
+            flexGrow: 1,
+            p: { xs: 2, sm: 3 },
+            width: { sm: `calc(100% - ${drawerWidth}px)` },
+            mt: { xs: 7, sm: 8 },
+          }}
+        >
+          {tab === "overview" && (
             <>
-              <Typography variant="h4" color="primary" sx={{ fontWeight: 'bold', mb: 3 }}>Dashboard Overview</Typography>
+              <Typography
+                variant="h4"
+                color="primary"
+                sx={{ fontWeight: "bold", mb: 3 }}
+              >
+                Dashboard Overview
+              </Typography>
 
               {/* ✅ Grid v2 Syntax */}
               <Grid container spacing={3} sx={{ mb: 3 }}>
                 {[
-                  { title: 'Waste Requests', value: overview.wasteCount, color: '#009688', icon: <DeleteOutline /> , link: 'waste'},
-                  { title: 'Activity Logs', value: overview.recentLogs?.length, color: '#ff7043', icon: <ReportProblem />, link: 'logs'},
+                  {
+                    title: "Waste Requests",
+                    value: overview.wasteCount,
+                    color: "#009688",
+                    icon: <DeleteOutline />,
+                    link: "waste",
+                  },
+                  {
+                    title: "Activity Logs",
+                    value: overview.recentLogs?.length,
+                    color: "#ff7043",
+                    icon: <ReportProblem />,
+                    link: "logs",
+                  },
                 ].map((stat, index) => (
                   <Grid size={{ xs: 12, sm: 6, md: 3 }} key={index}>
-                    <Paper elevation={2} sx={{ p: 2.5, borderRadius: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
-                      <Avatar sx={{ bgcolor: stat.color, width: 56, height: 56 }}>{stat.icon}</Avatar>
+                    <Paper
+                      elevation={2}
+                      sx={{
+                        p: 2.5,
+                        borderRadius: 3,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 2,
+                      }}
+                    >
+                      <Avatar
+                        sx={{ bgcolor: stat.color, width: 56, height: 56 }}
+                      >
+                        {stat.icon}
+                      </Avatar>
                       <Box sx={{ flex: 1 }}>
-                        <Typography variant="subtitle2" sx={{ color: 'text.secondary' }}>{stat.title}</Typography>
-                        <Typography variant="h5" sx={{ fontWeight: 'bold' }}>{stat.value}</Typography>
-                        <Button size="small" onClick={() => setTab(stat.link)}>View Details</Button>
+                        <Typography
+                          variant="subtitle2"
+                          sx={{ color: "text.secondary" }}
+                        >
+                          {stat.title}
+                        </Typography>
+                        <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+                          {stat.value}
+                        </Typography>
+                        <Button size="small" onClick={() => setTab(stat.link)}>
+                          View Details
+                        </Button>
                       </Box>
                     </Paper>
                   </Grid>
@@ -380,20 +567,45 @@ const AdminDashboard = () => {
               <Grid container spacing={3}>
                 <Grid size={{ xs: 12, md: 6 }}>
                   <Paper elevation={2} sx={{ p: 2, borderRadius: 3 }}>
-                    <Stack direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
+                    <Stack
+                      direction="row"
+                      alignItems="center"
+                      justifyContent="space-between"
+                      sx={{ mb: 2 }}
+                    >
                       <Typography variant="h6">Recent Activity</Typography>
-                      <Button size="small" onClick={() => setTab('logs')}>See all</Button>
+                      <Button size="small" onClick={() => setTab("logs")}>
+                        See all
+                      </Button>
                     </Stack>
                     <Box>
-                      {overviewLoading ? <Typography>Loading...</Typography> : (
-                        (overview.recentLogs && overview.recentLogs.length > 0) ? overview.recentLogs.map((l, i) => (
-                          <Paper key={i} variant="outlined" sx={{ p: 1, mb: 1, bgcolor: '#fafafa' }}>
-                            <Typography variant="body2" sx={{ fontSize: '0.85rem' }}>
-                                <strong>{l.action}</strong>: {l.message} <br/>
-                                <span style={{color: 'gray', fontSize:'0.75rem'}}>{new Date(l.createdAt).toLocaleString()}</span>
+                      {overviewLoading ? (
+                        <Typography>Loading...</Typography>
+                      ) : overview.recentLogs &&
+                        overview.recentLogs.length > 0 ? (
+                        overview.recentLogs.map((l, i) => (
+                          <Paper
+                            key={i}
+                            variant="outlined"
+                            sx={{ p: 1, mb: 1, bgcolor: "#fafafa" }}
+                          >
+                            <Typography
+                              variant="body2"
+                              sx={{ fontSize: "0.85rem" }}
+                            >
+                              <strong>{l.action}</strong>: {l.message} <br />
+                              <span
+                                style={{ color: "gray", fontSize: "0.75rem" }}
+                              >
+                                {new Date(l.createdAt).toLocaleString()}
+                              </span>
                             </Typography>
                           </Paper>
-                        )) : <Typography color="text.secondary">No recent activity</Typography>
+                        ))
+                      ) : (
+                        <Typography color="text.secondary">
+                          No recent activity
+                        </Typography>
                       )}
                     </Box>
                   </Paper>
@@ -401,14 +613,29 @@ const AdminDashboard = () => {
 
                 <Grid size={{ xs: 12, md: 6 }}>
                   <Paper elevation={2} sx={{ p: 2, borderRadius: 3 }}>
-                    <Typography variant="h6" sx={{ mb: 2 }}>Recent Requests</Typography>
-                    {overviewLoading ? <Typography>Loading...</Typography> : (
-                        overview.recentWastes.length ? overview.recentWastes.map((w, i) => (
-                            <Box key={i} sx={{ mb: 1, pb: 1, borderBottom: '1px solid #eee' }}>
-                                <Typography variant="subtitle2">{w.wasteType}</Typography>
-                                <Typography variant="caption" color="text.secondary">{w.address} • {w.status}</Typography>
-                            </Box>
-                        )) : <Typography color="text.secondary">No recent requests</Typography>
+                    <Typography variant="h6" sx={{ mb: 2 }}>
+                      Recent Requests
+                    </Typography>
+                    {overviewLoading ? (
+                      <Typography>Loading...</Typography>
+                    ) : overview.recentWastes.length ? (
+                      overview.recentWastes.map((w, i) => (
+                        <Box
+                          key={i}
+                          sx={{ mb: 1, pb: 1, borderBottom: "1px solid #eee" }}
+                        >
+                          <Typography variant="subtitle2">
+                            {w.wasteType}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {w.address} • {w.status}
+                          </Typography>
+                        </Box>
+                      ))
+                    ) : (
+                      <Typography color="text.secondary">
+                        No recent requests
+                      </Typography>
                     )}
                   </Paper>
                 </Grid>
@@ -416,28 +643,86 @@ const AdminDashboard = () => {
             </>
           )}
 
-          {tab === 'waste' && (
+          {tab === "waste" && (
             <>
-              <Typography variant="h5" color="primary" sx={{ fontWeight: 'bold', mb: 2 }}>Waste Requests</Typography>
+              <Typography
+                variant="h5"
+                color="primary"
+                sx={{ fontWeight: "bold", mb: 2 }}
+              >
+                Waste Requests
+              </Typography>
               <Paper sx={{ p: 2, mb: 3 }}>
-                {loading ? <Typography>Loading...</Typography> : (
+                {loading ? (
+                  <Typography>Loading...</Typography>
+                ) : (
                   <Grid container spacing={2}>
-                    {wastes.map(w => (
+                    {wastes.map((w) => (
                       <Grid size={{ xs: 12, md: 6 }} key={w._id}>
                         <Paper variant="outlined" sx={{ p: 2 }}>
                           <Typography variant="h6">{w.name}</Typography>
-                          <Typography variant="body2" color="text.secondary">{w.address}</Typography>
-                          <Typography variant="caption" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
-                            {w.wasteType} • {w.status || 'Pending'}
+                          <Typography variant="body2" color="text.secondary">
+                            {w.address}
                           </Typography>
+                          <Typography
+                            variant="caption"
+                            sx={{ fontWeight: "bold", color: "primary.main" }}
+                          >
+                            {w.wasteType} • {w.status || "Pending"}
+                          </Typography>
+                          {w.assignedTo && (
+                            <Typography
+                              variant="caption"
+                              display="block"
+                              color="secondary"
+                            >
+                              👷 Assigned: {w.assignedTo.fullName}
+                            </Typography>
+                          )}
+                          {w.status !== "collected" &&
+                            w.status !== "Resolved" && (
+                              <Box sx={{ mt: 1, display: "flex", gap: 1 }}>
+                                <Select
+                                  size="small"
+                                  defaultValue={
+                                    w.assignedTo ? w.assignedTo._id : ""
+                                  }
+                                  displayEmpty
+                                  onChange={(e) =>
+                                    assignTask("waste", w._id, e.target.value)
+                                  }
+                                  sx={{ minWidth: 120 }}
+                                >
+                                  <MenuItem value="" disabled>
+                                    {w.assignedTo
+                                      ? "Change Worker"
+                                      : "Assign Worker"}
+                                  </MenuItem>
+                                  {workers
+                                    .filter((x) => x.status === "active")
+                                    .map((worker) => (
+                                      <MenuItem
+                                        key={worker._id}
+                                        value={worker._id}
+                                      >
+                                        {worker.fullName}
+                                      </MenuItem>
+                                    ))}
+                                </Select>
+                              </Box>
+                            )}
                           {w.scheduledTime && (
-                            <Typography variant="body2" sx={{ mt: 1, color: 'info.main' }}>
-                              📅 Scheduled: {new Date(w.scheduledTime).toLocaleString()}
+                            <Typography
+                              variant="body2"
+                              sx={{ mt: 1, color: "info.main" }}
+                            >
+                              📅 Scheduled:{" "}
+                              {new Date(w.scheduledTime).toLocaleString()}
                             </Typography>
                           )}
                           {w.reports && w.reports.length > 0 && (
-                            <Button 
-                              size="small" 
+                            <Button
+                              size="small"
                               color="error"
                               onClick={() => {
                                 setSelectedWaste(w);
@@ -448,23 +733,44 @@ const AdminDashboard = () => {
                             </Button>
                           )}
                           <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-                            {w.status !== 'collected' && (
+                            {w.status !== "collected" && (
                               <>
-                                <Button 
-                                  size="small" 
-                                  variant="contained" 
+                                <Button
+                                  size="small"
+                                  variant="contained"
                                   onClick={() => {
                                     setSelectedWaste(w);
                                     setScheduleModalOpen(true);
                                   }}
                                 >
-                                  {w.status === 'scheduled' ? 'Reschedule' : 'Schedule'}
+                                  {w.status === "scheduled"
+                                    ? "Reschedule"
+                                    : "Schedule"}
                                 </Button>
-                                <Button size="small" variant="outlined" onClick={() => updateStatus('waste', w._id, 'collected', fetchWastes)}>Collected</Button>
+                                <Button
+                                  size="small"
+                                  variant="outlined"
+                                  onClick={() =>
+                                    updateStatus(
+                                      "waste",
+                                      w._id,
+                                      "collected",
+                                      fetchWastes,
+                                    )
+                                  }
+                                >
+                                  Collected
+                                </Button>
                               </>
                             )}
-                            {w.status === 'collected' && (
-                              <Typography variant="body2" sx={{ color: 'success.main', fontWeight: 'bold' }}>
+                            {w.status === "collected" && (
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  color: "success.main",
+                                  fontWeight: "bold",
+                                }}
+                              >
                                 ✓ Collected
                               </Typography>
                             )}
@@ -475,13 +781,13 @@ const AdminDashboard = () => {
                   </Grid>
                 )}
               </Paper>
-              <ScheduleModal 
-                open={scheduleModalOpen} 
+              <ScheduleModal
+                open={scheduleModalOpen}
                 onClose={() => setScheduleModalOpen(false)}
                 item={selectedWaste}
                 onSchedule={fetchWastes}
               />
-              <ReportDetailsModal 
+              <ReportDetailsModal
                 open={reportModalOpen}
                 onClose={() => setReportModalOpen(false)}
                 item={selectedWaste}
@@ -489,28 +795,86 @@ const AdminDashboard = () => {
             </>
           )}
 
-          {tab === 'water' && (
+          {tab === "water" && (
             <>
-              <Typography variant="h5" color="primary" sx={{ fontWeight: 'bold', mb: 2 }}>Water Requests</Typography>
+              <Typography
+                variant="h5"
+                color="primary"
+                sx={{ fontWeight: "bold", mb: 2 }}
+              >
+                Water Requests
+              </Typography>
               <Paper sx={{ p: 2, mb: 3 }}>
-                {loading ? <Typography>Loading...</Typography> : (
+                {loading ? (
+                  <Typography>Loading...</Typography>
+                ) : (
                   <Grid container spacing={2}>
-                    {waters.map(w => (
+                    {waters.map((w) => (
                       <Grid size={{ xs: 12, md: 6 }} key={w._id}>
                         <Paper variant="outlined" sx={{ p: 2 }}>
                           <Typography variant="h6">{w.name}</Typography>
-                          <Typography variant="body2" color="text.secondary">{w.address}</Typography>
-                          <Typography variant="caption" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
-                            {w.issueType} • {w.status || 'Pending'}
+                          <Typography variant="body2" color="text.secondary">
+                            {w.address}
                           </Typography>
+                          <Typography
+                            variant="caption"
+                            sx={{ fontWeight: "bold", color: "primary.main" }}
+                          >
+                            {w.issueType} • {w.status || "Pending"}
+                          </Typography>
+                          {w.assignedTo && (
+                            <Typography
+                              variant="caption"
+                              display="block"
+                              color="secondary"
+                            >
+                              👷 Assigned: {w.assignedTo.fullName}
+                            </Typography>
+                          )}
+                          {w.status !== "resolved" &&
+                            w.status !== "Resolved" && (
+                              <Box sx={{ mt: 1, display: "flex", gap: 1 }}>
+                                <Select
+                                  size="small"
+                                  defaultValue={
+                                    w.assignedTo ? w.assignedTo._id : ""
+                                  }
+                                  displayEmpty
+                                  onChange={(e) =>
+                                    assignTask("water", w._id, e.target.value)
+                                  }
+                                  sx={{ minWidth: 120 }}
+                                >
+                                  <MenuItem value="" disabled>
+                                    {w.assignedTo
+                                      ? "Change Worker"
+                                      : "Assign Worker"}
+                                  </MenuItem>
+                                  {workers
+                                    .filter((x) => x.status === "active")
+                                    .map((worker) => (
+                                      <MenuItem
+                                        key={worker._id}
+                                        value={worker._id}
+                                      >
+                                        {worker.fullName}
+                                      </MenuItem>
+                                    ))}
+                                </Select>
+                              </Box>
+                            )}
                           {w.scheduledTime && (
-                            <Typography variant="body2" sx={{ mt: 1, color: 'info.main' }}>
-                              📅 Scheduled: {new Date(w.scheduledTime).toLocaleString()}
+                            <Typography
+                              variant="body2"
+                              sx={{ mt: 1, color: "info.main" }}
+                            >
+                              📅 Scheduled:{" "}
+                              {new Date(w.scheduledTime).toLocaleString()}
                             </Typography>
                           )}
                           {w.reports && w.reports.length > 0 && (
-                            <Button 
-                              size="small" 
+                            <Button
+                              size="small"
                               color="error"
                               onClick={() => {
                                 setSelectedWater(w);
@@ -521,23 +885,44 @@ const AdminDashboard = () => {
                             </Button>
                           )}
                           <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-                            {w.status !== 'resolved' && (
+                            {w.status !== "resolved" && (
                               <>
-                                <Button 
-                                  size="small" 
-                                  variant="contained" 
+                                <Button
+                                  size="small"
+                                  variant="contained"
                                   onClick={() => {
                                     setSelectedWater(w);
                                     setWaterScheduleModalOpen(true);
                                   }}
                                 >
-                                  {w.status === 'scheduled' ? 'Reschedule' : 'Schedule'}
+                                  {w.status === "scheduled"
+                                    ? "Reschedule"
+                                    : "Schedule"}
                                 </Button>
-                                <Button size="small" variant="outlined" onClick={() => updateStatus('water', w._id, 'resolved', fetchWaters)}>Resolve</Button>
+                                <Button
+                                  size="small"
+                                  variant="outlined"
+                                  onClick={() =>
+                                    updateStatus(
+                                      "water",
+                                      w._id,
+                                      "resolved",
+                                      fetchWaters,
+                                    )
+                                  }
+                                >
+                                  Resolve
+                                </Button>
                               </>
                             )}
-                            {w.status === 'resolved' && (
-                              <Typography variant="body2" sx={{ color: 'success.main', fontWeight: 'bold' }}>
+                            {w.status === "resolved" && (
+                              <Typography
+                                variant="body2"
+                                sx={{
+                                  color: "success.main",
+                                  fontWeight: "bold",
+                                }}
+                              >
                                 ✓ Resolved
                               </Typography>
                             )}
@@ -548,8 +933,8 @@ const AdminDashboard = () => {
                   </Grid>
                 )}
               </Paper>
-              <ScheduleModal 
-                open={waterScheduleModalOpen} 
+              <ScheduleModal
+                open={waterScheduleModalOpen}
                 onClose={() => setWaterScheduleModalOpen(false)}
                 item={selectedWater}
                 onSchedule={fetchWaters}
@@ -558,95 +943,252 @@ const AdminDashboard = () => {
             </>
           )}
 
-          {tab === 'grievances' && (
+          {tab === "grievances" && (
             <>
-              <Typography variant="h5" color="primary" sx={{ fontWeight: 'bold', mb: 2 }}>Grievances</Typography>
+              <Typography
+                variant="h5"
+                color="primary"
+                sx={{ fontWeight: "bold", mb: 2 }}
+              >
+                Grievances
+              </Typography>
               <Paper sx={{ p: 2, mb: 3 }}>
-                  <Grid container spacing={2}>
-                    {grievances.map(g => (
-                      <Grid size={{ xs: 12, md: 6 }} key={g._id}>
-                        <Paper variant="outlined" sx={{ p: 2 }}>
-                          <Typography variant="h6">{g.subject}</Typography>
-                          <Typography variant="body2" sx={{ mt: 1 }}>{g.description}</Typography>
-                          <Typography variant="caption" display="block" sx={{ mt: 1, color: 'text.secondary' }}>
-                             By: {g.name} • {new Date(g.createdAt).toLocaleDateString()}
-                          </Typography>
-                          <Stack direction="row" spacing={1} sx={{ mt: 2 }} alignItems="center">
-                            {g.status !== 'resolved' ? (
-                              <Select size="small" value={g.status || 'open'} onChange={(e) => updateStatus('grievance', g._id, e.target.value, fetchGrievances)}>
-                                <MenuItem value="open">Open</MenuItem>
-                                <MenuItem value="in-progress">In-Progress</MenuItem>
-                                <MenuItem value="resolved">Resolved</MenuItem>
-                              </Select>
-                            ) : (
-                              <Typography variant="body2" sx={{ color: 'success.main', fontWeight: 'bold' }}>
-                                ✓ Resolved
-                              </Typography>
-                            )}
-                          </Stack>
-                        </Paper>
-                      </Grid>
-                    ))}
-                  </Grid>
+                <Grid container spacing={2}>
+                  {grievances.map((g) => (
+                    <Grid size={{ xs: 12, md: 6 }} key={g._id}>
+                      <Paper variant="outlined" sx={{ p: 2 }}>
+                        <Typography variant="h6">{g.subject}</Typography>
+                        <Typography variant="body2" sx={{ mt: 1 }}>
+                          {g.description}
+                        </Typography>
+                        <Typography
+                          variant="caption"
+                          display="block"
+                          sx={{ mt: 1, color: "text.secondary" }}
+                        >
+                          By: {g.name} •{" "}
+                          {new Date(g.createdAt).toLocaleDateString()}
+                        </Typography>
+                        <Stack
+                          direction="row"
+                          spacing={1}
+                          sx={{ mt: 2 }}
+                          alignItems="center"
+                        >
+                          {g.status !== "resolved" ? (
+                            <Select
+                              size="small"
+                              value={g.status || "open"}
+                              onChange={(e) =>
+                                updateStatus(
+                                  "grievance",
+                                  g._id,
+                                  e.target.value,
+                                  fetchGrievances,
+                                )
+                              }
+                            >
+                              <MenuItem value="open">Open</MenuItem>
+                              <MenuItem value="in-progress">
+                                In-Progress
+                              </MenuItem>
+                              <MenuItem value="resolved">Resolved</MenuItem>
+                            </Select>
+                          ) : (
+                            <Typography
+                              variant="body2"
+                              sx={{ color: "success.main", fontWeight: "bold" }}
+                            >
+                              ✓ Resolved
+                            </Typography>
+                          )}
+                        </Stack>
+                      </Paper>
+                    </Grid>
+                  ))}
+                </Grid>
               </Paper>
             </>
           )}
 
-          {tab === 'locations' && (
+          {tab === "locations" && (
             <>
-              <Typography variant="h5" color="primary" sx={{ fontWeight: 'bold', mb: 2 }}>Submitted Locations</Typography>
+              <Typography
+                variant="h5"
+                color="primary"
+                sx={{ fontWeight: "bold", mb: 2 }}
+              >
+                Submitted Locations
+              </Typography>
               <Paper sx={{ p: 2 }}>
                 <AdminLocations />
               </Paper>
             </>
           )}
 
-          {tab === 'logs' && (
+          {tab === "logs" && (
             <>
-              <Typography variant="h5" color="primary" sx={{ fontWeight: 'bold', mb: 2 }}>System Logs</Typography>
+              <Typography
+                variant="h5"
+                color="primary"
+                sx={{ fontWeight: "bold", mb: 2 }}
+              >
+                System Logs
+              </Typography>
               <Paper sx={{ p: 2 }}>
-                  <Grid container spacing={1}>
-                    {logs.map(l => (
-                      <Grid size={{ xs: 12 }} key={l._id}>
-                        <Paper variant="outlined" sx={{ p: 1.5, bgcolor: '#f5f5f5' }}>
-                          <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
-                            <span style={{ color: '#009688' }}>[{new Date(l.createdAt).toLocaleString()}]</span>
-                            <strong> {l.action}</strong>: {l.message}
-                            <span style={{ color: '#ff7043' }}> ({l.entityType})</span>
+                <Grid container spacing={1}>
+                  {logs.map((l) => (
+                    <Grid size={{ xs: 12 }} key={l._id}>
+                      <Paper
+                        variant="outlined"
+                        sx={{ p: 1.5, bgcolor: "#f5f5f5" }}
+                      >
+                        <Typography
+                          variant="body2"
+                          sx={{ fontFamily: "monospace" }}
+                        >
+                          <span style={{ color: "#009688" }}>
+                            [{new Date(l.createdAt).toLocaleString()}]
+                          </span>
+                          <strong> {l.action}</strong>: {l.message}
+                          <span style={{ color: "#ff7043" }}>
+                            {" "}
+                            ({l.entityType})
+                          </span>
+                        </Typography>
+                        {l.meta && (l.meta.ip || l.meta.ua) && (
+                          <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            display="block"
+                          >
+                            {l.meta.ip && <>IP: {l.meta.ip} </>}
+                            {l.meta.ua && <>• UA: {l.meta.ua}</>}
                           </Typography>
-                          {(l.meta && (l.meta.ip || l.meta.ua)) && (
-                            <Typography variant="caption" color="text.secondary" display="block">
-                              {l.meta.ip && <>IP: {l.meta.ip} </>}
-                              {l.meta.ua && <>• UA: {l.meta.ua}</>}
-                            </Typography>
-                          )}
-                          {l.createdBy && (
-                            <Typography variant="caption" color="text.secondary" display="block">
-                              By: {l.createdBy.fullName || l.createdBy.email} {l.createdBy.email && `(${l.createdBy.email})`}
-                            </Typography>
-                          )}
-                        </Paper>
-                      </Grid>
-                    ))}
-                  </Grid>
+                        )}
+                        {l.createdBy && (
+                          <Typography
+                            variant="caption"
+                            color="text.secondary"
+                            display="block"
+                          >
+                            By: {l.createdBy.fullName || l.createdBy.email}{" "}
+                            {l.createdBy.email && `(${l.createdBy.email})`}
+                          </Typography>
+                        )}
+                      </Paper>
+                    </Grid>
+                  ))}
+                </Grid>
               </Paper>
             </>
           )}
 
-          {tab === 'userlogins' && (
+          {tab === "workforce" && (
             <>
-              <Typography variant="h5" color="primary" sx={{ fontWeight: 'bold', mb: 2 }}>User Logins</Typography>
+              <Typography
+                variant="h5"
+                color="primary"
+                sx={{ fontWeight: "bold", mb: 2 }}
+              >
+                Field Workforce
+              </Typography>
+              <Paper sx={{ p: 2 }}>
+                {loading ? (
+                  <Typography>Loading...</Typography>
+                ) : (
+                  <Grid container spacing={2}>
+                    {workers.length > 0 ? (
+                      workers.map((w) => (
+                        <Grid size={{ xs: 12, md: 6 }} key={w._id}>
+                          <Paper
+                            variant="outlined"
+                            sx={{
+                              p: 2,
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                            }}
+                          >
+                            <Box>
+                              <Typography variant="h6">{w.fullName}</Typography>
+                              <Typography
+                                variant="body2"
+                                color="text.secondary"
+                              >
+                                {w.email} • {w.phone}
+                              </Typography>
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  fontWeight: "bold",
+                                  color:
+                                    w.status === "active"
+                                      ? "success.main"
+                                      : "warning.main",
+                                }}
+                              >
+                                Status: {w.status || "active"}
+                              </Typography>
+                            </Box>
+                            <Box>
+                              {w.status === "pending" && (
+                                <Button
+                                  variant="contained"
+                                  size="small"
+                                  onClick={() => verifyWorker(w._id)}
+                                >
+                                  Approve
+                                </Button>
+                              )}
+                            </Box>
+                          </Paper>
+                        </Grid>
+                      ))
+                    ) : (
+                      <Typography>No field workers found.</Typography>
+                    )}
+                  </Grid>
+                )}
+              </Paper>
+            </>
+          )}
+
+          {tab === "userlogins" && (
+            <>
+              <Typography
+                variant="h5"
+                color="primary"
+                sx={{ fontWeight: "bold", mb: 2 }}
+              >
+                User Logins
+              </Typography>
               <Grid container spacing={2}>
                 <Grid size={{ xs: 12, md: 4 }}>
-                  <Paper sx={{ p: 2, maxHeight: '60vh', overflow: 'auto' }}>
-                    <Typography variant="subtitle1" sx={{ mb: 1 }}>All Users</Typography>
+                  <Paper sx={{ p: 2, maxHeight: "60vh", overflow: "auto" }}>
+                    <Typography variant="subtitle1" sx={{ mb: 1 }}>
+                      All Users
+                    </Typography>
                     <List>
-                      <ListItemButton selected={selectedUser === 'all'} onClick={() => setSelectedUser('all')}>
-                        <ListItemText primary="All users" secondary={`${users.length || 0} users`} />
+                      <ListItemButton
+                        selected={selectedUser === "all"}
+                        onClick={() => setSelectedUser("all")}
+                      >
+                        <ListItemText
+                          primary="All users"
+                          secondary={`${users.length || 0} users`}
+                        />
                       </ListItemButton>
-                      {users.map(u => (
-                        <ListItemButton key={u._id} selected={selectedUser === u._id} onClick={() => setSelectedUser(u._id)}>
-                          <ListItemText primary={u.fullName || u.email} secondary={u.email} />
+                      {users.map((u) => (
+                        <ListItemButton
+                          key={u._id}
+                          selected={selectedUser === u._id}
+                          onClick={() => setSelectedUser(u._id)}
+                        >
+                          <ListItemText
+                            primary={u.fullName || u.email}
+                            secondary={u.email}
+                          />
                         </ListItemButton>
                       ))}
                     </List>
@@ -655,49 +1197,103 @@ const AdminDashboard = () => {
 
                 <Grid size={{ xs: 12, md: 8 }}>
                   <Paper sx={{ p: 2 }}>
-                    {loading ? <Typography>Loading...</Typography> : (
+                    {loading ? (
+                      <Typography>Loading...</Typography>
+                    ) : (
                       <>
-                        <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 2 }}>
+                        <Stack
+                          direction="row"
+                          spacing={2}
+                          alignItems="center"
+                          sx={{ mb: 2 }}
+                        >
                           <Typography variant="subtitle2">Filter:</Typography>
-                          <Select size="small" value={selectedUser} onChange={(e) => setSelectedUser(e.target.value)} sx={{ minWidth: 220 }}>
+                          <Select
+                            size="small"
+                            value={selectedUser}
+                            onChange={(e) => setSelectedUser(e.target.value)}
+                            sx={{ minWidth: 220 }}
+                          >
                             <MenuItem value="all">All users</MenuItem>
-                            {users.map(u => (
-                              <MenuItem key={u._id} value={u._id}>{u.fullName || u.email}</MenuItem>
+                            {users.map((u) => (
+                              <MenuItem key={u._id} value={u._id}>
+                                {u.fullName || u.email}
+                              </MenuItem>
                             ))}
                           </Select>
                         </Stack>
 
                         <Grid container spacing={1}>
-                          {selectedUserLogins.length ? selectedUserLogins
-                            .filter(l => {
-                              if (selectedUser === 'all') return true;
-                              if (l.createdBy && l.createdBy._id) return l.createdBy._id === selectedUser;
-                              if (l.meta && l.meta.email) {
-                                const u = users.find(x => x._id === selectedUser);
-                                return u && u.email === l.meta.email;
-                              }
-                              return false;
-                            })
-                            .map(l => (
-                              <Grid size={{ xs: 12 }} key={l._id}>
-                                <Paper variant="outlined" sx={{ p: 1.5, bgcolor: '#fff' }}>
-                                  <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
-                                    <span style={{ color: '#009688' }}>[{new Date(l.createdAt).toLocaleString()}]</span>
-                                    <strong> {l.action === 'login' ? 'Success' : 'Failed'}</strong>
-                                    : {l.message}
-                                  </Typography>
-                                  <Typography variant="caption" color="text.secondary" display="block">
-                                    User: {l.createdBy ? (l.createdBy.fullName || l.createdBy.email) : (l.meta && l.meta.email) || 'Unknown'} {l.createdBy && l.createdBy.email && `(${l.createdBy.email})`}
-                                  </Typography>
-                                  {(l.meta && (l.meta.ip || l.meta.ua)) && (
-                                    <Typography variant="caption" color="text.secondary" display="block">
-                                      {l.meta.ip && <>IP: {l.meta.ip} </>}
-                                      {l.meta.ua && <>• UA: {l.meta.ua}</>}
+                          {selectedUserLogins.length ? (
+                            selectedUserLogins
+                              .filter((l) => {
+                                if (selectedUser === "all") return true;
+                                if (l.createdBy && l.createdBy._id)
+                                  return l.createdBy._id === selectedUser;
+                                if (l.meta && l.meta.email) {
+                                  const u = users.find(
+                                    (x) => x._id === selectedUser,
+                                  );
+                                  return u && u.email === l.meta.email;
+                                }
+                                return false;
+                              })
+                              .map((l) => (
+                                <Grid size={{ xs: 12 }} key={l._id}>
+                                  <Paper
+                                    variant="outlined"
+                                    sx={{ p: 1.5, bgcolor: "#fff" }}
+                                  >
+                                    <Typography
+                                      variant="body2"
+                                      sx={{ fontFamily: "monospace" }}
+                                    >
+                                      <span style={{ color: "#009688" }}>
+                                        [
+                                        {new Date(l.createdAt).toLocaleString()}
+                                        ]
+                                      </span>
+                                      <strong>
+                                        {" "}
+                                        {l.action === "login"
+                                          ? "Success"
+                                          : "Failed"}
+                                      </strong>
+                                      : {l.message}
                                     </Typography>
-                                  )}
-                                </Paper>
-                              </Grid>
-                            )) : <Typography color="text.secondary">No login events found</Typography>}
+                                    <Typography
+                                      variant="caption"
+                                      color="text.secondary"
+                                      display="block"
+                                    >
+                                      User:{" "}
+                                      {l.createdBy
+                                        ? l.createdBy.fullName ||
+                                          l.createdBy.email
+                                        : (l.meta && l.meta.email) ||
+                                          "Unknown"}{" "}
+                                      {l.createdBy &&
+                                        l.createdBy.email &&
+                                        `(${l.createdBy.email})`}
+                                    </Typography>
+                                    {l.meta && (l.meta.ip || l.meta.ua) && (
+                                      <Typography
+                                        variant="caption"
+                                        color="text.secondary"
+                                        display="block"
+                                      >
+                                        {l.meta.ip && <>IP: {l.meta.ip} </>}
+                                        {l.meta.ua && <>• UA: {l.meta.ua}</>}
+                                      </Typography>
+                                    )}
+                                  </Paper>
+                                </Grid>
+                              ))
+                          ) : (
+                            <Typography color="text.secondary">
+                              No login events found
+                            </Typography>
+                          )}
                         </Grid>
                       </>
                     )}
@@ -706,7 +1302,6 @@ const AdminDashboard = () => {
               </Grid>
             </>
           )}
-
         </Box>
       </Box>
     </ThemeProvider>
