@@ -3,9 +3,6 @@ import {
   Box,
   Button,
   Typography,
-  createTheme,
-  ThemeProvider,
-  CssBaseline,
   Grid,
   Card,
   CardContent,
@@ -17,6 +14,8 @@ import {
   Paper,
   IconButton,
   TextField,
+  useTheme,
+  alpha,
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import {
@@ -30,146 +29,171 @@ import {
   LocationOn,
   Email,
   Phone,
+  ArrowForward,
 } from "@mui/icons-material";
 import Navbar from "./Navbar";
+import { keyframes } from "@mui/system";
 
-// 🎨 Theme setup
-const theme = createTheme({
-  palette: {
-    mode: "light",
-    primary: {
-      main: "#009688", // Teal
-    },
-    secondary: {
-      main: "#ff7043", // Coral
-    },
-    background: {
-      default: "#f0f4f8",
-    },
-  },
-  typography: {
-    fontFamily: "Roboto, sans-serif",
-  },
-});
+// 🌟 Animations
+const float = keyframes`
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+  100% { transform: translateY(0px); }
+`;
+
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
 
 const features = [
   {
-    title: "Waste Management System",
+    title: "Waste Management",
     description:
-      "Track garbage collection, recycling, and smart bins across the city to ensure cleanliness and sustainability.",
+      "AI-driven tracking for garbage collection, smart bins, and city-wide cleanliness.",
     image:
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=800&q=80",
+    icon: <DeleteOutline color="inherit" />,
+    color: "#009688",
   },
   {
-    title: "Water Supply Monitoring",
+    title: "Water Supply",
     description:
-      "Monitor real-time water supply, detect leaks, and optimize consumption for a sustainable urban future.",
+      "Real-time monitoring of water levels, leak detection, and distribution optimization.",
     image:
-      "https://images.unsplash.com/photo-1521207418485-99c705420785?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?auto=format&fit=crop&w=800&q=80",
+    icon: <Opacity color="inherit" />,
+    color: "#2196f3",
   },
   {
-    title: "Grievance Redressal System",
+    title: "Grievance Redressal",
     description:
-      "Report city issues directly, track resolution status, and improve transparency between citizens and authorities.",
+      "Transparent reporting system connecting citizens directly to city officials.",
     image:
-      "https://images.unsplash.com/photo-1557804506-669a67965ba0?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1573164713988-8665fc963095?auto=format&fit=crop&w=800&q=80",
+    icon: <ReportProblem color="inherit" />,
+    color: "#ff7043",
   },
 ];
 
 const Home = () => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <Box sx={{ bgcolor: "background.default", minHeight: "100vh", overflowX: "hidden" }}>
       <Navbar />
 
-      {/* Hero (with blurred background image) */}
+      {/* 🚀 Hero Section */}
       <Box
         sx={{
           position: "relative",
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          pt: { xs: 12, md: 10 },
           overflow: "hidden",
-          pt: { xs: 6, md: 12 },
-          pb: { xs: 6, md: 8 },
+          background: isDark
+            ? "radial-gradient(circle at 50% 50%, #1a2035 0%, #0b1221 100%)"
+            : "radial-gradient(circle at 50% 50%, #f0f7ff 0%, #ffffff 100%)",
         }}
       >
-        {/* Blurred background layer */}
-        <Box sx={{ position: "absolute", inset: 0, zIndex: 0 }}>
-          <Box
-            sx={{
-              position: "absolute",
-              inset: 0,
-              backgroundImage:
-                "url('https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1950&q=80')",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              filter: "blur(8px) brightness(0.6)",
-              transform: "scale(1.03)",
-            }}
-          />
-          {/* soft gradient overlay to help text contrast */}
-          <Box
-            sx={{
-              position: "absolute",
-              inset: 0,
-              background:
-                "linear-gradient(180deg, rgba(0,0,0,0.12), rgba(0,0,0,0.06))",
-            }}
-          />
-        </Box>
+        {/* Abstract Background Shapes */}
+        <Box
+          sx={{
+            position: "absolute",
+            top: "-10%",
+            right: "-5%",
+            width: "50vw",
+            height: "50vw",
+            background: isDark
+              ? "radial-gradient(circle, rgba(0,150,136,0.15) 0%, transparent 70%)"
+              : "radial-gradient(circle, rgba(0,150,136,0.1) 0%, transparent 70%)",
+            borderRadius: "50%",
+            filter: "blur(60px)",
+            zIndex: 0,
+          }}
+        />
+        <Box
+          sx={{
+            position: "absolute",
+            bottom: "-10%",
+            left: "-10%",
+            width: "40vw",
+            height: "40vw",
+            background: isDark
+              ? "radial-gradient(circle, rgba(255,112,67,0.1) 0%, transparent 70%)"
+              : "radial-gradient(circle, rgba(255,112,67,0.08) 0%, transparent 70%)",
+            borderRadius: "50%",
+            filter: "blur(60px)",
+            zIndex: 0,
+          }}
+        />
 
-        <Container maxWidth="lg" sx={{ position: "relative", zIndex: 1 }}>
-          <Grid container spacing={4} alignItems="center">
+        <Container maxWidth="lg" sx={{ position: "relative", zIndex: 2 }}>
+          <Grid container spacing={6} alignItems="center">
+            {/* Text Content */}
             <Grid size={{ xs: 12, md: 6 }}>
-              <Box
-                sx={{
-                  mb: 3,
-                  bgcolor: "rgba(255,255,255,0.82)",
-                  p: 3,
-                  borderRadius: 2,
-                  boxShadow: "0 8px 24px rgba(2,6,23,0.06)",
-                }}
-              >
+              <Box sx={{ animation: `${fadeIn} 1s ease-out` }}>
+                <Chip
+                  label="Smart City 2.0"
+                  sx={{
+                    mb: 3,
+                    bgcolor: alpha(theme.palette.primary.main, 0.1),
+                    color: "primary.main",
+                    fontWeight: "bold",
+                    border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+                  }}
+                />
                 <Typography
-                  variant="h3"
-                  sx={{ fontWeight: 800, lineHeight: 1.05 }}
-                  gutterBottom
+                  variant="h2"
+                  sx={{
+                    fontWeight: 800,
+                    lineHeight: 1.1,
+                    mb: 3,
+                    background: isDark
+                      ? "linear-gradient(90deg, #fff 30%, #a5b4fc 100%)"
+                      : "linear-gradient(90deg, #111827 30%, #4b5563 100%)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    fontSize: { xs: "2.5rem", md: "3.75rem" },
+                  }}
                 >
-                  <Box
-                    component="span"
-                    sx={{
-                      display: "block",
-                      background: "linear-gradient(90deg,#009688,#ff7043)",
-                      WebkitBackgroundClip: "text",
-                      WebkitTextFillColor: "transparent",
-                    }}
-                  >
-                    Smart
-                  </Box>
-                  <Box component="span">
-                    City Management — Responsive, Transparent, Efficient
-                  </Box>
+                  Build the future <br />
+                  <span style={{ color: theme.palette.primary.main }}>
+                    of your city.
+                  </span>
+                </Typography>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    color: "text.secondary",
+                    mb: 5,
+                    lineHeight: 1.6,
+                    maxWidth: 500,
+                  }}
+                >
+                  Experience the next generation of urban management.
+                  Monitoring, reporting, and resolution — effortless and
+                  transparent.
                 </Typography>
 
-                <Typography
-                  variant="body1"
-                  color="text.secondary"
-                  sx={{ mb: 3 }}
-                >
-                  Leverage IoT, citizen reporting, and real-time dashboards to
-                  keep your city clean, its water flowing, and services working
-                  — all in one beautiful interface.
-                </Typography>
-
-                <Stack
-                  direction={{ xs: "column", sm: "row" }}
-                  spacing={2}
-                  sx={{ mb: 2 }}
-                >
+                <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
                   <Button
                     component={RouterLink}
                     to="/signup"
                     variant="contained"
                     size="large"
-                    sx={{ px: 4 }}
+                    endIcon={<ArrowForward />}
+                    sx={{
+                      py: 1.8,
+                      px: 4,
+                      borderRadius: "50px",
+                      fontSize: "1rem",
+                      fontWeight: "bold",
+                      textTransform: "none",
+                      boxShadow: `0 8px 20px ${alpha(theme.palette.primary.main, 0.4)}`,
+                    }}
                   >
                     Get Started
                   </Button>
@@ -178,400 +202,311 @@ const Home = () => {
                     to="/login"
                     variant="outlined"
                     size="large"
+                    sx={{
+                      py: 1.8,
+                      px: 4,
+                      borderRadius: "50px",
+                      fontSize: "1rem",
+                      fontWeight: "bold",
+                      textTransform: "none",
+                      borderColor: "text.secondary",
+                      color: "text.primary",
+                      "&:hover": {
+                        borderColor: "text.primary",
+                        bgcolor: alpha(theme.palette.text.primary, 0.05),
+                      },
+                    }}
                   >
                     Sign In
                   </Button>
                 </Stack>
-
-                <Stack direction="row" spacing={1} sx={{ mt: 2 }}>
-                  <Chip
-                    icon={<DeleteOutline />}
-                    label="Waste"
-                    component={RouterLink}
-                    to="/waste"
-                    clickable
-                  />
-                  <Chip
-                    icon={<Opacity />}
-                    label="Water"
-                    component={RouterLink}
-                    to="/water"
-                    clickable
-                  />
-                  <Chip
-                    icon={<ReportProblem />}
-                    label="Grievance"
-                    component={RouterLink}
-                    to="/grievance"
-                    clickable
-                  />
-                  <Chip
-                    icon={<HowToReg />}
-                    label="Services"
-                    component={RouterLink}
-                    to="/r"
-                    clickable
-                  />
-                </Stack>
-
-                {/* Stats */}
-                <Grid container spacing={2} sx={{ mt: 4 }}>
-                  <Grid size={{ xs: 6, sm: 3 }}>
-                    <Paper
-                      sx={{ p: 2, textAlign: "center", borderRadius: 2 }}
-                      elevation={0}
-                    >
-                      <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-                        1.2k
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        Requests
-                      </Typography>
-                    </Paper>
-                  </Grid>
-                  <Grid size={{ xs: 6, sm: 3 }}>
-                    <Paper
-                      sx={{ p: 2, textAlign: "center", borderRadius: 2 }}
-                      elevation={0}
-                    >
-                      <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-                        980
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        Resolved
-                      </Typography>
-                    </Paper>
-                  </Grid>
-                  <Grid size={{ xs: 6, sm: 3 }}>
-                    <Paper
-                      sx={{ p: 2, textAlign: "center", borderRadius: 2 }}
-                      elevation={0}
-                    >
-                      <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-                        24/7
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        Support
-                      </Typography>
-                    </Paper>
-                  </Grid>
-                  <Grid size={{ xs: 6, sm: 3 }}>
-                    <Paper
-                      sx={{ p: 2, textAlign: "center", borderRadius: 2 }}
-                      elevation={0}
-                    >
-                      <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-                        300+
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        Active Users
-                      </Typography>
-                    </Paper>
-                  </Grid>
-                </Grid>
               </Box>
             </Grid>
 
+            {/* Floating Visuals */}
             <Grid size={{ xs: 12, md: 6 }}>
-              <Box sx={{ display: "flex", justifyContent: "center" }}>
+              <Box
+                sx={{
+                  position: "relative",
+                  animation: `${float} 6s ease-in-out infinite`,
+                }}
+              >
                 <Box
                   component="img"
-                  src="https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1000&q=80"
-                  alt="city"
+                  src="https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=1000&q=80"
+                  alt="City Future"
                   sx={{
                     width: "100%",
-                    borderRadius: 3,
-                    boxShadow: "0 20px 40px rgba(2,6,23,0.12)",
+                    borderRadius: 8,
+                    boxShadow: isDark
+                      ? "0 20px 80px rgba(0,0,0,0.6)"
+                      : "0 20px 80px rgba(0,0,0,0.2)",
+                    transform: "perspective(1000px) rotateY(-5deg)",
                   }}
                 />
+
+                {/* Floating Cards */}
+                <Paper
+                  sx={{
+                    position: "absolute",
+                    bottom: -30,
+                    left: -30,
+                    p: 2,
+                    borderRadius: 4,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 2,
+                    boxShadow: "0 10px 40px rgba(0,0,0,0.1)",
+                    animation: `${float} 8s ease-in-out infinite reverse`,
+                    bgcolor: "background.paper",
+                  }}
+                >
+                  <Avatar sx={{ bgcolor: "#4caf50" }}>
+                    <Opacity />
+                  </Avatar>
+                  <Box>
+                    <Typography variant="subtitle2" fontWeight="bold">
+                      Water Quality
+                    </Typography>
+                    <Typography variant="caption" color="success.main" fontWeight="bold">
+                      98% Optimal
+                    </Typography>
+                  </Box>
+                </Paper>
+
+                <Paper
+                  sx={{
+                    position: "absolute",
+                    top: 40,
+                    right: -20,
+                    p: 2,
+                    borderRadius: 4,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 2,
+                    boxShadow: "0 10px 40px rgba(0,0,0,0.1)",
+                    animation: `${float} 7s ease-in-out infinite`,
+                    bgcolor: "background.paper",
+                  }}
+                >
+                  <Avatar sx={{ bgcolor: "#ff9800" }}>
+                    <ReportProblem />
+                  </Avatar>
+                  <Box>
+                    <Typography variant="subtitle2" fontWeight="bold">
+                      Issues Reported
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      12 New Reports
+                    </Typography>
+                  </Box>
+                </Paper>
               </Box>
             </Grid>
           </Grid>
         </Container>
       </Box>
 
-      {/* Features */}
-      <Box sx={{ py: 8, bgcolor: "background.paper" }}>
-        <Container maxWidth="lg">
-          <Typography
-            variant="h4"
-            align="center"
-            color="primary"
-            sx={{ fontWeight: "bold", mb: 4 }}
-          >
-            Key Capabilities
-          </Typography>
+      {/* 🔮 Capabilities Section */}
+      <Container maxWidth="lg" sx={{ py: 10 }}>
+        <Typography
+          variant="h3"
+          align="center"
+          sx={{ fontWeight: "bold", mb: 2 }}
+        >
+          Powerful Capabilities
+        </Typography>
+        <Typography
+          variant="body1"
+          align="center"
+          color="text.secondary"
+          sx={{ mb: 8, maxWidth: 650, mx: "auto", fontSize: "1.15rem", lineHeight: 1.6 }}
+        >
+          A comprehensive ecosystem designed to manage urban infrastructure with real-time data, AI-driven insights, and citizen engagement.
+        </Typography>
 
-          <Grid container spacing={3}>
-            {features.map((f, i) => (
-              <Grid key={i} size={{ xs: 12, md: 4 }}>
-                <Card
+        <Grid container spacing={4}>
+          {features.map((f, i) => (
+            <Grid key={i} size={{ xs: 12, md: 4 }}>
+              <Card
+                sx={{
+                  height: "100%",
+                  borderRadius: 8,
+                  bgcolor: isDark ? alpha(theme.palette.background.paper, 0.4) : "#fff",
+                  backdropFilter: "blur(20px)",
+                  transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+                  border: "1px solid",
+                  borderColor: alpha(theme.palette.divider, 0.1),
+                  overflow: "hidden",
+                  "&:hover": {
+                    transform: "translateY(-12px)",
+                    borderColor: f.color,
+                    boxShadow: `0 30px 60px ${alpha(f.color, 0.1)}`,
+                  },
+                }}
+                elevation={0}
+              >
+                <Box
                   sx={{
-                    borderRadius: 3,
+                    height: 200,
                     overflow: "hidden",
-                    "&:hover": {
-                      transform: "translateY(-8px)",
-                      boxShadow: "0 12px 30px rgba(2,6,23,0.12)",
-                    },
-                    transition: "all 250ms ease",
+                    position: "relative",
                   }}
-                  elevation={0}
                 >
                   <CardMedia
                     component="img"
-                    height="160"
+                    height="200"
                     image={f.image}
                     alt={f.title}
+                    sx={{ transition: "transform 0.5s", "&:hover": { transform: "scale(1.1)" } }}
                   />
-                  <CardContent>
-                    <Stack
-                      direction="row"
-                      spacing={2}
-                      alignItems="center"
-                      sx={{ mb: 1 }}
-                    >
-                      <Avatar sx={{ bgcolor: "primary.main" }}>{i + 1}</Avatar>
-                      <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-                        {f.title}
-                      </Typography>
-                    </Stack>
-                    <Typography variant="body2" color="text.secondary">
-                      {f.description}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        </Container>
-      </Box>
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: 16,
+                      right: 16,
+                      bgcolor: "background.paper",
+                      p: 1,
+                      borderRadius: "50%",
+                      color: f.color,
+                    }}
+                  >
+                    {f.icon}
+                  </Box>
+                </Box>
+                <CardContent sx={{ p: 4 }}>
+                  <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2 }}>
+                    {f.title}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
+                    {f.description}
+                  </Typography>
+                  <Button
+                    endIcon={<ArrowForward />}
+                    sx={{ mt: 3, color: f.color, p: 0, textTransform: "none", "&:hover": { bgcolor: "transparent", textDecoration: "underline" } }}
+                  >
+                    Learn more
+                  </Button>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      </Container>
 
-      {/* CTA Footer */}
-      <Box sx={{ bgcolor: "linear-gradient(90deg,#009688, #ff7043)", py: 6 }}>
-        <Container maxWidth="lg">
-          <Paper
+      {/* 🌌 Call to Action - Glassmorphism */}
+      <Container maxWidth="md" sx={{ mb: 12 }}>
+        <Box
+          sx={{
+            position: "relative",
+            p: { xs: 4, md: 8 },
+            borderRadius: 8,
+            overflow: "hidden",
+            textAlign: "center",
+            background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+            boxShadow: "0 20px 60px rgba(0,0,0,0.2)",
+          }}
+        >
+          {/* Noise/Texture Overlay */}
+          <Box
             sx={{
-              p: 4,
-              borderRadius: 3,
-              textAlign: "center",
-              background:
-                "linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.85))",
+              position: "absolute",
+              inset: 0,
+              backgroundImage: "url('https://www.transparenttextures.com/patterns/cubes.png')",
+              opacity: 0.1,
             }}
-            elevation={0}
-          >
-            <Typography variant="h5" sx={{ mb: 1, fontWeight: "bold" }}>
-              Ready to improve your city?
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              Sign up now to start submitting requests and getting real impact.
-            </Typography>
-            <Button
-              component={RouterLink}
-              to="/signup"
-              variant="contained"
-              size="large"
-            >
-              Create Account
-            </Button>
-          </Paper>
-        </Container>
-      </Box>
+          />
 
-      {/* Large Footer */}
-      <Box
-        component="footer"
-        sx={{ py: 8, bgcolor: "#0b1220", color: "white" }}
-      >
+          <Typography
+            variant="h3"
+            sx={{ color: "white", fontWeight: "bold", mb: 2, position: "relative" }}
+          >
+            Ready for the future?
+          </Typography>
+          <Typography
+            variant="h6"
+            sx={{ color: "rgba(255,255,255,0.9)", mb: 5, position: "relative", maxWidth: 600, mx: "auto" }}
+          >
+            Join thousands of citizens and administrators building the cities of tomorrow, today.
+          </Typography>
+
+          <Button
+            component={RouterLink}
+            to="/signup"
+            variant="contained"
+            size="large"
+            sx={{
+              bgcolor: "white",
+              color: "primary.main",
+              py: 2,
+              px: 6,
+              borderRadius: "50px",
+              fontWeight: "bold",
+              fontSize: "1.1rem",
+              "&:hover": {
+                bgcolor: "rgba(255,255,255,0.9)",
+              }
+            }}
+          >
+            Start Your Journey
+          </Button>
+        </Box>
+      </Container>
+
+      {/* Footer */}
+      <Box sx={{ bgcolor: isDark ? "#0b0f19" : "#f9fafb", py: 8 }}>
         <Container maxWidth="lg">
           <Grid container spacing={4}>
             <Grid size={{ xs: 12, md: 4 }}>
-              <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
-                Smart City Management
+              <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
+                Smart City
               </Typography>
-              <Typography
-                variant="body2"
-                color="rgba(255,255,255,0.8)"
-                sx={{ mb: 2 }}
-              >
-                Empowering citizens and administrators with tools to report
-                issues, monitor services, and improve urban living — all with
-                location-aware reporting.
+              <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 300 }}>
+                Redefining urban management with cutting-edge technology and human-centric design.
               </Typography>
-
-              <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-                <IconButton
-                  aria-label="facebook"
-                  size="small"
-                  sx={{ color: "white" }}
-                >
-                  <Facebook fontSize="small" />
-                </IconButton>
-                <IconButton
-                  aria-label="twitter"
-                  size="small"
-                  sx={{ color: "white" }}
-                >
-                  <Twitter fontSize="small" />
-                </IconButton>
-                <IconButton
-                  aria-label="instagram"
-                  size="small"
-                  sx={{ color: "white" }}
-                >
-                  <Instagram fontSize="small" />
-                </IconButton>
+              <Stack direction="row" spacing={2} sx={{ mt: 3 }}>
+                <IconButton size="small"><Facebook /></IconButton>
+                <IconButton size="small"><Twitter /></IconButton>
+                <IconButton size="small"><Instagram /></IconButton>
               </Stack>
             </Grid>
-
-            <Grid size={{ xs: 12, md: 3 }}>
-              <Typography
-                variant="subtitle1"
-                sx={{ fontWeight: "bold", mb: 1 }}
-              >
-                Quick Links
-              </Typography>
-              <Stack component="nav" spacing={1}>
-                <Button
-                  component={RouterLink}
-                  to="/home"
-                  color="inherit"
-                  sx={{
-                    justifyContent: "flex-start",
-                    color: "rgba(255,255,255,0.9)",
-                  }}
-                >
-                  Home
-                </Button>
-                <Button
-                  component={RouterLink}
-                  to="/about"
-                  color="inherit"
-                  sx={{
-                    justifyContent: "flex-start",
-                    color: "rgba(255,255,255,0.9)",
-                  }}
-                >
-                  About
-                </Button>
-                <Button
-                  component={RouterLink}
-                  to="/contact"
-                  color="inherit"
-                  sx={{
-                    justifyContent: "flex-start",
-                    color: "rgba(255,255,255,0.9)",
-                  }}
-                >
-                  Contact
-                </Button>
-                <Button
-                  component={RouterLink}
-                  to="/r"
-                  color="inherit"
-                  sx={{
-                    justifyContent: "flex-start",
-                    color: "rgba(255,255,255,0.9)",
-                  }}
-                >
-                  Services
-                </Button>
+            <Grid size={{ xs: 6, md: 2 }}>
+              <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 2 }}>Platform</Typography>
+              <Stack spacing={1}>
+                <Typography variant="body2" color="text.secondary" component={RouterLink} to="/" sx={{ textDecoration: "none", color: "inherit" }}>Home</Typography>
+                <Typography variant="body2" color="text.secondary" component={RouterLink} to="/about" sx={{ textDecoration: "none", color: "inherit" }}>About</Typography>
+                <Typography variant="body2" color="text.secondary" component={RouterLink} to="/services" sx={{ textDecoration: "none", color: "inherit" }}>Services</Typography>
               </Stack>
             </Grid>
-
-            <Grid size={{ xs: 12, md: 3 }}>
-              <Typography
-                variant="subtitle1"
-                sx={{ fontWeight: "bold", mb: 1 }}
-              >
-                Contact Us
-              </Typography>
-              <Stack spacing={0.5}>
-                <Typography variant="body2" color="rgba(255,255,255,0.85)">
-                  <LocationOn
-                    fontSize="small"
-                    sx={{ mr: 1, verticalAlign: "middle" }}
-                  />{" "}
-                  City Hall, Main St, Your City
-                </Typography>
-                <Typography variant="body2" color="rgba(255,255,255,0.85)">
-                  <Phone
-                    fontSize="small"
-                    sx={{ mr: 1, verticalAlign: "middle" }}
-                  />{" "}
-                  +1 (555) 123-4567
-                </Typography>
-                <Typography variant="body2" color="rgba(255,255,255,0.85)">
-                  <Email
-                    fontSize="small"
-                    sx={{ mr: 1, verticalAlign: "middle" }}
-                  />{" "}
-                  support@smartcity.example
-                </Typography>
+            <Grid size={{ xs: 6, md: 2 }}>
+              <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 2 }}>Support</Typography>
+              <Stack spacing={1}>
+                <Typography variant="body2" color="text.secondary" component={RouterLink} to="/contact" sx={{ textDecoration: "none", color: "inherit" }}>Contact</Typography>
+                <Typography variant="body2" color="text.secondary" component={RouterLink} to="/faq" sx={{ textDecoration: "none", color: "inherit" }}>FAQs</Typography>
+                <Typography variant="body2" color="text.secondary" component={RouterLink} to="/privacy" sx={{ textDecoration: "none", color: "inherit" }}>Privacy</Typography>
               </Stack>
             </Grid>
-
-            <Grid size={{ xs: 12, md: 2 }}>
-              <Typography
-                variant="subtitle1"
-                sx={{ fontWeight: "bold", mb: 1 }}
-              >
-                Newsletter
-              </Typography>
-              <Stack
-                component="form"
-                spacing={1}
-                onSubmit={(e) => e.preventDefault()}
-              >
+            <Grid size={{ xs: 12, md: 4 }}>
+              <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 2 }}>Stay Updated</Typography>
+              <Stack direction="row" spacing={1}>
                 <TextField
-                  placeholder="Email address"
+                  placeholder="Enter email"
                   size="small"
-                  variant="filled"
-                  sx={{ background: "rgba(255,255,255,0.06)", borderRadius: 1 }}
-                  InputProps={{ sx: { color: "white" } }}
+                  fullWidth
+                  sx={{ bgcolor: "background.paper" }}
                 />
-                <Button variant="contained" size="small">
-                  Subscribe
-                </Button>
+                <Button variant="contained">Subscribe</Button>
               </Stack>
             </Grid>
           </Grid>
-
-          <Box
-            sx={{
-              borderTop: "1px solid rgba(255,255,255,0.08)",
-              mt: 4,
-              pt: 3,
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <Typography variant="caption">
-              &copy; {new Date().getFullYear()} Smart City Management. All
-              rights reserved.
+          <Box sx={{ borderTop: "1px solid", borderColor: "divider", mt: 8, pt: 4, textAlign: "center" }}>
+            <Typography variant="caption" color="text.secondary">
+              © 2026 Smart City Management. All rights reserved.
             </Typography>
-            <Stack direction="row" spacing={2}>
-              <Button
-                component={RouterLink}
-                to="/privacy"
-                color="inherit"
-                sx={{ color: "rgba(255,255,255,0.9)" }}
-              >
-                Privacy
-              </Button>
-              <Button
-                component={RouterLink}
-                to="/terms"
-                color="inherit"
-                sx={{ color: "rgba(255,255,255,0.9)" }}
-              >
-                Terms
-              </Button>
-            </Stack>
           </Box>
         </Container>
       </Box>
-    </ThemeProvider>
+    </Box>
   );
 };
 

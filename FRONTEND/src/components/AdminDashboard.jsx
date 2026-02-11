@@ -2,10 +2,7 @@ import React, { useEffect, useState } from "react";
 import API_BASE_URL from "../config/api";
 import {
   Box,
-  CssBaseline,
   Typography,
-  createTheme,
-  ThemeProvider,
   Drawer,
   List,
   ListItem,
@@ -23,6 +20,10 @@ import {
   IconButton,
   useMediaQuery,
   useTheme,
+  alpha,
+  Card,
+  Chip,
+  Tooltip,
 } from "@mui/material";
 import {
   Dashboard,
@@ -40,16 +41,7 @@ import AdminLocations from "./AdminLocations";
 import ScheduleModal from "./ScheduleModal";
 import ReportDetailsModal from "./ReportDetailsModal";
 
-// 🎨 Theme
-const theme = createTheme({
-  palette: {
-    mode: "light",
-    primary: { main: "#009688" }, // Teal
-    secondary: { main: "#ff7043" }, // Coral
-    background: { default: "#f0f4f8" },
-  },
-  typography: { fontFamily: "Roboto, sans-serif" },
-});
+
 
 const drawerWidth = 240;
 
@@ -374,49 +366,72 @@ const AdminDashboard = () => {
   };
 
   const drawer = (
-    <Box sx={{ bgcolor: "#fff", height: "100%" }}>
-      <Typography
-        variant="h5"
-        color="primary"
-        sx={{ p: 2, fontWeight: "bold", textAlign: "center", mt: 2 }}
-      >
-        Admin Panel
-      </Typography>
-      <Divider />
-      <List>
+    <Box sx={{
+      height: "100%",
+      bgcolor: isDark ? alpha(theme.palette.background.paper, 0.4) : alpha("#fff", 0.6),
+      backdropFilter: "blur(20px)",
+      borderRight: "1px solid",
+      borderColor: alpha(theme.palette.divider, 0.1),
+    }}>
+      <Box sx={{ p: 3, textAlign: "center" }}>
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: 900,
+            background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            letterSpacing: -0.5,
+          }}
+        >
+          ADMIN PANEL
+        </Typography>
+      </Box>
+      <Divider sx={{ opacity: 0.1 }} />
+      <List sx={{ px: 2, mt: 2 }}>
         {[
-          { key: "overview", text: "Dashboard Overview", icon: <Dashboard /> },
-          { key: "waste", text: "Waste Management", icon: <DeleteOutline /> },
+          { key: "overview", text: "Overview", icon: <Dashboard /> },
+          { key: "waste", text: "Waste Mgmt", icon: <DeleteOutline /> },
           { key: "water", text: "Water Issues", icon: <Opacity /> },
           { key: "workforce", text: "Workforce", icon: <People /> },
           { key: "grievances", text: "Grievances", icon: <ReportProblem /> },
           { key: "locations", text: "Locations", icon: <Dashboard /> },
-          { key: "userlogins", text: "User Logins", icon: <People /> },
-          { key: "logs", text: "Activity Logs", icon: <ReportProblem /> },
+          { key: "userlogins", text: "Security", icon: <Settings /> },
+          { key: "logs", text: "System Logs", icon: <ReportProblem /> },
         ].map((item) => (
-          <ListItem key={item.key} disablePadding sx={{ display: "block" }}>
+          <ListItem key={item.key} disablePadding sx={{ mb: 1 }}>
             <ListItemButton
               onClick={() => handleTabChange(item.key)}
               selected={tab === item.key}
               sx={{
+                borderRadius: 3,
+                py: 1.2,
+                transition: "all 0.2s",
                 "&.Mui-selected": {
-                  bgcolor: "rgba(0,150,136,0.1)",
-                  borderLeft: "4px solid #009688",
+                  bgcolor: alpha(theme.palette.primary.main, 0.1),
+                  color: "primary.main",
+                  "& .MuiListItemIcon-root": { color: "primary.main" },
                 },
-                "&:hover": { bgcolor: "rgba(0,150,136,0.05)" },
+                "&:hover": {
+                  bgcolor: alpha(theme.palette.primary.main, 0.05),
+                  transform: "translateX(4px)"
+                },
               }}
             >
               <ListItemIcon
                 sx={{
-                  color: tab === item.key ? "#009688" : "inherit",
                   minWidth: 40,
+                  color: tab === item.key ? "primary.main" : "text.secondary",
                 }}
               >
                 {item.icon}
               </ListItemIcon>
               <ListItemText
                 primary={item.text}
-                sx={{ color: tab === item.key ? "#009688" : "inherit" }}
+                primaryTypographyProps={{
+                  fontWeight: tab === item.key ? 700 : 500,
+                  fontSize: "0.95rem"
+                }}
               />
             </ListItemButton>
           </ListItem>
@@ -426,8 +441,7 @@ const AdminDashboard = () => {
   );
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       <Navbar />
 
       <Box sx={{ display: "flex", position: "relative" }}>
@@ -466,6 +480,8 @@ const AdminDashboard = () => {
               "& .MuiDrawer-paper": {
                 boxSizing: "border-box",
                 width: drawerWidth,
+                bgcolor: "transparent",
+                border: "none",
                 top: "70px",
                 height: "calc(100% - 70px)",
               },
@@ -481,6 +497,8 @@ const AdminDashboard = () => {
               "& .MuiDrawer-paper": {
                 boxSizing: "border-box",
                 width: drawerWidth,
+                bgcolor: "transparent",
+                border: "none",
                 top: "70px",
                 height: "calc(100% - 70px)",
               },
@@ -502,426 +520,483 @@ const AdminDashboard = () => {
           }}
         >
           {tab === "overview" && (
-            <>
-              <Typography
-                variant="h4"
-                color="primary"
-                sx={{ fontWeight: "bold", mb: 3 }}
-              >
-                Dashboard Overview
-              </Typography>
+            <Box sx={{ animation: "fadeIn 0.5s ease-out" }}>
+              <Box sx={{ mb: 4 }}>
+                <Typography
+                  variant="h4"
+                  sx={{ fontWeight: 900, color: "text.primary" }}
+                >
+                  System Overview
+                </Typography>
+                <Typography variant="body1" color="text.secondary">
+                  Real-time monitoring of city services and infrastructure.
+                </Typography>
+              </Box>
 
-              {/* ✅ Grid v2 Syntax */}
-              <Grid container spacing={3} sx={{ mb: 3 }}>
+              <Grid container spacing={3} sx={{ mb: 4 }}>
                 {[
                   {
                     title: "Waste Requests",
                     value: overview.wasteCount,
-                    color: "#009688",
+                    color: theme.palette.primary.main,
                     icon: <DeleteOutline />,
                     link: "waste",
                   },
                   {
+                    title: "User Accounts",
+                    value: overview.userCount,
+                    color: theme.palette.info.main,
+                    icon: <People />,
+                    link: "workforce",
+                  },
+                  {
                     title: "Activity Logs",
                     value: overview.recentLogs?.length,
-                    color: "#ff7043",
+                    color: theme.palette.secondary.main,
                     icon: <ReportProblem />,
                     link: "logs",
                   },
                 ].map((stat, index) => (
-                  <Grid size={{ xs: 12, sm: 6, md: 3 }} key={index}>
-                    <Paper
-                      elevation={2}
+                  <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
+                    <Card
+                      elevation={0}
                       sx={{
-                        p: 2.5,
-                        borderRadius: 3,
+                        p: 3,
+                        borderRadius: 6,
                         display: "flex",
                         alignItems: "center",
-                        gap: 2,
+                        gap: 2.5,
+                        bgcolor: isDark ? alpha(theme.palette.background.paper, 0.4) : "#fff",
+                        backdropFilter: "blur(20px)",
+                        border: "1px solid",
+                        borderColor: alpha(theme.palette.divider, 0.1),
+                        transition: "transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+                        "&:hover": { transform: "translateY(-6px)", borderColor: stat.color }
                       }}
                     >
                       <Avatar
-                        sx={{ bgcolor: stat.color, width: 56, height: 56 }}
+                        sx={{
+                          bgcolor: alpha(stat.color, 0.1),
+                          color: stat.color,
+                          width: 64,
+                          height: 64,
+                          fontSize: "2rem"
+                        }}
                       >
                         {stat.icon}
                       </Avatar>
                       <Box sx={{ flex: 1 }}>
                         <Typography
-                          variant="subtitle2"
-                          sx={{ color: "text.secondary" }}
+                          variant="overline"
+                          sx={{ color: "text.secondary", fontWeight: 700, letterSpacing: 1 }}
                         >
                           {stat.title}
                         </Typography>
-                        <Typography variant="h5" sx={{ fontWeight: "bold" }}>
-                          {stat.value}
-                        </Typography>
-                        <Button size="small" onClick={() => setTab(stat.link)}>
-                          View Details
-                        </Button>
+                        <Stack direction="row" alignItems="center" justifyContent="space-between">
+                          <Typography variant="h4" sx={{ fontWeight: 800 }}>
+                            {stat.value}
+                          </Typography>
+                          <IconButton size="small" onClick={() => setTab(stat.link)} sx={{ color: stat.color }}>
+                            <Dashboard fontSize="small" />
+                          </IconButton>
+                        </Stack>
                       </Box>
-                    </Paper>
+                    </Card>
                   </Grid>
                 ))}
               </Grid>
 
               <Grid container spacing={3}>
                 <Grid size={{ xs: 12, md: 6 }}>
-                  <Paper elevation={2} sx={{ p: 2, borderRadius: 3 }}>
+                  <Card
+                    elevation={0}
+                    sx={{
+                      p: 3,
+                      borderRadius: 6,
+                      bgcolor: isDark ? alpha(theme.palette.background.paper, 0.4) : "#fff",
+                      backdropFilter: "blur(20px)",
+                      border: "1px solid",
+                      borderColor: alpha(theme.palette.divider, 0.1),
+                    }}
+                  >
                     <Stack
                       direction="row"
                       alignItems="center"
                       justifyContent="space-between"
-                      sx={{ mb: 2 }}
+                      sx={{ mb: 3 }}
                     >
-                      <Typography variant="h6">Recent Activity</Typography>
-                      <Button size="small" onClick={() => setTab("logs")}>
-                        See all
+                      <Typography variant="h6" sx={{ fontWeight: 800 }}>Recent Activity</Typography>
+                      <Button
+                        size="small"
+                        onClick={() => setTab("logs")}
+                        sx={{ borderRadius: 50, textTransform: "none", fontWeight: 700 }}
+                      >
+                        View System Logs
                       </Button>
                     </Stack>
-                    <Box>
+                    <Stack spacing={1.5}>
                       {overviewLoading ? (
-                        <Typography>Loading...</Typography>
-                      ) : overview.recentLogs &&
-                        overview.recentLogs.length > 0 ? (
+                        <CircularProgress size={24} sx={{ my: 2, mx: "auto", display: "block" }} />
+                      ) : (overview.recentLogs || []).length > 0 ? (
                         overview.recentLogs.map((l, i) => (
-                          <Paper
+                          <Box
                             key={i}
-                            variant="outlined"
-                            sx={{ p: 1, mb: 1, bgcolor: "#fafafa" }}
+                            sx={{
+                              p: 2,
+                              borderRadius: 3,
+                              bgcolor: alpha(theme.palette.primary.main, i === 0 ? 0.08 : 0.03),
+                              border: "1px solid",
+                              borderColor: alpha(theme.palette.divider, 0.05)
+                            }}
                           >
-                            <Typography
-                              variant="body2"
-                              sx={{ fontSize: "0.85rem" }}
-                            >
-                              <strong>{l.action}</strong>: {l.message} <br />
-                              <span
-                                style={{ color: "gray", fontSize: "0.75rem" }}
-                              >
-                                {new Date(l.createdAt).toLocaleString()}
-                              </span>
+                            <Typography variant="body2" sx={{ fontWeight: 600 }}>{l.action}</Typography>
+                            <Typography variant="caption" color="text.secondary" display="block">{l.message}</Typography>
+                            <Typography variant="caption" sx={{ color: "text.disabled", mt: 0.5, display: "block" }}>
+                              {new Date(l.createdAt).toLocaleString()}
                             </Typography>
-                          </Paper>
+                          </Box>
                         ))
                       ) : (
-                        <Typography color="text.secondary">
-                          No recent activity
-                        </Typography>
+                        <Typography color="text.secondary" align="center" sx={{ py: 4 }}>No recent activity</Typography>
                       )}
-                    </Box>
-                  </Paper>
+                    </Stack>
+                  </Card>
                 </Grid>
 
                 <Grid size={{ xs: 12, md: 6 }}>
-                  <Paper elevation={2} sx={{ p: 2, borderRadius: 3 }}>
-                    <Typography variant="h6" sx={{ mb: 2 }}>
-                      Recent Requests
-                    </Typography>
-                    {overviewLoading ? (
-                      <Typography>Loading...</Typography>
-                    ) : overview.recentWastes.length ? (
-                      overview.recentWastes.map((w, i) => (
-                        <Box
-                          key={i}
-                          sx={{ mb: 1, pb: 1, borderBottom: "1px solid #eee" }}
-                        >
-                          <Typography variant="subtitle2">
-                            {w.wasteType}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
-                            {w.address} • {w.status}
-                          </Typography>
-                        </Box>
-                      ))
-                    ) : (
-                      <Typography color="text.secondary">
-                        No recent requests
-                      </Typography>
-                    )}
-                  </Paper>
+                  <Card
+                    elevation={0}
+                    sx={{
+                      p: 3,
+                      borderRadius: 6,
+                      bgcolor: isDark ? alpha(theme.palette.background.paper, 0.4) : "#fff",
+                      backdropFilter: "blur(20px)",
+                      border: "1px solid",
+                      borderColor: alpha(theme.palette.divider, 0.1),
+                    }}
+                  >
+                    <Typography variant="h6" sx={{ fontWeight: 800, mb: 3 }}>Recent Requests</Typography>
+                    <Stack spacing={1.5}>
+                      {overviewLoading ? (
+                        <CircularProgress size={24} sx={{ my: 2, mx: "auto", display: "block" }} />
+                      ) : (overview.recentWastes || []).length > 0 ? (
+                        overview.recentWastes.map((w, i) => (
+                          <Box
+                            key={i}
+                            sx={{
+                              p: 2,
+                              borderRadius: 3,
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              borderBottom: i !== overview.recentWastes.length - 1 ? "1px solid" : "none",
+                              borderColor: alpha(theme.palette.divider, 0.05)
+                            }}
+                          >
+                            <Box>
+                              <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{w.wasteType}</Typography>
+                              <Typography variant="caption" color="text.secondary">{w.address}</Typography>
+                            </Box>
+                            <Chip
+                              label={w.status}
+                              size="small"
+                              color={w.status === "collected" ? "success" : "warning"}
+                              sx={{ fontWeight: 800, borderRadius: 1.5, height: 20 }}
+                            />
+                          </Box>
+                        ))
+                      ) : (
+                        <Typography color="text.secondary" align="center" sx={{ py: 4 }}>No recent requests</Typography>
+                      )}
+                    </Stack>
+                  </Card>
                 </Grid>
               </Grid>
-            </>
+            </Box>
           )}
 
           {tab === "waste" && (
-            <>
-              <Typography
-                variant="h5"
-                color="primary"
-                sx={{ fontWeight: "bold", mb: 2 }}
-              >
-                Waste Requests
-              </Typography>
-              <Paper sx={{ p: 2, mb: 3 }}>
-                {loading ? (
-                  <Typography>Loading...</Typography>
-                ) : (
-                  <Grid container spacing={2}>
-                    {wastes.map((w) => (
-                      <Grid size={{ xs: 12, md: 6 }} key={w._id}>
-                        <Paper variant="outlined" sx={{ p: 2 }}>
-                          <Typography variant="h6">{w.name}</Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            {w.address}
-                          </Typography>
-                          <Typography
-                            variant="caption"
-                            sx={{ fontWeight: "bold", color: "primary.main" }}
-                          >
-                            {w.wasteType} • {w.status || "Pending"}
-                          </Typography>
-                          {w.assignedTo && (
-                            <Typography
-                              variant="caption"
-                              display="block"
-                              color="secondary"
-                            >
-                              👷 Assigned: {w.assignedTo.fullName}
+            <Box sx={{ animation: "fadeIn 0.5s ease-out" }}>
+              <Box sx={{ mb: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <Box>
+                  <Typography variant="h4" sx={{ fontWeight: 900 }}>Waste Management</Typography>
+                  <Typography variant="body1" color="text.secondary">Review and assign garbage collection requests.</Typography>
+                </Box>
+                <Button variant="outlined" onClick={fetchWastes} startIcon={<DeleteOutline />}>Refresh</Button>
+              </Box>
+
+              {loading ? (
+                <CircularProgress sx={{ display: "block", mx: "auto", my: 5 }} />
+              ) : (
+                <Grid container spacing={3}>
+                  {wastes.map((w) => (
+                    <Grid size={{ xs: 12, md: 6 }} key={w._id}>
+                      <Card
+                        elevation={0}
+                        sx={{
+                          p: 3,
+                          borderRadius: 6,
+                          bgcolor: isDark ? alpha(theme.palette.background.paper, 0.4) : "#fff",
+                          backdropFilter: "blur(20px)",
+                          border: "1px solid",
+                          borderColor: alpha(theme.palette.divider, 0.1),
+                          transition: "all 0.3s ease",
+                          "&:hover": { transform: "translateY(-4px)", borderColor: "primary.main" }
+                        }}
+                      >
+                        <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 2 }}>
+                          <Box>
+                            <Typography variant="h6" sx={{ fontWeight: 800 }}>{w.name}</Typography>
+                            <Typography variant="body2" color="text.secondary" sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                              <LocationOn fontSize="inherit" /> {w.address}
                             </Typography>
-                          )}
-                          {w.status !== "collected" &&
-                            w.status !== "Resolved" && (
-                              <Box sx={{ mt: 1, display: "flex", gap: 1 }}>
-                                <Select
-                                  size="small"
-                                  defaultValue={
-                                    w.assignedTo ? w.assignedTo._id : ""
-                                  }
-                                  displayEmpty
-                                  onChange={(e) =>
-                                    assignTask("waste", w._id, e.target.value)
-                                  }
-                                  sx={{ minWidth: 120 }}
-                                >
-                                  <MenuItem value="" disabled>
-                                    {w.assignedTo
-                                      ? "Change Worker"
-                                      : "Assign Worker"}
-                                  </MenuItem>
-                                  {workers
-                                    .filter((x) => x.status === "active")
-                                    .map((worker) => (
-                                      <MenuItem
-                                        key={worker._id}
-                                        value={worker._id}
-                                      >
-                                        {worker.fullName}
-                                      </MenuItem>
-                                    ))}
-                                </Select>
-                              </Box>
-                            )}
+                          </Box>
+                          <Chip
+                            label={w.status || "Pending"}
+                            color={w.status === "collected" ? "success" : "warning"}
+                            size="small"
+                            sx={{ fontWeight: 700, borderRadius: 2 }}
+                          />
+                        </Stack>
+
+                        <Box sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05), p: 2, borderRadius: 3, mb: 2 }}>
+                          <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5 }}>Service Details</Typography>
+                          <Typography variant="body2">Type: <strong>{w.wasteType}</strong></Typography>
                           {w.scheduledTime && (
-                            <Typography
-                              variant="body2"
-                              sx={{ mt: 1, color: "info.main" }}
-                            >
-                              📅 Scheduled:{" "}
-                              {new Date(w.scheduledTime).toLocaleString()}
-                            </Typography>
+                            <Typography variant="body2" color="info.main">Scheduled: <strong>{new Date(w.scheduledTime).toLocaleString()}</strong></Typography>
                           )}
-                          {w.reports && w.reports.length > 0 && (
+                        </Box>
+
+                        {w.assignedTo && (
+                          <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 3, display: "flex", alignItems: "center", gap: 1.5, mb: 2 }}>
+                            <Avatar sx={{ width: 32, height: 32, bgcolor: "secondary.main" }}>{w.assignedTo.fullName.charAt(0)}</Avatar>
+                            <Box>
+                              <Typography variant="caption" color="text.secondary" sx={{ display: "block", lineHeight: 1 }}>ASSIGNED TO</Typography>
+                              <Typography variant="body2" sx={{ fontWeight: 600 }}>{w.assignedTo.fullName}</Typography>
+                            </Box>
+                          </Paper>
+                        )}
+
+                        <Stack direction="row" spacing={1} flexWrap="wrap" gap={1}>
+                          {!["collected", "Resolved"].includes(w.status) && (
+                            <>
+                              <Select
+                                size="small"
+                                defaultValue={w.assignedTo ? w.assignedTo._id : ""}
+                                displayEmpty
+                                onChange={(e) => assignTask("waste", w._id, e.target.value)}
+                                sx={{ minWidth: 150, borderRadius: 50 }}
+                              >
+                                <MenuItem value="" disabled>{w.assignedTo ? "Change Worker" : "Assign Worker"}</MenuItem>
+                                {workers.filter(x => x.status === "active").map(worker => (
+                                  <MenuItem key={worker._id} value={worker._id}>{worker.fullName}</MenuItem>
+                                ))}
+                              </Select>
+                              <Button
+                                size="small"
+                                variant="contained"
+                                onClick={() => { setSelectedWaste(w); setScheduleModalOpen(true); }}
+                                sx={{ borderRadius: 50 }}
+                              >
+                                {w.status === "scheduled" ? "Reschedule" : "Schedule"}
+                              </Button>
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                onClick={() => updateStatus("waste", w._id, "collected", fetchWastes)}
+                                sx={{ borderRadius: 50 }}
+                              >
+                                Done
+                              </Button>
+                            </>
+                          )}
+                          {w.reports?.length > 0 && (
                             <Button
                               size="small"
+                              variant="text"
                               color="error"
-                              onClick={() => {
-                                setSelectedWaste(w);
-                                setReportModalOpen(true);
-                              }}
+                              onClick={() => { setSelectedWaste(w); setReportModalOpen(true); }}
+                              sx={{ fontWeight: 700 }}
                             >
-                              📋 View {w.reports.length} Report(s)
+                              View Reports ({w.reports.length})
                             </Button>
                           )}
-                          <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-                            {w.status !== "collected" && (
-                              <>
-                                <Button
-                                  size="small"
-                                  variant="contained"
-                                  onClick={() => {
-                                    setSelectedWaste(w);
-                                    setScheduleModalOpen(true);
-                                  }}
-                                >
-                                  {w.status === "scheduled"
-                                    ? "Reschedule"
-                                    : "Schedule"}
-                                </Button>
-                                <Button
-                                  size="small"
-                                  variant="outlined"
-                                  onClick={() =>
-                                    updateStatus(
-                                      "waste",
-                                      w._id,
-                                      "collected",
-                                      fetchWastes,
-                                    )
-                                  }
-                                >
-                                  Collected
-                                </Button>
-                              </>
-                            )}
-                            {w.status === "collected" && (
-                              <Typography
-                                variant="body2"
-                                sx={{
-                                  color: "success.main",
-                                  fontWeight: "bold",
-                                }}
-                              >
-                                ✓ Collected
-                              </Typography>
-                            )}
-                          </Stack>
-                        </Paper>
-                      </Grid>
-                    ))}
-                  </Grid>
-                )}
-              </Paper>
-              <ScheduleModal
-                open={scheduleModalOpen}
-                onClose={() => setScheduleModalOpen(false)}
-                item={selectedWaste}
-                onSchedule={fetchWastes}
-              />
-              <ReportDetailsModal
-                open={reportModalOpen}
-                onClose={() => setReportModalOpen(false)}
-                item={selectedWaste}
-              />
-            </>
+                        </Stack>
+                      </Card>
+                    </Grid>
+                  ))}
+                </Grid>
+              )}
+              <ScheduleModal open={scheduleModalOpen} onClose={() => setScheduleModalOpen(false)} item={selectedWaste} onSchedule={fetchWastes} />
+              <ReportDetailsModal open={reportModalOpen} onClose={() => setReportModalOpen(false)} item={selectedWaste} />
+            </Box>
           )}
 
           {tab === "water" && (
-            <>
-              <Typography
-                variant="h5"
-                color="primary"
-                sx={{ fontWeight: "bold", mb: 2 }}
-              >
-                Water Requests
-              </Typography>
-              <Paper sx={{ p: 2, mb: 3 }}>
-                {loading ? (
-                  <Typography>Loading...</Typography>
-                ) : (
+            <Box sx={{ animation: "fadeIn 0.5s ease-out" }}>
+              <Box sx={{ mb: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <Box>
+                  <Typography variant="h4" sx={{ fontWeight: 900 }}>Water Issues</Typography>
+                  <Typography variant="body1" color="text.secondary">Monitor and resolve water-related complaints.</Typography>
+                </Box>
+                <Button variant="outlined" onClick={fetchWaters} startIcon={<Opacity />}>Refresh</Button>
+              </Box>
+
+              {loading ? (
+                <CircularProgress sx={{ display: "block", mx: "auto", my: 5 }} />
+              ) : (
+                <Grid container spacing={3}>
+                  {waters.map((w) => (
+                    <Grid size={{ xs: 12, md: 6 }} key={w._id}>
+                      <Card
+                        elevation={0}
+                        sx={{
+                          p: 3,
+                          borderRadius: 6,
+                          bgcolor: isDark ? alpha(theme.palette.background.paper, 0.4) : "#fff",
+                          backdropFilter: "blur(20px)",
+                          border: "1px solid",
+                          borderColor: alpha(theme.palette.divider, 0.1),
+                          transition: "all 0.3s ease",
+                          "&:hover": { transform: "translateY(-4px)", borderColor: theme.palette.info.main }
+                        }}
+                      >
+                        <Stack direction="row" justifyContent="space-between" alignItems="flex-start" sx={{ mb: 2 }}>
+                          <Box>
+                            <Typography variant="h6" sx={{ fontWeight: 800 }}>{w.name}</Typography>
+                            <Typography variant="body2" color="text.secondary" sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                              <LocationOn fontSize="inherit" /> {w.address}
+                            </Typography>
+                          </Box>
+                          <Chip
+                            label={w.status || "Pending"}
+                            color={["resolved", "Resolved"].includes(w.status) ? "success" : "info"}
+                            size="small"
+                            sx={{ fontWeight: 700, borderRadius: 2 }}
+                          />
+                        </Stack>
+
+                        <Box sx={{ bgcolor: alpha(theme.palette.info.main, 0.05), p: 2, borderRadius: 3, mb: 2 }}>
+                          <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 0.5 }}>Issue Details</Typography>
+                          <Typography variant="body2">Type: <strong>{w.issueType}</strong></Typography>
+                          {w.description && <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>{w.description}</Typography>}
+                        </Box>
+
+                        {w.assignedTo && (
+                          <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 3, display: "flex", alignItems: "center", gap: 1.5, mb: 2 }}>
+                            <Avatar sx={{ width: 32, height: 32, bgcolor: "info.main" }}>{w.assignedTo.fullName.charAt(0)}</Avatar>
+                            <Box>
+                              <Typography variant="caption" color="text.secondary" sx={{ display: "block", lineHeight: 1 }}>ASSIGNED TO</Typography>
+                              <Typography variant="body2" sx={{ fontWeight: 600 }}>{w.assignedTo.fullName}</Typography>
+                            </Box>
+                          </Paper>
+                        )}
+
+                        <Stack direction="row" spacing={1} flexWrap="wrap" gap={1}>
+                          {!["resolved", "Resolved"].includes(w.status) && (
+                            <>
+                              <Select
+                                size="small"
+                                defaultValue={w.assignedTo ? w.assignedTo._id : ""}
+                                displayEmpty
+                                onChange={(e) => assignTask("water", w._id, e.target.value)}
+                                sx={{ minWidth: 150, borderRadius: 50 }}
+                              >
+                                <MenuItem value="" disabled>{w.assignedTo ? "Change Worker" : "Assign Worker"}</MenuItem>
+                                {workers.filter(x => x.status === "active").map(worker => (
+                                  <MenuItem key={worker._id} value={worker._id}>{worker.fullName}</MenuItem>
+                                ))}
+                              </Select>
+                              <Button
+                                size="small"
+                                variant="contained"
+                                onClick={() => { setSelectedWater(w); setWaterScheduleModalOpen(true); }}
+                                sx={{ borderRadius: 50 }}
+                              >
+                                {w.status === "scheduled" ? "Reschedule" : "Schedule"}
+                              </Button>
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                onClick={() => updateStatus("water", w._id, "resolved", fetchWaters)}
+                                sx={{ borderRadius: 50 }}
+                              >
+                                Resolved
+                              </Button>
+                            </>
+                          )}
+                        </Stack>
+                      </Card>
+                    </Grid>
+                  ))}
+                </Grid>
+              )}
+              <ScheduleModal
+                open={waterScheduleModalOpen}
+                onClose={() => setWaterScheduleModalOpen(false)}
+                item={selectedWater}
+                onSchedule={fetchWaters}
+                endpoint="water"
+              />
+            </Box>
+          )}
+
+          {
+            tab === "grievances" && (
+              <>
+                <Typography
+                  variant="h5"
+                  color="primary"
+                  sx={{ fontWeight: "bold", mb: 2 }}
+                >
+                  Grievances
+                </Typography>
+                <Paper sx={{ p: 2, mb: 3 }}>
                   <Grid container spacing={2}>
-                    {waters.map((w) => (
-                      <Grid size={{ xs: 12, md: 6 }} key={w._id}>
+                    {grievances.map((g) => (
+                      <Grid size={{ xs: 12, md: 6 }} key={g._id}>
                         <Paper variant="outlined" sx={{ p: 2 }}>
-                          <Typography variant="h6">{w.name}</Typography>
-                          <Typography variant="body2" color="text.secondary">
-                            {w.address}
+                          <Typography variant="h6">{g.subject}</Typography>
+                          <Typography variant="body2" sx={{ mt: 1 }}>
+                            {g.description}
                           </Typography>
                           <Typography
                             variant="caption"
-                            sx={{ fontWeight: "bold", color: "primary.main" }}
+                            display="block"
+                            sx={{ mt: 1, color: "text.secondary" }}
                           >
-                            {w.issueType} • {w.status || "Pending"}
+                            By: {g.name} •{" "}
+                            {new Date(g.createdAt).toLocaleDateString()}
                           </Typography>
-                          {w.assignedTo && (
-                            <Typography
-                              variant="caption"
-                              display="block"
-                              color="secondary"
-                            >
-                              👷 Assigned: {w.assignedTo.fullName}
-                            </Typography>
-                          )}
-                          {w.status !== "resolved" &&
-                            w.status !== "Resolved" && (
-                              <Box sx={{ mt: 1, display: "flex", gap: 1 }}>
-                                <Select
-                                  size="small"
-                                  defaultValue={
-                                    w.assignedTo ? w.assignedTo._id : ""
-                                  }
-                                  displayEmpty
-                                  onChange={(e) =>
-                                    assignTask("water", w._id, e.target.value)
-                                  }
-                                  sx={{ minWidth: 120 }}
-                                >
-                                  <MenuItem value="" disabled>
-                                    {w.assignedTo
-                                      ? "Change Worker"
-                                      : "Assign Worker"}
-                                  </MenuItem>
-                                  {workers
-                                    .filter((x) => x.status === "active")
-                                    .map((worker) => (
-                                      <MenuItem
-                                        key={worker._id}
-                                        value={worker._id}
-                                      >
-                                        {worker.fullName}
-                                      </MenuItem>
-                                    ))}
-                                </Select>
-                              </Box>
-                            )}
-                          {w.scheduledTime && (
-                            <Typography
-                              variant="body2"
-                              sx={{ mt: 1, color: "info.main" }}
-                            >
-                              📅 Scheduled:{" "}
-                              {new Date(w.scheduledTime).toLocaleString()}
-                            </Typography>
-                          )}
-                          {w.reports && w.reports.length > 0 && (
-                            <Button
-                              size="small"
-                              color="error"
-                              onClick={() => {
-                                setSelectedWater(w);
-                                setReportModalOpen(true);
-                              }}
-                            >
-                              📋 View {w.reports.length} Report(s)
-                            </Button>
-                          )}
-                          <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
-                            {w.status !== "resolved" && (
-                              <>
-                                <Button
-                                  size="small"
-                                  variant="contained"
-                                  onClick={() => {
-                                    setSelectedWater(w);
-                                    setWaterScheduleModalOpen(true);
-                                  }}
-                                >
-                                  {w.status === "scheduled"
-                                    ? "Reschedule"
-                                    : "Schedule"}
-                                </Button>
-                                <Button
-                                  size="small"
-                                  variant="outlined"
-                                  onClick={() =>
-                                    updateStatus(
-                                      "water",
-                                      w._id,
-                                      "resolved",
-                                      fetchWaters,
-                                    )
-                                  }
-                                >
-                                  Resolve
-                                </Button>
-                              </>
-                            )}
-                            {w.status === "resolved" && (
+                          <Stack
+                            direction="row"
+                            spacing={1}
+                            sx={{ mt: 2 }}
+                            alignItems="center"
+                          >
+                            {g.status !== "resolved" ? (
+                              <Select
+                                size="small"
+                                value={g.status || "open"}
+                                onChange={(e) =>
+                                  updateStatus(
+                                    "grievance",
+                                    g._id,
+                                    e.target.value,
+                                    fetchGrievances,
+                                  )
+                                }
+                              >
+                                <MenuItem value="open">Open</MenuItem>
+                                <MenuItem value="in-progress">
+                                  In-Progress
+                                </MenuItem>
+                                <MenuItem value="resolved">Resolved</MenuItem>
+                              </Select>
+                            ) : (
                               <Typography
                                 variant="body2"
-                                sx={{
-                                  color: "success.main",
-                                  fontWeight: "bold",
-                                }}
+                                sx={{ color: "success.main", fontWeight: "bold" }}
                               >
                                 ✓ Resolved
                               </Typography>
@@ -931,380 +1006,291 @@ const AdminDashboard = () => {
                       </Grid>
                     ))}
                   </Grid>
-                )}
-              </Paper>
-              <ScheduleModal
-                open={waterScheduleModalOpen}
-                onClose={() => setWaterScheduleModalOpen(false)}
-                item={selectedWater}
-                onSchedule={fetchWaters}
-                endpoint="water"
-              />
-            </>
-          )}
+                </Paper>
+              </>
+            )
+          }
 
-          {tab === "grievances" && (
-            <>
-              <Typography
-                variant="h5"
-                color="primary"
-                sx={{ fontWeight: "bold", mb: 2 }}
-              >
-                Grievances
-              </Typography>
-              <Paper sx={{ p: 2, mb: 3 }}>
-                <Grid container spacing={2}>
-                  {grievances.map((g) => (
-                    <Grid size={{ xs: 12, md: 6 }} key={g._id}>
-                      <Paper variant="outlined" sx={{ p: 2 }}>
-                        <Typography variant="h6">{g.subject}</Typography>
-                        <Typography variant="body2" sx={{ mt: 1 }}>
-                          {g.description}
-                        </Typography>
-                        <Typography
-                          variant="caption"
-                          display="block"
-                          sx={{ mt: 1, color: "text.secondary" }}
-                        >
-                          By: {g.name} •{" "}
-                          {new Date(g.createdAt).toLocaleDateString()}
-                        </Typography>
-                        <Stack
-                          direction="row"
-                          spacing={1}
-                          sx={{ mt: 2 }}
-                          alignItems="center"
-                        >
-                          {g.status !== "resolved" ? (
-                            <Select
-                              size="small"
-                              value={g.status || "open"}
-                              onChange={(e) =>
-                                updateStatus(
-                                  "grievance",
-                                  g._id,
-                                  e.target.value,
-                                  fetchGrievances,
-                                )
-                              }
-                            >
-                              <MenuItem value="open">Open</MenuItem>
-                              <MenuItem value="in-progress">
-                                In-Progress
-                              </MenuItem>
-                              <MenuItem value="resolved">Resolved</MenuItem>
-                            </Select>
-                          ) : (
-                            <Typography
-                              variant="body2"
-                              sx={{ color: "success.main", fontWeight: "bold" }}
-                            >
-                              ✓ Resolved
-                            </Typography>
-                          )}
-                        </Stack>
-                      </Paper>
-                    </Grid>
-                  ))}
-                </Grid>
-              </Paper>
-            </>
-          )}
-
-          {tab === "locations" && (
-            <>
-              <Typography
-                variant="h5"
-                color="primary"
-                sx={{ fontWeight: "bold", mb: 2 }}
-              >
-                Submitted Locations
-              </Typography>
-              <Paper sx={{ p: 2 }}>
-                <AdminLocations />
-              </Paper>
-            </>
-          )}
+          {
+            tab === "locations" && (
+              <>
+                <Typography
+                  variant="h5"
+                  color="primary"
+                  sx={{ fontWeight: "bold", mb: 2 }}
+                >
+                  Submitted Locations
+                </Typography>
+                <Paper sx={{ p: 2 }}>
+                  <AdminLocations />
+                </Paper>
+              </>
+            )
+          }
 
           {tab === "logs" && (
-            <>
-              <Typography
-                variant="h5"
-                color="primary"
-                sx={{ fontWeight: "bold", mb: 2 }}
+            <Box sx={{ animation: "fadeIn 0.5s ease-out" }}>
+              <Box sx={{ mb: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <Box>
+                  <Typography variant="h4" sx={{ fontWeight: 900 }}>System Logs</Typography>
+                  <Typography variant="body1" color="text.secondary">Chronological record of all system events.</Typography>
+                </Box>
+                <Button variant="outlined" onClick={fetchLogs} startIcon={<History />}>Refresh Logs</Button>
+              </Box>
+
+              <Card
+                elevation={0}
+                sx={{
+                  p: 0,
+                  borderRadius: 6,
+                  bgcolor: isDark ? alpha(theme.palette.background.paper, 0.4) : "#fff",
+                  backdropFilter: "blur(20px)",
+                  border: "1px solid",
+                  borderColor: alpha(theme.palette.divider, 0.1),
+                  overflow: "hidden"
+                }}
               >
-                System Logs
-              </Typography>
-              <Paper sx={{ p: 2 }}>
-                <Grid container spacing={1}>
-                  {logs.map((l) => (
-                    <Grid size={{ xs: 12 }} key={l._id}>
-                      <Paper
-                        variant="outlined"
-                        sx={{ p: 1.5, bgcolor: "#f5f5f5" }}
-                      >
-                        <Typography
-                          variant="body2"
-                          sx={{ fontFamily: "monospace" }}
-                        >
-                          <span style={{ color: "#009688" }}>
-                            [{new Date(l.createdAt).toLocaleString()}]
-                          </span>
-                          <strong> {l.action}</strong>: {l.message}
-                          <span style={{ color: "#ff7043" }}>
-                            {" "}
-                            ({l.entityType})
-                          </span>
-                        </Typography>
-                        {l.meta && (l.meta.ip || l.meta.ua) && (
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                            display="block"
-                          >
-                            {l.meta.ip && <>IP: {l.meta.ip} </>}
-                            {l.meta.ua && <>• UA: {l.meta.ua}</>}
-                          </Typography>
-                        )}
-                        {l.createdBy && (
-                          <Typography
-                            variant="caption"
-                            color="text.secondary"
-                            display="block"
-                          >
-                            By: {l.createdBy.fullName || l.createdBy.email}{" "}
-                            {l.createdBy.email && `(${l.createdBy.email})`}
-                          </Typography>
-                        )}
-                      </Paper>
-                    </Grid>
+                <List sx={{ p: 0 }}>
+                  {logs.map((l, idx) => (
+                    <React.Fragment key={l._id}>
+                      <ListItem sx={{ py: 2, px: 3, "&:hover": { bgcolor: alpha(theme.palette.primary.main, 0.02) } }}>
+                        <ListItemText
+                          primary={
+                            <Typography variant="body2" sx={{ fontFamily: "monospace", display: "flex", flexWrap: "wrap", gap: 1 }}>
+                              <Box component="span" sx={{ color: "primary.main", fontWeight: 700 }}>[{new Date(l.createdAt).toLocaleString()}]</Box>
+                              <Box component="span" sx={{ fontWeight: 800 }}>{l.action}</Box>
+                              <Box component="span" color="text.secondary">{l.message}</Box>
+                            </Typography>
+                          }
+                          secondary={
+                            <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
+                              <Chip label={l.entityType} size="small" variant="outlined" color="secondary" sx={{ height: 18, fontSize: "0.65rem", fontWeight: 800 }} />
+                              {l.meta?.ip && <Typography variant="caption" color="text.disabled">IP: {l.meta.ip}</Typography>}
+                              {l.createdBy && <Typography variant="caption" color="text.disabled">By: {l.createdBy.fullName || l.createdBy.email}</Typography>}
+                            </Stack>
+                          }
+                        />
+                      </ListItem>
+                      {idx < logs.length - 1 && <Divider sx={{ opacity: 0.05 }} />}
+                    </React.Fragment>
                   ))}
-                </Grid>
-              </Paper>
-            </>
+                </List>
+              </Card>
+            </Box>
           )}
 
           {tab === "workforce" && (
-            <>
-              <Typography
-                variant="h5"
-                color="primary"
-                sx={{ fontWeight: "bold", mb: 2 }}
-              >
-                Field Workforce
-              </Typography>
-              <Paper sx={{ p: 2 }}>
-                {loading ? (
-                  <Typography>Loading...</Typography>
-                ) : (
-                  <Grid container spacing={2}>
-                    {workers.length > 0 ? (
-                      workers.map((w) => (
-                        <Grid size={{ xs: 12, md: 6 }} key={w._id}>
-                          <Paper
-                            variant="outlined"
-                            sx={{
-                              p: 2,
-                              display: "flex",
-                              justifyContent: "space-between",
-                              alignItems: "center",
-                            }}
-                          >
+            <Box sx={{ animation: "fadeIn 0.5s ease-out" }}>
+              <Box sx={{ mb: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <Box>
+                  <Typography variant="h4" sx={{ fontWeight: 900 }}>Field Workforce</Typography>
+                  <Typography variant="body1" color="text.secondary">Manage and verify field service agents.</Typography>
+                </Box>
+                <Button variant="outlined" onClick={fetchWorkers} startIcon={<Badge />}>Refresh</Button>
+              </Box>
+
+              {loading ? (
+                <CircularProgress sx={{ display: "block", mx: "auto", my: 5 }} />
+              ) : (
+                <Grid container spacing={3}>
+                  {workers.length > 0 ? (
+                    workers.map((w) => (
+                      <Grid size={{ xs: 12, md: 6, lg: 4 }} key={w._id}>
+                        <Card
+                          elevation={0}
+                          sx={{
+                            p: 3,
+                            borderRadius: 6,
+                            bgcolor: isDark ? alpha(theme.palette.background.paper, 0.4) : "#fff",
+                            backdropFilter: "blur(20px)",
+                            border: "1px solid",
+                            borderColor: alpha(theme.palette.divider, 0.1),
+                            transition: "all 0.3s ease",
+                            "&:hover": { transform: "translateY(-4px)", borderColor: theme.palette.primary.main }
+                          }}
+                        >
+                          <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
+                            <Avatar
+                              sx={{
+                                width: 56,
+                                height: 56,
+                                fontSize: "1.5rem",
+                                fontWeight: 800,
+                                bgcolor: alpha(theme.palette.primary.main, 0.1),
+                                color: "primary.main",
+                                border: "1px solid",
+                                borderColor: alpha(theme.palette.primary.main, 0.2)
+                              }}
+                            >
+                              {w.fullName.charAt(0)}
+                            </Avatar>
                             <Box>
-                              <Typography variant="h6">{w.fullName}</Typography>
-                              <Typography
-                                variant="body2"
-                                color="text.secondary"
-                              >
-                                {w.email} • {w.phone}
-                              </Typography>
-                              <Typography
-                                variant="caption"
-                                sx={{
-                                  fontWeight: "bold",
-                                  color:
-                                    w.status === "active"
-                                      ? "success.main"
-                                      : "warning.main",
-                                }}
-                              >
-                                Status: {w.status || "active"}
-                              </Typography>
+                              <Typography variant="h6" sx={{ fontWeight: 800 }}>{w.fullName}</Typography>
+                              <Typography variant="body2" color="text.secondary">{w.email}</Typography>
+                              <Typography variant="body2" color="text.secondary">{w.phone}</Typography>
                             </Box>
+                          </Stack>
+
+                          <Divider sx={{ mb: 2, opacity: 0.1 }} />
+
+                          <Stack direction="row" justifyContent="space-between" alignItems="center">
                             <Box>
-                              {w.status === "pending" && (
-                                <Button
-                                  variant="contained"
-                                  size="small"
-                                  onClick={() => verifyWorker(w._id)}
-                                >
-                                  Approve
-                                </Button>
-                              )}
+                              <Typography variant="caption" sx={{ display: "block", color: "text.disabled", fontWeight: 700 }}>STATUS</Typography>
+                              <Chip
+                                label={w.status || "active"}
+                                color={w.status === "active" ? "success" : "warning"}
+                                size="small"
+                                sx={{ fontWeight: 700, borderRadius: 2, mt: 0.5 }}
+                              />
                             </Box>
-                          </Paper>
-                        </Grid>
-                      ))
-                    ) : (
-                      <Typography>No field workers found.</Typography>
-                    )}
-                  </Grid>
-                )}
-              </Paper>
-            </>
+                            {w.status === "pending" && (
+                              <Button
+                                variant="contained"
+                                size="small"
+                                onClick={() => verifyWorker(w._id)}
+                                sx={{ borderRadius: 50, fontWeight: 700, textTransform: "none" }}
+                              >
+                                Approve Agent
+                              </Button>
+                            )}
+                          </Stack>
+                        </Card>
+                      </Grid>
+                    ))
+                  ) : (
+                    <Grid item xs={12}>
+                      <Typography align="center" sx={{ py: 8 }}>No field workers found.</Typography>
+                    </Grid>
+                  )}
+                </Grid>
+              )}
+            </Box>
           )}
 
           {tab === "userlogins" && (
-            <>
-              <Typography
-                variant="h5"
-                color="primary"
-                sx={{ fontWeight: "bold", mb: 2 }}
-              >
-                User Logins
-              </Typography>
-              <Grid container spacing={2}>
+            <Box sx={{ animation: "fadeIn 0.5s ease-out" }}>
+              <Box sx={{ mb: 4, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <Box>
+                  <Typography variant="h4" sx={{ fontWeight: 900 }}>User Management</Typography>
+                  <Typography variant="body1" color="text.secondary">Monitor user access and authentication history.</Typography>
+                </Box>
+                <Button variant="outlined" onClick={fetchUsers} startIcon={<PersonOutline />}>Refresh Users</Button>
+              </Box>
+
+              <Grid container spacing={4}>
                 <Grid size={{ xs: 12, md: 4 }}>
-                  <Paper sx={{ p: 2, maxHeight: "60vh", overflow: "auto" }}>
-                    <Typography variant="subtitle1" sx={{ mb: 1 }}>
-                      All Users
-                    </Typography>
-                    <List>
+                  <Card
+                    elevation={0}
+                    sx={{
+                      borderRadius: 6,
+                      bgcolor: isDark ? alpha(theme.palette.background.paper, 0.4) : "#fff",
+                      backdropFilter: "blur(20px)",
+                      border: "1px solid",
+                      borderColor: alpha(theme.palette.divider, 0.1),
+                    }}
+                  >
+                    <Box sx={{ p: 3, borderBottom: "1px solid", borderColor: alpha(theme.palette.divider, 0.1) }}>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>All Users</Typography>
+                      <Typography variant="caption" color="text.secondary">{users.length} registered accounts</Typography>
+                    </Box>
+                    <List sx={{ maxHeight: "60vh", overflow: "auto", p: 0 }}>
                       <ListItemButton
                         selected={selectedUser === "all"}
                         onClick={() => setSelectedUser("all")}
+                        sx={{ py: 2, px: 3 }}
                       >
                         <ListItemText
-                          primary="All users"
-                          secondary={`${users.length || 0} users`}
+                          primary="Security Overview"
+                          secondary="All login attempts"
+                          primaryTypographyProps={{ fontWeight: 700 }}
                         />
                       </ListItemButton>
+                      <Divider sx={{ opacity: 0.05 }} />
                       {users.map((u) => (
                         <ListItemButton
                           key={u._id}
                           selected={selectedUser === u._id}
                           onClick={() => setSelectedUser(u._id)}
+                          sx={{ py: 1.5, px: 3 }}
                         >
+                          <ListItemAvatar>
+                            <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: "primary.main" }}>{u.fullName?.charAt(0) || u.email.charAt(0)}</Avatar>
+                          </ListItemAvatar>
                           <ListItemText
                             primary={u.fullName || u.email}
                             secondary={u.email}
+                            primaryTypographyProps={{ variant: "body2", fontWeight: 700 }}
+                            secondaryTypographyProps={{ variant: "caption" }}
                           />
                         </ListItemButton>
                       ))}
                     </List>
-                  </Paper>
+                  </Card>
                 </Grid>
 
                 <Grid size={{ xs: 12, md: 8 }}>
-                  <Paper sx={{ p: 2 }}>
+                  <Card
+                    elevation={0}
+                    sx={{
+                      p: 3,
+                      borderRadius: 6,
+                      bgcolor: isDark ? alpha(theme.palette.background.paper, 0.4) : "#fff",
+                      backdropFilter: "blur(20px)",
+                      border: "1px solid",
+                      borderColor: alpha(theme.palette.divider, 0.1),
+                      minHeight: "50vh"
+                    }}
+                  >
                     {loading ? (
-                      <Typography>Loading...</Typography>
+                      <CircularProgress sx={{ display: "block", mx: "auto", my: 10 }} />
                     ) : (
                       <>
-                        <Stack
-                          direction="row"
-                          spacing={2}
-                          alignItems="center"
-                          sx={{ mb: 2 }}
-                        >
-                          <Typography variant="subtitle2">Filter:</Typography>
-                          <Select
-                            size="small"
-                            value={selectedUser}
-                            onChange={(e) => setSelectedUser(e.target.value)}
-                            sx={{ minWidth: 220 }}
-                          >
-                            <MenuItem value="all">All users</MenuItem>
-                            {users.map((u) => (
-                              <MenuItem key={u._id} value={u._id}>
-                                {u.fullName || u.email}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        </Stack>
+                        <Box sx={{ mb: 4 }}>
+                          <Typography variant="h6" sx={{ fontWeight: 800, mb: 1 }}>Login History</Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            Showing activity for: <strong>{selectedUser === "all" ? "All Users" : users.find(u => u._id === selectedUser)?.fullName || "User"}</strong>
+                          </Typography>
+                        </Box>
 
-                        <Grid container spacing={1}>
-                          {selectedUserLogins.length ? (
-                            selectedUserLogins
-                              .filter((l) => {
-                                if (selectedUser === "all") return true;
-                                if (l.createdBy && l.createdBy._id)
-                                  return l.createdBy._id === selectedUser;
-                                if (l.meta && l.meta.email) {
-                                  const u = users.find(
-                                    (x) => x._id === selectedUser,
-                                  );
-                                  return u && u.email === l.meta.email;
-                                }
-                                return false;
-                              })
-                              .map((l) => (
-                                <Grid size={{ xs: 12 }} key={l._id}>
-                                  <Paper
-                                    variant="outlined"
-                                    sx={{ p: 1.5, bgcolor: "#fff" }}
-                                  >
-                                    <Typography
-                                      variant="body2"
-                                      sx={{ fontFamily: "monospace" }}
-                                    >
-                                      <span style={{ color: "#009688" }}>
-                                        [
-                                        {new Date(l.createdAt).toLocaleString()}
-                                        ]
-                                      </span>
-                                      <strong>
-                                        {" "}
-                                        {l.action === "login"
-                                          ? "Success"
-                                          : "Failed"}
-                                      </strong>
-                                      : {l.message}
-                                    </Typography>
-                                    <Typography
-                                      variant="caption"
-                                      color="text.secondary"
-                                      display="block"
-                                    >
-                                      User:{" "}
-                                      {l.createdBy
-                                        ? l.createdBy.fullName ||
-                                          l.createdBy.email
-                                        : (l.meta && l.meta.email) ||
-                                          "Unknown"}{" "}
-                                      {l.createdBy &&
-                                        l.createdBy.email &&
-                                        `(${l.createdBy.email})`}
-                                    </Typography>
-                                    {l.meta && (l.meta.ip || l.meta.ua) && (
-                                      <Typography
-                                        variant="caption"
-                                        color="text.secondary"
-                                        display="block"
-                                      >
-                                        {l.meta.ip && <>IP: {l.meta.ip} </>}
-                                        {l.meta.ua && <>• UA: {l.meta.ua}</>}
-                                      </Typography>
-                                    )}
-                                  </Paper>
-                                </Grid>
-                              ))
-                          ) : (
-                            <Typography color="text.secondary">
-                              No login events found
-                            </Typography>
-                          )}
-                        </Grid>
+                        <TableContainer sx={{ borderRadius: 3, border: "1px solid", borderColor: alpha(theme.palette.divider, 0.05) }}>
+                          <Table size="small">
+                            <TableHead sx={{ bgcolor: alpha(theme.palette.primary.main, 0.03) }}>
+                              <TableRow>
+                                <TableCell sx={{ fontWeight: 800 }}>Date & Time</TableCell>
+                                <TableCell sx={{ fontWeight: 800 }}>User</TableCell>
+                                <TableCell sx={{ fontWeight: 800 }}>IP Address</TableCell>
+                                <TableCell sx={{ fontWeight: 800 }}>Device / Browser</TableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {logins.map((log) => (
+                                <TableRow key={log._id} hover>
+                                  <TableCell sx={{ fontSize: "0.8rem" }}>{new Date(log.loginTime).toLocaleString()}</TableCell>
+                                  <TableCell sx={{ fontSize: "0.8rem", fontWeight: 600 }}>{log.userId?.fullName || log.userId?.email || "Unknown"}</TableCell>
+                                  <TableCell sx={{ fontSize: "0.8rem", fontFamily: "monospace" }}>{log.ipAddress || "N/A"}</TableCell>
+                                  <TableCell sx={{ fontSize: "0.75rem", color: "text.secondary", maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                                    {log.userAgent || "Unknown"}
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                              {logins.length === 0 && (
+                                <TableRow>
+                                  <TableCell colSpan={4} align="center" sx={{ py: 10 }}>No login records found.</TableCell>
+                                </TableRow>
+                              )}
+                            </TableBody>
+                          </Table>
+                        </TableContainer>
                       </>
                     )}
-                  </Paper>
+                  </Card>
                 </Grid>
               </Grid>
-            </>
+            </Box>
           )}
         </Box>
       </Box>
-    </ThemeProvider>
+    </>
   );
 };
 

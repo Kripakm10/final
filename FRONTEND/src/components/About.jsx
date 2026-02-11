@@ -2,9 +2,6 @@ import React from "react";
 import {
   Box,
   Typography,
-  createTheme,
-  ThemeProvider,
-  CssBaseline,
   Grid,
   Card,
   CardContent,
@@ -13,27 +10,10 @@ import {
   Stack,
   Avatar,
   Paper,
+  useTheme,
+  alpha,
 } from "@mui/material";
 import Navbar from "./Navbar";
-
-// 🎨 Same theme as Home
-const theme = createTheme({
-  palette: {
-    mode: "light",
-    primary: {
-      main: "#009688",
-    },
-    secondary: {
-      main: "#ff7043",
-    },
-    background: {
-      default: "#f0f4f8",
-    },
-  },
-  typography: {
-    fontFamily: "Roboto, sans-serif",
-  },
-});
 
 const values = [
   {
@@ -60,14 +40,24 @@ const values = [
 ];
 
 const About = () => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <Box sx={{ bgcolor: "background.default", minHeight: "100vh" }}>
       <Navbar />
 
-      {/* Hero Section */}
+      {/* 🚀 Hero Section */}
       <Box
-        sx={{ position: "relative", py: { xs: 8, md: 12 }, overflow: "hidden" }}
+        sx={{
+          position: "relative",
+          pt: { xs: 16, md: 22 },
+          pb: { xs: 10, md: 16 },
+          overflow: "hidden",
+          background: isDark
+            ? "radial-gradient(circle at 50% 50%, #1a2035 0%, #0b1221 100%)"
+            : "radial-gradient(circle at 50% 50%, #f0f7ff 0%, #ffffff 100%)",
+        }}
       >
         <Box
           sx={{
@@ -77,117 +67,151 @@ const About = () => {
               "url('https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?auto=format&fit=crop&w=1950&q=80')",
             backgroundSize: "cover",
             backgroundPosition: "center",
-            filter: "blur(6px) brightness(0.6)",
-            transform: "scale(1.05)",
+            opacity: isDark ? 0.2 : 0.1,
+            zIndex: 0,
           }}
         />
-        <Container maxWidth="md" sx={{ position: "relative", zIndex: 1 }}>
-          <Paper
-            elevation={0}
-            sx={{
-              p: 4,
-              textAlign: "center",
-              borderRadius: 3,
-              background: "rgba(255,255,255,0.9)",
-            }}
-          >
-            <Typography variant="h3" sx={{ fontWeight: 800, mb: 2 }}>
-              About Smart City Management
+
+        <Container maxWidth="lg" sx={{ position: "relative", zIndex: 1 }}>
+          <Box sx={{ textAlign: "center", mb: 8 }}>
+            <Typography
+              variant="h1"
+              sx={{
+                fontWeight: 900,
+                fontSize: { xs: "3rem", md: "5rem" },
+                background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                mb: 2,
+                letterSpacing: -1,
+              }}
+            >
+              Our Story.
             </Typography>
-            <Typography variant="body1" color="text.secondary">
+            <Typography
+              variant="h5"
+              color="text.secondary"
+              sx={{
+                maxWidth: 700,
+                mx: "auto",
+                fontWeight: 500,
+                lineHeight: 1.6
+              }}
+            >
               Building cleaner, smarter, and more responsive cities by
               connecting citizens, technology, and governance into one unified
               platform.
             </Typography>
+          </Box>
+
+          <Paper
+            elevation={0}
+            sx={{
+              p: { xs: 4, md: 8 },
+              borderRadius: 8,
+              bgcolor: isDark ? alpha(theme.palette.background.paper, 0.4) : alpha("#fff", 0.7),
+              backdropFilter: "blur(20px)",
+              border: "1px solid",
+              borderColor: alpha(theme.palette.divider, 0.1),
+              boxShadow: "0 20px 60px rgba(0,0,0,0.1)",
+            }}
+          >
+            <Grid container spacing={6} alignItems="center">
+              <Grid size={{ xs: 12, md: 6 }}>
+                <Typography
+                  variant="h3"
+                  sx={{ fontWeight: 900, mb: 3, letterSpacing: -0.5 }}
+                >
+                  Our Mission
+                </Typography>
+                <Typography variant="body1" color="text.secondary" sx={{ mb: 3, fontSize: "1.1rem", lineHeight: 1.7 }}>
+                  Smart City Management aims to simplify how cities operate by
+                  providing a digital bridge between citizens and municipal
+                  authorities.
+                </Typography>
+                <Typography variant="body1" color="text.secondary" sx={{ fontSize: "1.1rem", lineHeight: 1.7 }}>
+                  From reporting potholes to tracking water supply issues, our
+                  platform ensures faster resolutions, better accountability, and
+                  improved quality of life for everyone.
+                </Typography>
+              </Grid>
+              <Grid size={{ xs: 12, md: 6 }}>
+                <Box
+                  component="img"
+                  src="https://images.unsplash.com/photo-1496560736447-4c7f8f63f3a7?auto=format&fit=crop&w=1200&q=80"
+                  alt="Smart city"
+                  sx={{
+                    width: '100%',
+                    borderRadius: 6,
+                    boxShadow: "0 20px 40px rgba(0,0,0,0.2)",
+                  }}
+                />
+              </Grid>
+            </Grid>
           </Paper>
         </Container>
       </Box>
 
-      {/* Mission Section */}
-      <Box sx={{ py: 8, bgcolor: "background.paper" }}>
+      {/* 🌟 Values Section */}
+      <Box sx={{ py: 16 }}>
         <Container maxWidth="lg">
-          <Grid container spacing={4} alignItems="center">
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Typography
-                variant="h4"
-                sx={{ fontWeight: "bold", mb: 2 }}
-                color="primary"
-              >
-                Our Mission
-              </Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-                Smart City Management aims to simplify how cities operate by
-                providing a digital bridge between citizens and municipal
-                authorities.
-              </Typography>
-              <Typography variant="body1" color="text.secondary">
-                From reporting potholes to tracking water supply issues, our
-                platform ensures faster resolutions, better accountability, and
-                improved quality of life for everyone.
-              </Typography>
-            </Grid>
-            {/* <Grid item xs={12} md={6}>
-              <Box
-                component="img"
-                src="https://images.unsplash.com/photo-1496560736447-4c7f8f63f3a7?auto=format&fit=crop&w=1200&q=80"
-                alt="Smart city"
-                sx={{
-                  width: '100%',
-                  borderRadius: 3,
-                  boxShadow: '0 20px 40px rgba(2,6,23,0.12)',
-                }}
-              />
-            </Grid> */}
-          </Grid>
-        </Container>
-      </Box>
+          <Box sx={{ textAlign: "center", mb: 10 }}>
+            <Typography
+              variant="h3"
+              sx={{ fontWeight: 900, mb: 2, letterSpacing: -0.5 }}
+            >
+              What Drives Us
+            </Typography>
+            <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 600, mx: "auto" }}>
+              Our core values guide every innovation and interaction on our platform.
+            </Typography>
+          </Box>
 
-      {/* Values Section */}
-      <Box sx={{ py: 8 }}>
-        <Container maxWidth="lg">
-          <Typography
-            variant="h4"
-            align="center"
-            sx={{ fontWeight: "bold", mb: 4 }}
-            color="primary"
-          >
-            What Drives Us
-          </Typography>
-
-          <Grid container spacing={3}>
+          <Grid container spacing={4}>
             {values.map((v, i) => (
               <Grid size={{ xs: 12, md: 4 }} key={i}>
                 <Card
                   elevation={0}
                   sx={{
-                    borderRadius: 3,
+                    height: "100%",
+                    borderRadius: 8,
                     overflow: "hidden",
-                    transition: "all 250ms ease",
+                    bgcolor: isDark ? alpha(theme.palette.background.paper, 0.4) : "#fff",
+                    backdropFilter: "blur(20px)",
+                    border: "1px solid",
+                    borderColor: alpha(theme.palette.divider, 0.1),
+                    transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
                     "&:hover": {
-                      transform: "translateY(-8px)",
-                      boxShadow: "0 12px 30px rgba(2,6,23,0.12)",
+                      transform: "translateY(-12px)",
+                      borderColor: "primary.main",
+                      boxShadow: `0 30px 60px ${alpha(theme.palette.primary.main, 0.1)}`,
                     },
                   }}
                 >
-                  <CardMedia
-                    component="img"
-                    height="180"
-                    image={v.image}
-                    alt={v.title}
-                  />
-                  <CardContent>
+                  <Box sx={{ height: 220, overflow: "hidden" }}>
+                    <CardMedia
+                      component="img"
+                      height="220"
+                      image={v.image}
+                      alt={v.title}
+                      sx={{ transition: "transform 0.6s", "&:hover": { transform: "scale(1.1)" } }}
+                    />
+                  </Box>
+                  <CardContent sx={{ p: 4 }}>
                     <Stack
                       direction="row"
                       spacing={2}
                       alignItems="center"
-                      sx={{ mb: 1 }}
+                      sx={{ mb: 2 }}
                     >
-                      <Avatar sx={{ bgcolor: "primary.main" }}>{i + 1}</Avatar>
-                      <Typography variant="h6" sx={{ fontWeight: "bold" }}>
+                      <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: "primary.main", fontWeight: 800 }}>
+                        {i + 1}
+                      </Avatar>
+                      <Typography variant="h5" sx={{ fontWeight: 800 }}>
                         {v.title}
                       </Typography>
                     </Stack>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
                       {v.description}
                     </Typography>
                   </CardContent>
@@ -197,7 +221,7 @@ const About = () => {
           </Grid>
         </Container>
       </Box>
-    </ThemeProvider>
+    </Box>
   );
 };
 

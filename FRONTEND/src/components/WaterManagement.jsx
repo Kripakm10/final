@@ -12,6 +12,8 @@ import {
   Snackbar,
   Alert,
   CircularProgress,
+  useTheme,
+  alpha
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
@@ -29,6 +31,9 @@ const WaterManagement = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
+
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -71,38 +76,125 @@ const WaterManagement = () => {
   };
 
   return (
-    <Box sx={{ bgcolor: "#f7fafc", minHeight: "100vh" }}>
+    <Box sx={{ bgcolor: "background.default", minHeight: "100vh" }}>
       <Navbar />
 
-      <Box sx={{ py: 8, px: { xs: 2, md: 6 } }}>
-        <Typography
-          variant="h4"
-          color="primary"
-          align="center"
-          sx={{ fontWeight: "bold", mb: 4 }}
-        >
-          Water Management
-        </Typography>
+      {/* 🔹 Hero Section */}
+      <Box
+        sx={{
+          minHeight: "60vh",
+          position: "relative",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          pt: 12,
+          pb: 8,
+          px: 3,
+          overflow: "hidden",
+          background: isDark
+            ? "radial-gradient(circle at 50% 50%, #1a2035 0%, #0b1221 100%)"
+            : "radial-gradient(circle at 50% 50%, #f0f7ff 0%, #ffffff 100%)",
+        }}
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: "url('https://images.unsplash.com/photo-1509395176047-4a66953fd231?auto=format&fit=crop&w=1950&q=80')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            opacity: isDark ? 0.15 : 0.08,
+            zIndex: 0,
+          }}
+        />
 
-        <Paper elevation={4} sx={{ maxWidth: 800, mx: "auto", p: 4 }}>
-          <Typography variant="h6" sx={{ mb: 2 }}>
-            Report a Water Issue
+        <Box
+          sx={{
+            position: "relative",
+            zIndex: 1,
+            bgcolor: isDark ? alpha(theme.palette.background.paper, 0.4) : alpha("#fff", 0.7),
+            backdropFilter: "blur(20px)",
+            p: { xs: 4, md: 8 },
+            borderRadius: 8,
+            textAlign: "center",
+            maxWidth: 900,
+            border: "1px solid",
+            borderColor: alpha(theme.palette.divider, 0.1),
+            boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
+          }}
+        >
+          <Typography
+            variant="h2"
+            sx={{
+              fontWeight: 900,
+              mb: 3,
+              background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              fontSize: { xs: "2.5rem", md: "3.5rem" },
+            }}
+          >
+            Sustainable Water Supply
+          </Typography>
+
+          <Typography variant="h6" color="text.secondary" sx={{ mb: 4, maxWidth: 700, mx: "auto", lineHeight: 1.6 }}>
+            Monitoring water quality, managing distribution, and ensuring every citizen has access to clean, safe water through smart infrastructure.
+          </Typography>
+
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            href="#report-form"
+            sx={{
+              borderRadius: 50,
+              px: 5,
+              py: 1.5,
+              fontWeight: "bold",
+              textTransform: "none",
+              fontSize: "1.1rem",
+              boxShadow: `0 8px 25px ${alpha(theme.palette.primary.main, 0.4)}`,
+            }}
+          >
+            Report an Issue
+          </Button>
+        </Box>
+      </Box>
+
+      <Box id="report-form" sx={{ py: 12, px: { xs: 2, md: 6 } }}>
+        <Paper
+          elevation={0}
+          sx={{
+            maxWidth: 800,
+            mx: "auto",
+            p: { xs: 3, md: 6 },
+            borderRadius: 8,
+            bgcolor: isDark ? alpha(theme.palette.background.paper, 0.4) : "#fff",
+            backdropFilter: "blur(20px)",
+            border: "1px solid",
+            borderColor: alpha(theme.palette.divider, 0.1),
+            boxShadow: "0 20px 60px rgba(0,0,0,0.05)",
+          }}
+        >
+          <Typography variant="h4" sx={{ fontWeight: 800, mb: 4, textAlign: "center" }}>
+            Submit Report
           </Typography>
 
           <Box
             component="form"
             onSubmit={handleSubmit}
-            sx={{ display: "grid", gap: 2 }}
+            sx={{ display: "grid", gap: 3 }}
           >
-            <Grid container spacing={2}>
+            <Grid container spacing={3}>
               <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
-                  label="Full name"
+                  label="Full Name"
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
                   required
                   fullWidth
+                  sx={{ "& .MuiOutlinedInput-root": { borderRadius: 3 } }}
                 />
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
@@ -112,6 +204,7 @@ const WaterManagement = () => {
                   value={formData.phone}
                   onChange={handleChange}
                   fullWidth
+                  sx={{ "& .MuiOutlinedInput-root": { borderRadius: 3 } }}
                 />
               </Grid>
               <Grid size={{ xs: 12 }}>
@@ -121,6 +214,7 @@ const WaterManagement = () => {
                   value={formData.email}
                   onChange={handleChange}
                   fullWidth
+                  sx={{ "& .MuiOutlinedInput-root": { borderRadius: 3 } }}
                 />
               </Grid>
               <Grid size={{ xs: 12 }}>
@@ -131,6 +225,7 @@ const WaterManagement = () => {
                   onChange={handleChange}
                   required
                   fullWidth
+                  sx={{ "& .MuiOutlinedInput-root": { borderRadius: 3 } }}
                 />
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
@@ -141,6 +236,7 @@ const WaterManagement = () => {
                   value={formData.issueType}
                   onChange={handleChange}
                   fullWidth
+                  sx={{ "& .MuiOutlinedInput-root": { borderRadius: 3 } }}
                 >
                   <MenuItem value="leak">Leak</MenuItem>
                   <MenuItem value="supply">Supply Interruption</MenuItem>
@@ -158,14 +254,17 @@ const WaterManagement = () => {
                   fullWidth
                   multiline
                   rows={4}
+                  sx={{ "& .MuiOutlinedInput-root": { borderRadius: 3 } }}
                 />
               </Grid>
 
-              <Grid size={{ xs: 12 }} sx={{ display: "flex", gap: 2 }}>
+              <Grid size={{ xs: 12 }} sx={{ display: "flex", gap: 2, mt: 2 }}>
                 <Button
                   type="submit"
                   variant="contained"
-                  color="secondary"
+                  color="primary"
+                  size="large"
+                  sx={{ flex: 2, py: 1.5, borderRadius: 50, fontWeight: "bold", textTransform: "none" }}
                   startIcon={
                     loading ? (
                       <CircularProgress size={18} color="inherit" />
@@ -180,6 +279,8 @@ const WaterManagement = () => {
                 <Button
                   variant="outlined"
                   color="inherit"
+                  size="large"
+                  sx={{ flex: 1, py: 1.5, borderRadius: 50, textTransform: "none" }}
                   onClick={() =>
                     setFormData({
                       name: "",
@@ -215,7 +316,7 @@ const WaterManagement = () => {
           )}
 
           {error && (
-            <Alert severity="error" sx={{ mt: 2 }}>
+            <Alert severity="error" sx={{ mt: 3, borderRadius: 3 }}>
               {error}
             </Alert>
           )}

@@ -10,13 +10,20 @@ import {
   Alert,
   CircularProgress,
   Stack,
-  Typography
+  Typography,
+  Box,
+  alpha,
+  useTheme
 } from '@mui/material';
+import { ErrorOutline } from '@mui/icons-material';
 
 const ReportNotCollectedModal = ({ open, onClose, item, onReport }) => {
   const [reason, setReason] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
 
   const handleReport = async () => {
     if (!reason.trim()) {
@@ -69,41 +76,59 @@ const ReportNotCollectedModal = ({ open, onClose, item, onReport }) => {
   };
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
-      <DialogTitle>Report Not Collected</DialogTitle>
-      <DialogContent sx={{ pt: 2 }}>
-        <Stack spacing={2}>
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      maxWidth="sm"
+      fullWidth
+      PaperProps={{
+        sx: {
+          borderRadius: 8,
+          bgcolor: isDark ? alpha(theme.palette.background.paper, 0.9) : alpha("#fff", 0.9),
+          backdropFilter: "blur(20px)",
+          border: "1px solid",
+          borderColor: alpha(theme.palette.divider, 0.1),
+          boxShadow: "0 20px 60px rgba(0,0,0,0.2)",
+        }
+      }}
+    >
+      <DialogTitle sx={{ fontWeight: 900, pb: 0, fontSize: "1.5rem", display: "flex", alignItems: "center", gap: 1.5 }}>
+        <ErrorOutline color="error" /> Report Collection Issue
+      </DialogTitle>
+      <DialogContent sx={{ pt: 3 }}>
+        <Stack spacing={3}>
           {item && (
-            <>
-              <div>
-                <strong>Name:</strong> {item.name}
-              </div>
-              <div>
-                <strong>Address:</strong> {item.address}
-              </div>
-              <div>
-                <strong>Scheduled for:</strong> {new Date(item.scheduledTime).toLocaleString()}
-              </div>
-              <Typography variant="body2" color="error" sx={{ mt: 1 }}>
-                Status: Waste was not collected on the scheduled time
+            <Box sx={{ p: 2.5, bgcolor: alpha(theme.palette.error.main, 0.05), borderRadius: 4, border: "1px solid", borderColor: alpha(theme.palette.error.main, 0.1) }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "error.main", mb: 1 }}>SCHEDULED SERVICE</Typography>
+              <Typography variant="body1" sx={{ fontWeight: 700 }}>{item.wasteType} Collection</Typography>
+              <Typography variant="body2" color="text.secondary">{item.address}</Typography>
+              <Typography variant="caption" sx={{ mt: 1, display: "block", fontWeight: 700, color: "error.main" }}>
+                Missed Schedule: {new Date(item.scheduledTime).toLocaleString()}
               </Typography>
-            </>
+            </Box>
           )}
-          {error && <Alert severity="error">{error}</Alert>}
+
+          {error && <Alert severity="error" sx={{ borderRadius: 3 }}>{error}</Alert>}
+
           <TextField
-            label="Reason for Report"
-            placeholder="Describe why the waste was not collected..."
+            label="What went wrong?"
+            placeholder="Please describe why the waste was not collected..."
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             multiline
             rows={4}
             fullWidth
             disabled={loading}
+            sx={{ "& .MuiOutlinedInput-root": { borderRadius: 4 } }}
           />
         </Stack>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose} disabled={loading}>
+      <DialogActions sx={{ p: 3, pt: 0 }}>
+        <Button
+          onClick={handleClose}
+          disabled={loading}
+          sx={{ borderRadius: 50, fontWeight: 700, textTransform: "none", px: 3 }}
+        >
           Cancel
         </Button>
         <Button
@@ -111,7 +136,14 @@ const ReportNotCollectedModal = ({ open, onClose, item, onReport }) => {
           variant="contained"
           color="error"
           disabled={loading}
-          startIcon={loading ? <CircularProgress size={20} /> : null}
+          sx={{
+            borderRadius: 50,
+            fontWeight: 800,
+            textTransform: "none",
+            px: 4,
+            boxShadow: `0 8px 25px ${alpha(theme.palette.error.main, 0.4)}`
+          }}
+          startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
         >
           {loading ? 'Submitting...' : 'Submit Report'}
         </Button>

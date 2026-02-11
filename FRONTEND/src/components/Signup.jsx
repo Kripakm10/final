@@ -7,35 +7,17 @@ import {
   TextField,
   Typography,
   Link,
-  createTheme,
-  ThemeProvider,
-  CssBaseline,
   FormControlLabel,
   Checkbox,
   IconButton,
   InputAdornment,
+  useTheme,
+  alpha,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 
-// 🌈 Aesthetic Theme
-const theme = createTheme({
-  palette: {
-    mode: "light",
-    primary: {
-      main: "#009688", // Teal
-    },
-    secondary: {
-      main: "#ff7043", // Coral
-    },
-    background: {
-      default: "#f0f4f8",
-    },
-  },
-  typography: {
-    fontFamily: "Roboto, sans-serif",
-  },
-});
+
 
 const Signup = () => {
   const [input, setInput] = useState({
@@ -115,33 +97,73 @@ const Signup = () => {
       });
   };
 
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       <Box
         sx={{
-          backgroundImage: `url('https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1950&q=80')`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
           minHeight: "100vh",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          padding: 2,
+          p: { xs: 2, md: 4 },
+          background: isDark
+            ? "radial-gradient(circle at 50% 50%, #1a2035 0%, #0b1221 100%)"
+            : "radial-gradient(circle at 50% 50%, #f0f7ff 0%, #ffffff 100%)",
+          position: "relative",
+          overflow: "hidden",
         }}
       >
+        {/* Abstract shapes */}
+        <Box
+          sx={{
+            position: "absolute",
+            bottom: "-10%",
+            left: "-5%",
+            width: "40vw",
+            height: "40vw",
+            background: isDark
+              ? "radial-gradient(circle, rgba(255,112,67,0.08) 0%, transparent 70%)"
+              : "radial-gradient(circle, rgba(255,112,67,0.04) 0%, transparent 70%)",
+            borderRadius: "50%",
+            filter: "blur(60px)",
+            zIndex: 0,
+          }}
+        />
+
         <Box
           sx={{
             width: "100%",
             maxWidth: 480,
-            bgcolor: "rgba(255, 255, 255, 0.98)",
-            borderRadius: 4,
-            boxShadow: "0 10px 30px rgba(0,0,0,0.12)",
-            padding: 4,
+            bgcolor: isDark ? alpha(theme.palette.background.paper, 0.8) : alpha("#fff", 0.8),
+            backdropFilter: "blur(20px)",
+            borderRadius: 6,
+            boxShadow: isDark
+              ? "0 20px 60px rgba(0,0,0,0.4)"
+              : "0 20px 60px rgba(0,0,0,0.1)",
+            p: { xs: 3, md: 5 },
+            border: "1px solid",
+            borderColor: alpha(theme.palette.divider, 0.1),
+            position: "relative",
+            zIndex: 1,
           }}
         >
-          <Typography variant="h4" gutterBottom align="center" color="primary">
-            Create an account
+          <Typography
+            variant="h4"
+            gutterBottom
+            align="center"
+            sx={{
+              fontWeight: 800,
+              background: isDark
+                ? `linear-gradient(90deg, #fff, ${theme.palette.primary.main})`
+                : `linear-gradient(90deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
+          >
+            Join Smart City
           </Typography>
 
           <Typography
@@ -161,6 +183,7 @@ const Signup = () => {
               name="fullName"
               value={input.fullName}
               onChange={inputHandler}
+              sx={{ "& .MuiOutlinedInput-root": { borderRadius: 3 } }}
             />
             <TextField
               fullWidth
@@ -170,6 +193,7 @@ const Signup = () => {
               name="email"
               value={input.email}
               onChange={inputHandler}
+              sx={{ "& .MuiOutlinedInput-root": { borderRadius: 3 } }}
             />
 
             <TextField
@@ -181,6 +205,7 @@ const Signup = () => {
               value={input.password}
               type={showPassword ? "text" : "password"}
               onChange={inputHandler}
+              sx={{ "& .MuiOutlinedInput-root": { borderRadius: 3 } }}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -205,6 +230,7 @@ const Signup = () => {
               value={input.confirmPassword}
               type={showPassword ? "text" : "password"}
               onChange={inputHandler}
+              sx={{ "& .MuiOutlinedInput-root": { borderRadius: 3 } }}
             />
 
             <TextField
@@ -215,6 +241,7 @@ const Signup = () => {
               name="phone"
               value={input.phone}
               onChange={inputHandler}
+              sx={{ "& .MuiOutlinedInput-root": { borderRadius: 3 } }}
             />
             <TextField
               fullWidth
@@ -224,6 +251,7 @@ const Signup = () => {
               name="city"
               value={input.city}
               onChange={inputHandler}
+              sx={{ "& .MuiOutlinedInput-root": { borderRadius: 3 } }}
             />
 
             <FormControlLabel
@@ -259,9 +287,17 @@ const Signup = () => {
               variant="contained"
               color="primary"
               type="submit"
-              sx={{ mt: 2, py: 1.1 }}
+              sx={{
+                mt: 3,
+                py: 1.5,
+                borderRadius: 50,
+                fontWeight: "bold",
+                textTransform: "none",
+                fontSize: "1rem",
+                boxShadow: `0 8px 20px ${alpha(theme.palette.primary.main, 0.3)}`
+              }}
             >
-              Sign up
+              Sign Up
             </Button>
           </form>
 
@@ -303,7 +339,7 @@ const Signup = () => {
           </Typography>
         </Box>
       </Box>
-    </ThemeProvider>
+    </>
   );
 };
 

@@ -10,7 +10,13 @@ import {
   Stack,
   Alert,
   useTheme,
+  alpha,
+  Card,
+  Chip,
+  IconButton,
+  Avatar
 } from "@mui/material";
+import { Assignment, Map, CheckCircle, Lock } from "@mui/icons-material";
 import Navbar from "./Navbar";
 import API_BASE_URL from "../config/api";
 import { useNavigate } from "react-router-dom";
@@ -26,6 +32,7 @@ const WorkerDashboard = () => {
 
   const navigate = useNavigate();
   const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
 
   const getHeaders = () => {
     const token = sessionStorage.getItem("token");
@@ -38,7 +45,6 @@ const WorkerDashboard = () => {
     try {
       setLoading(true);
       const headers = getHeaders();
-      // Fetch both waste and water assigned tasks
       const [wRes, waterRes] = await Promise.all([
         fetch(`${API_BASE_URL}/api/waste/assigned`, { headers }),
         fetch(`${API_BASE_URL}/api/water/assigned`, { headers }),
@@ -52,7 +58,6 @@ const WorkerDashboard = () => {
       const wData = await wRes.json();
       const waterData = await waterRes.json();
 
-      // Combine and add 'type' field
       const combined = [
         ...(Array.isArray(wData)
           ? wData.map((i) => ({ ...i, type: "waste" }))
@@ -62,7 +67,6 @@ const WorkerDashboard = () => {
           : []),
       ];
 
-      // Sort by date (newest first)
       combined.sort(
         (a, b) =>
           new Date(b.createdAt || b.submittedAt) -
@@ -117,159 +121,189 @@ const WorkerDashboard = () => {
     }
   };
 
+  const isCompleted = (status) =>
+    ["Resolved", "collected", "resolved"].includes(status);
+
   return (
-    <Box sx={{ bgcolor: "#f0f4f8", minHeight: "100vh" }}>
+    <Box sx={{ bgcolor: "background.default", minHeight: "100vh" }}>
       <Navbar />
-      <Box sx={{ p: 2, maxWidth: 800, mx: "auto", mt: 8 }}>
-        <Typography
-          variant="h5"
-          sx={{ mb: 2, fontWeight: "bold", color: theme.palette.primary.main }}
-        >
-          My Assigned Tasks
-        </Typography>
+      <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 900, mx: "auto", mt: 10 }}>
+
+        {/* Header */}
+        <Box sx={{ mb: 5, animation: "fadeIn 0.5s ease-out" }}>
+          <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 1 }}>
+            <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: "primary.main" }}>
+              <Assignment />
+            </Avatar>
+            <Typography variant="h4" sx={{ fontWeight: 900 }}>
+              Field Operations
+            </Typography>
+          </Stack>
+          <Typography variant="body1" color="text.secondary">
+            Manage your assigned tasks and verify service completion.
+          </Typography>
+        </Box>
 
         {loading ? (
-          <Typography>Loading...</Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
+            <CircularProgress />
+          </Box>
         ) : (
-          <Grid container spacing={2}>
+          <Grid container spacing={3}>
             {tasks.length > 0 ? (
               tasks.map((task) => (
                 <Grid size={{ xs: 12 }} key={task._id}>
-                  <Paper
+                  <Card
+                    elevation={0}
                     sx={{
-                      p: 2,
-                      borderLeft: `6px solid ${task.type === "waste" ? "#ff7043" : "#2196f3"}`,
+                      p: 0,
+                      borderRadius: 6,
+                      bgcolor: isDark ? alpha(theme.palette.background.paper, 0.4) : "#fff",
+                      backdropFilter: "blur(20px)",
+                      border: "1px solid",
+                      borderColor: alpha(theme.palette.divider, 0.1),
+                      transition: "transform 0.2s ease",
+                      "&:hover": { transform: "translateY(-4px)" }
                     }}
                   >
-                    <Stack
-                      direction="row"
-                      justifyContent="space-between"
-                      alignItems="start"
-                    >
-                      <Box>
-                        <Typography
-                          variant="h6"
-                          sx={{ textTransform: "capitalize" }}
-                        >
-                          {task.type === "waste"
-                            ? task.wasteType
-                            : task.issueType}
-                        </Typography>
-                        <Typography
-                          variant="body2"
-                          color="text.secondary"
-                          sx={{ mb: 1 }}
-                        >
-                          {task.address}
-                        </Typography>
-                        <Typography
-                          variant="caption"
-                          sx={{
-                            bgcolor: "#eee",
-                            px: 1,
-                            py: 0.5,
-                            borderRadius: 1,
-                          }}
-                        >
-                          Status: {task.status}
-                        </Typography>
-                        {task.name && (
-                          <Typography variant="body2" sx={{ mt: 1 }}>
-                            Customer: {task.name} ({task.contact || task.phone})
+                    <Box sx={{
+                      p: 3,
+                      borderLeft: "6px solid",
+                      borderColor: task.type === "waste" ? "secondary.main" : "primary.main"
+                    }}>
+                      <Stack direction={{ xs: "column", sm: "row" }} justifyContent="space-between" alignItems={{ sm: "start" }} spacing={2}>
+                        <Box flex={1}>
+                          <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+                            <Chip
+                              label={task.type.toUpperCase()}
+                              size="small"
+                              sx={{
+                                fontWeight: 800,
+                                fontSize: "0.7rem",
+                                bgcolor: alpha(task.type === "waste" ? theme.palette.secondary.main : theme.palette.primary.main, 0.1),
+                                color: task.type === "waste" ? "secondary.main" : "primary.main"
+                              }}
+                            />
+                            <Typography variant="caption" color="text.secondary">
+                              #{task._id.slice(-6)}
+                            </Typography>
+                          </Stack>
+                          <Typography variant="h6" sx={{ fontWeight: 800, mb: 1 }}>
+                            {task.type === "waste" ? task.wasteType : task.issueType}
                           </Typography>
-                        )}
-                      </Box>
-                      <Box>
-                        {task.status !== "Resolved" &&
-                        task.status !== "collected" &&
-                        task.status !== "resolved" ? (
-                          <Button
-                            variant="contained"
-                            color="success"
-                            onClick={() => {
-                              setSelectedTask(task);
-                              setModalOpen(true);
-                              setMessage("");
-                              setError("");
-                            }}
-                          >
-                            Verify & Close
-                          </Button>
-                        ) : (
-                          <Typography color="success.main" fontWeight="bold">
-                            Completed
+                          <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 2 }}>
+                            <Map fontSize="inherit" /> {task.address}
                           </Typography>
-                        )}
-                      </Box>
-                    </Stack>
-                    <Box sx={{ mt: 2 }}>
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(task.address)}`}
-                        target="_blank"
-                      >
-                        Open Map
-                      </Button>
+
+                          <Paper variant="outlined" sx={{ p: 2, borderRadius: 3, bgcolor: alpha(theme.palette.background.default, 0.5) }}>
+                            <Typography variant="caption" sx={{ fontWeight: 700, color: "text.secondary", display: 'block', mb: 0.5 }}>
+                              CITIZEN CONTACT
+                            </Typography>
+                            <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                              {task.name || "N/A"} • {task.contact || task.phone || "No contact"}
+                            </Typography>
+                          </Paper>
+                        </Box>
+
+                        <Box sx={{ minWidth: 160, textAlign: { sm: "right" } }}>
+                          {isCompleted(task.status) ? (
+                            <Chip
+                              icon={<CheckCircle />}
+                              label="Completed"
+                              color="success"
+                              variant="outlined"
+                              sx={{ px: 1, fontWeight: "bold", borderRadius: 2 }}
+                            />
+                          ) : (
+                            <Stack spacing={2}>
+                              <Button
+                                variant="contained"
+                                color="primary"
+                                startIcon={<Lock />}
+                                onClick={() => {
+                                  setSelectedTask(task);
+                                  setModalOpen(true);
+                                  setMessage("");
+                                  setError("");
+                                }}
+                                sx={{ borderRadius: 50, textTransform: "none", fontWeight: "bold" }}
+                              >
+                                Verify PIN
+                              </Button>
+                              <Button
+                                variant="outlined"
+                                color="inherit"
+                                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(task.address)}`}
+                                target="_blank"
+                                size="small"
+                                sx={{ borderRadius: 50, textTransform: "none" }}
+                              >
+                                Directions
+                              </Button>
+                            </Stack>
+                          )}
+                        </Box>
+                      </Stack>
                     </Box>
-                  </Paper>
+                  </Card>
                 </Grid>
               ))
             ) : (
-              <Typography>No active tasks assigned.</Typography>
+              <Box sx={{ width: '100%', py: 10, textAlign: 'center' }}>
+                <Typography color="text.secondary">No active tasks assigned.</Typography>
+              </Box>
             )}
           </Grid>
         )}
 
-        <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
+        <Modal
+          open={modalOpen}
+          onClose={() => !loading && setModalOpen(false)}
+          sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        >
           <Box
             sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: 320,
-              bgcolor: "background.paper",
+              width: "100%",
+              maxWidth: 400,
+              bgcolor: isDark ? alpha(theme.palette.background.paper, 0.9) : "#fff",
+              backdropFilter: "blur(20px)",
               p: 4,
-              borderRadius: 2,
-              boxShadow: 24,
+              borderRadius: 6,
+              boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
+              border: "1px solid",
+              borderColor: alpha(theme.palette.divider, 0.1),
+              outline: "none",
             }}
           >
-            <Typography variant="h6" sx={{ mb: 2 }}>
-              Verify Completion
+            <Typography variant="h5" sx={{ fontWeight: 900, mb: 1 }}>
+              Complete Task
             </Typography>
-            <Typography variant="body2" sx={{ mb: 2 }}>
-              Ask the citizen for their 4-digit PIN to verify and close this
-              job.
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+              Enter the 4-digit verification PIN provided by the citizen to confirm service delivery.
             </Typography>
 
             <TextField
               fullWidth
-              label="Enter 4-digit PIN"
+              label="Verification PIN"
               value={pin}
               onChange={(e) => setPin(e.target.value)}
-              inputProps={{ maxLength: 4 }}
-              sx={{ mb: 2 }}
+              inputProps={{ maxLength: 4, style: { textAlign: 'center', fontSize: '1.5rem', letterSpacing: '0.5rem', fontWeight: 900 } }}
+              sx={{ mb: 3, "& .MuiOutlinedInput-root": { borderRadius: 3 } }}
+              autoFocus
             />
 
-            {error && (
-              <Alert severity="error" sx={{ mb: 2 }}>
-                {error}
-              </Alert>
-            )}
-            {message && (
-              <Alert severity="success" sx={{ mb: 2 }}>
-                {message}
-              </Alert>
-            )}
+            {error && <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>{error}</Alert>}
+            {message && <Alert severity="success" sx={{ mb: 2, borderRadius: 2 }}>{message}</Alert>}
 
             <Button
               fullWidth
               variant="contained"
+              size="large"
               onClick={handleVerify}
-              disabled={!!message}
+              disabled={!!message || loading}
+              sx={{ py: 1.5, borderRadius: 50, fontWeight: "bold", textTransform: "none" }}
             >
-              Verify & Complete
+              Confirm Completion
             </Button>
           </Box>
         </Modal>

@@ -7,27 +7,17 @@ import {
   TextField,
   Typography,
   Link,
-  createTheme,
-  ThemeProvider,
-  CssBaseline,
   FormControlLabel,
   Checkbox,
   IconButton,
   InputAdornment,
+  useTheme,
+  alpha,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 
-// 🌈 Theme
-const theme = createTheme({
-  palette: {
-    mode: "light",
-    primary: { main: "#009688" },
-    secondary: { main: "#ff7043" },
-    background: { default: "#f0f4f8" },
-  },
-  typography: { fontFamily: "Roboto, sans-serif" },
-});
+
 
 const Login = () => {
   const [input, setInput] = useState({ email: "", password: "" });
@@ -83,33 +73,73 @@ const Login = () => {
       });
   };
 
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       <Box
         sx={{
-          backgroundImage: `url('https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1950&q=80')`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
           minHeight: "100vh",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
           p: 2,
+          background: isDark
+            ? "radial-gradient(circle at 50% 50%, #1a2035 0%, #0b1221 100%)"
+            : "radial-gradient(circle at 50% 50%, #f0f7ff 0%, #ffffff 100%)",
+          position: "relative",
+          overflow: "hidden",
         }}
       >
+        {/* Abstract shapes */}
+        <Box
+          sx={{
+            position: "absolute",
+            top: "-10%",
+            right: "-5%",
+            width: "40vw",
+            height: "40vw",
+            background: isDark
+              ? "radial-gradient(circle, rgba(0,150,136,0.1) 0%, transparent 70%)"
+              : "radial-gradient(circle, rgba(0,150,136,0.05) 0%, transparent 70%)",
+            borderRadius: "50%",
+            filter: "blur(60px)",
+            zIndex: 0,
+          }}
+        />
+
         <Box
           sx={{
             width: "100%",
             maxWidth: 420,
-            bgcolor: "rgba(255, 255, 255, 0.95)",
-            borderRadius: 4,
-            boxShadow: "0 8px 24px rgba(0,0,0,0.12)",
-            p: 4,
+            bgcolor: isDark ? alpha(theme.palette.background.paper, 0.8) : alpha("#fff", 0.8),
+            backdropFilter: "blur(20px)",
+            borderRadius: 6,
+            boxShadow: isDark
+              ? "0 20px 60px rgba(0,0,0,0.4)"
+              : "0 20px 60px rgba(0,0,0,0.1)",
+            p: { xs: 3, md: 5 },
+            border: "1px solid",
+            borderColor: alpha(theme.palette.divider, 0.1),
+            position: "relative",
+            zIndex: 1,
           }}
         >
-          <Typography variant="h4" gutterBottom align="center" color="primary">
-            Smart City Sign In
+          <Typography
+            variant="h4"
+            gutterBottom
+            align="center"
+            sx={{
+              fontWeight: 800,
+              background: isDark
+                ? `linear-gradient(90deg, #fff, ${theme.palette.primary.main})`
+                : `linear-gradient(90deg, ${theme.palette.primary.dark}, ${theme.palette.primary.main})`,
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
+          >
+            Welcome Back
           </Typography>
 
           <Typography
@@ -129,6 +159,7 @@ const Login = () => {
               name="email"
               value={input.email}
               onChange={inputHandler}
+              sx={{ "& .MuiOutlinedInput-root": { borderRadius: 3 } }}
             />
 
             <TextField
@@ -140,6 +171,7 @@ const Login = () => {
               value={input.password}
               type={showPassword ? "text" : "password"}
               onChange={inputHandler}
+              sx={{ "& .MuiOutlinedInput-root": { borderRadius: 3 } }}
               InputProps={{
                 endAdornment: (
                   <InputAdornment position="end">
@@ -189,7 +221,15 @@ const Login = () => {
               variant="contained"
               color="primary"
               type="submit"
-              sx={{ mt: 3, py: 1 }}
+              sx={{
+                mt: 4,
+                py: 1.5,
+                borderRadius: 50,
+                fontWeight: "bold",
+                textTransform: "none",
+                fontSize: "1rem",
+                boxShadow: `0 8px 20px ${alpha(theme.palette.primary.main, 0.3)}`
+              }}
             >
               Sign In
             </Button>
@@ -233,7 +273,7 @@ const Login = () => {
           </Typography>
         </Box>
       </Box>
-    </ThemeProvider>
+    </>
   );
 };
 

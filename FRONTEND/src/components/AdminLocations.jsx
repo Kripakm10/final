@@ -1,8 +1,18 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Box, Typography, Paper, TextField, InputAdornment, Chip, Stack, List, ListItem, ListItemButton, ListItemText, CircularProgress } from '@mui/material';
+import {
+  Box,
+  Typography,
+  Paper,
+  TextField,
+  InputAdornment,
+  Chip,
+  Stack,
+  CircularProgress,
+  useTheme,
+  alpha
+} from '@mui/material';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import SearchIcon from '@mui/icons-material/Search';
-import LocationOnIcon from '@mui/icons-material/LocationOn';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import API_BASE_URL from '../config/api';
@@ -27,11 +37,11 @@ const getMarkerIcon = (type, isHighlighted = true) => {
     grievance: '#FFD93D',
     registration: '#95E1D3'
   };
-  
+
   const color = colors[type] || '#009688';
   const opacity = isHighlighted ? 1 : 0.4;
   const scale = isHighlighted ? 1 : 0.8;
-  
+
   return L.divIcon({
     html: `
       <div style="
@@ -44,7 +54,7 @@ const getMarkerIcon = (type, isHighlighted = true) => {
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: ${isHighlighted ? '0 2px 8px rgba(0,0,0,0.4)' : '0 1px 3px rgba(0,0,0,0.2)'};
+        box-shadow: ${isHighlighted ? '0 4px 12px rgba(0,0,0,0.3)' : '0 1px 3px rgba(0,0,0,0.1)'};
         font-weight: bold;
         color: white;
         font-size: ${12 * scale}px;
@@ -60,30 +70,14 @@ const getMarkerIcon = (type, isHighlighted = true) => {
   });
 };
 
-// Blue location pin icon
-const blueLocationIcon = L.divIcon({
-  html: `
-    <div style="
-      color: #2196F3;
-      font-size: 32px;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.3);
-    ">
-      📍
-    </div>
-  `,
-  className: 'blue-location-marker',
-  iconSize: [32, 32],
-  iconAnchor: [16, 32],
-  popupAnchor: [0, -32]
-});
-
 const AdminLocations = () => {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredItems, setFilteredItems] = useState([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
   const mapRef = useRef(null);
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
 
   const getAuthHeaders = () => {
     const token = sessionStorage.getItem('token') || localStorage.getItem('token');
@@ -132,14 +126,14 @@ const AdminLocations = () => {
     } else {
       const query = searchQuery.toLowerCase();
       const filtered = items.filter(item => {
-        const name = (item.name || 
-          (item.firstName && `${item.firstName} ${item.lastName}`) || 
+        const name = (item.name ||
+          (item.firstName && `${item.firstName} ${item.lastName}`) ||
           '').toLowerCase();
         const address = (item.address || '').toLowerCase();
         const email = (item.email || '').toLowerCase();
         const type = (item.type || '').toLowerCase();
         const phone = (item.phone || item.phoneNumber || '').toLowerCase();
-        
+
         return (
           name.includes(query) ||
           address.includes(query) ||
@@ -165,8 +159,8 @@ const AdminLocations = () => {
   const center = filteredItems.length
     ? [filteredItems[0].location.lat, filteredItems[0].location.lng]
     : (items.length
-        ? [items[0].location.lat, items[0].location.lng]
-        : [20.5937, 78.9629]);
+      ? [items[0].location.lat, items[0].location.lng]
+      : [20.5937, 78.9629]);
 
   // Count by type
   const typeCount = {
@@ -177,58 +171,75 @@ const AdminLocations = () => {
   };
 
   return (
-    <Box>
-      <Typography variant="h5" sx={{ mb: 2 }}>
-        Submitted Locations
-      </Typography>
+    <Box sx={{ animation: "fadeIn 0.5s ease-out" }}>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" sx={{ fontWeight: 900, mb: 1 }}>
+          Live Map
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Visualizing resource distribution and reported issues across the city.
+        </Typography>
+      </Box>
 
       {loading ? (
-        <Typography>Loading...</Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 5 }}>
+          <CircularProgress />
+        </Box>
       ) : (
-        <Paper sx={{ p: 2 }}>
+        <Paper
+          elevation={0}
+          sx={{
+            p: 3,
+            borderRadius: 6,
+            bgcolor: isDark ? alpha(theme.palette.background.paper, 0.4) : "#fff",
+            backdropFilter: "blur(20px)",
+            border: "1px solid",
+            borderColor: alpha(theme.palette.divider, 0.1),
+          }}
+        >
           {items.length > 0 && (
             <>
               <TextField
                 fullWidth
-                placeholder="Search by name, address, email, phone, or type..."
+                placeholder="Search by name, address, or type..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <SearchIcon />
+                      <SearchIcon color="primary" />
                     </InputAdornment>
                   ),
                 }}
-                sx={{ mb: 2 }}
-                size="small"
+                sx={{
+                  mb: 3,
+                  "& .MuiOutlinedInput-root": { borderRadius: 4 }
+                }}
               />
 
               {/* Legend and Stats */}
-              <Stack direction="row" spacing={1} sx={{ mb: 2, flexWrap: 'wrap', gap: 1 }}>
-                <Chip label={`📍 All Locations: ${filteredItems.length}/${items.length}`} color="default" />
-                {typeCount.waste > 0 && <Chip label={`🗑️ Waste: ${typeCount.waste}`} sx={{ bgcolor: '#FF6B6B', color: 'white' }} />}
-                {typeCount.water > 0 && <Chip label={`💧 Water: ${typeCount.water}`} sx={{ bgcolor: '#4ECDC4', color: 'white' }} />}
-                {typeCount.grievance > 0 && <Chip label={`⚠️ Grievance: ${typeCount.grievance}`} sx={{ bgcolor: '#FFD93D', color: 'black' }} />}
-                {typeCount.registration > 0 && <Chip label={`✓ Registration: ${typeCount.registration}`} sx={{ bgcolor: '#95E1D3', color: 'black' }} />}
+              <Stack direction="row" spacing={1} sx={{ mb: 3, flexWrap: 'wrap', gap: 1 }}>
+                <Chip
+                  label={`All: ${filteredItems.length}`}
+                  sx={{ borderRadius: 2, fontWeight: 'bold' }}
+                />
+                {typeCount.waste > 0 && <Chip label={`Waste: ${typeCount.waste}`} sx={{ bgcolor: alpha('#FF6B6B', 0.1), color: '#FF6B6B', fontWeight: 'bold', border: "1px solid", borderColor: '#FF6B6B' }} />}
+                {typeCount.water > 0 && <Chip label={`Water: ${typeCount.water}`} sx={{ bgcolor: alpha('#4ECDC4', 0.1), color: '#4ECDC4', fontWeight: 'bold', border: "1px solid", borderColor: '#4ECDC4' }} />}
+                {typeCount.grievance > 0 && <Chip label={`Grievance: ${typeCount.grievance}`} sx={{ bgcolor: alpha('#FFD93D', 0.1), color: isDark ? '#FFD93D' : '#d4ac0d', fontWeight: 'bold', border: "1px solid", borderColor: '#FFD93D' }} />}
+                {typeCount.registration > 0 && <Chip label={`Reg: ${typeCount.registration}`} sx={{ bgcolor: alpha('#95E1D3', 0.1), color: isDark ? '#95E1D3' : '#0e6655', fontWeight: 'bold', border: "1px solid", borderColor: '#95E1D3' }} />}
               </Stack>
             </>
           )}
 
           {filteredItems.length ? (
-            <>
-              <Typography variant="body2" sx={{ mb: 1, color: 'text.secondary' }}>
-                Showing {filteredItems.length} of {items.length} locations
-                {searchQuery && ` (filtered by: "${searchQuery}")`}
-              </Typography>
-              <MapContainer 
+            <Box sx={{ position: 'relative', height: 500, borderRadius: 4, overflow: 'hidden' }}>
+              <MapContainer
                 ref={mapRef}
-                center={center} 
-                zoom={12} 
-                style={{ height: 500, borderRadius: '4px' }}
+                center={center}
+                zoom={12}
+                style={{ height: '100%', width: '100%' }}
               >
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                {/* Show all locations, but highlight filtered ones */}
                 {items.map(it => {
                   const isMatched = filteredItems.some(fi => fi._id === it._id);
                   return (
@@ -238,25 +249,18 @@ const AdminLocations = () => {
                       icon={getMarkerIcon(it.type, isMatched)}
                     >
                       <Popup>
-                        <Box sx={{ minWidth: 200 }}>
-                          <Typography variant="subtitle2" sx={{ fontWeight: 'bold', color: '#009688' }}>
-                            {it.type.toUpperCase()}
+                        <Box sx={{ minWidth: 200, p: 0.5 }}>
+                          <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "primary.main", textTransform: 'uppercase', mb: 1 }}>
+                            {it.type}
+                          </Typography>
+                          <Typography variant="body2">
+                            <strong>Name:</strong> {it.name || (it.firstName && `${it.firstName} ${it.lastName}`) || 'N/A'}
                           </Typography>
                           <Typography variant="body2" sx={{ mt: 0.5 }}>
-                            <strong>Name:</strong> {it.name ||
-                              (it.firstName && `${it.firstName} ${it.lastName}`) ||
-                              'No name'}
-                          </Typography>
-                          <Typography variant="body2" sx={{ mt: 0.3 }}>
                             <strong>Address:</strong> {it.address || it.email || 'N/A'}
                           </Typography>
-                          {it.phone && (
-                            <Typography variant="body2" sx={{ mt: 0.3 }}>
-                              <strong>Phone:</strong> {it.phone}
-                            </Typography>
-                          )}
-                          <Typography variant="body2" sx={{ mt: 0.3, color: 'text.secondary' }}>
-                            📍 {it.location.lat.toFixed(5)}, {it.location.lng.toFixed(5)}
+                          <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1 }}>
+                            📍 {it.location.lat.toFixed(4)}, {it.location.lng.toFixed(4)}
                           </Typography>
                         </Box>
                       </Popup>
@@ -264,15 +268,13 @@ const AdminLocations = () => {
                   );
                 })}
               </MapContainer>
-            </>
-          ) : items.length > 0 ? (
-            <Typography color="text.secondary">
-              No locations match your search "{searchQuery}".
-            </Typography>
+            </Box>
           ) : (
-            <Typography color="text.secondary">
-              No locations submitted yet.
-            </Typography>
+            <Box sx={{ py: 10, textAlign: 'center' }}>
+              <Typography color="text.secondary">
+                {items.length > 0 ? `No results for "${searchQuery}"` : "No locations available."}
+              </Typography>
+            </Box>
           )}
         </Paper>
       )}

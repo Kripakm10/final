@@ -1,15 +1,21 @@
 import React, { useEffect, useState } from "react";
 import {
-  Box,
-  Typography,
-  Paper,
-  Button,
-  Avatar,
-  Stack,
-  Grid,
-  Chip,
   Alert,
+  useTheme,
+  alpha,
+  Card,
+  CardContent,
+  IconButton,
 } from "@mui/material";
+import {
+  Logout,
+  Settings,
+  DeleteSweep,
+  WaterDrop,
+  ReportProblem,
+  AccessTime,
+  VpnKey
+} from "@mui/icons-material";
 import Navbar from "./Navbar";
 import API_BASE_URL from "../config/api";
 import { useNavigate } from "react-router-dom";
@@ -103,355 +109,338 @@ const UserDashboard = () => {
     navigate("/login");
   };
 
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+
   return (
-    <Box>
+    <Box sx={{ minHeight: "100vh", bgcolor: "background.default" }}>
       <Navbar />
-      <Box sx={{ p: 4, mt: 8 }}>
+      <Box sx={{ p: { xs: 2, md: 4 }, mt: 10 }}>
+        {/* Header Section */}
         <Stack
           direction="row"
           justifyContent="space-between"
           alignItems="center"
-          sx={{ mb: 3 }}
+          sx={{ mb: 4 }}
         >
-          <Typography variant="h4" color="primary">
-            My Dashboard
-          </Typography>
+          <Box>
+            <Typography variant="h4" sx={{ fontWeight: 800, color: "text.primary" }}>
+              Citizen Dashboard
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              Manage your reports and track city services.
+            </Typography>
+          </Box>
           {user && (
-            <Button variant="outlined" color="error" onClick={handleLogout}>
+            <Button
+              variant="outlined"
+              color="error"
+              startIcon={<Logout />}
+              onClick={handleLogout}
+              sx={{ borderRadius: 50, textTransform: "none" }}
+            >
               Logout
             </Button>
           )}
         </Stack>
 
-        {user ? (
-          <Paper sx={{ p: 3, mb: 4, bgcolor: "#F6F7FA" }}>
-            <Stack direction="row" spacing={2} alignItems="center">
-              <Avatar sx={{ bgcolor: "#0a4572ff", width: 56, height: 56 }}>
-                {(user.fullName || user.email || "U")[0].toUpperCase()}
-              </Avatar>
-              <Box>
-                <Typography variant="h5">{user.fullName}</Typography>
-                <Typography variant="body1" color="text.secondary">
-                  {user.email}
-                </Typography>
-                <Typography
-                  variant="caption"
-                  sx={{ textTransform: "uppercase", fontWeight: "bold" }}
+        {user && (
+          <Card
+            elevation={0}
+            sx={{
+              mb: 5,
+              borderRadius: 6,
+              bgcolor: isDark ? alpha(theme.palette.background.paper, 0.4) : "#fff",
+              backdropFilter: "blur(20px)",
+              border: "1px solid",
+              borderColor: alpha(theme.palette.divider, 0.1),
+              p: 1,
+            }}
+          >
+            <CardContent>
+              <Stack direction="row" spacing={3} alignItems="center">
+                <Avatar
+                  sx={{
+                    bgcolor: "primary.main",
+                    width: 70,
+                    height: 70,
+                    boxShadow: `0 8px 16px ${alpha(theme.palette.primary.main, 0.2)}`
+                  }}
                 >
-                  {user.role || "User"}
-                </Typography>
-              </Box>
-            </Stack>
-          </Paper>
-        ) : (
-          <Paper sx={{ p: 3, mb: 4 }}>
-            <Typography>Please login to view your dashboard.</Typography>
-          </Paper>
+                  {(user.fullName || user.email || "U")[0].toUpperCase()}
+                </Avatar>
+                <Box>
+                  <Typography variant="h5" sx={{ fontWeight: "bold" }}>{user.fullName}</Typography>
+                  <Typography variant="body1" color="text.secondary">
+                    {user.email}
+                  </Typography>
+                  <Chip
+                    label={user.role || "Citizen"}
+                    size="small"
+                    sx={{ mt: 1, fontWeight: "bold", textTransform: "uppercase", fontSize: "0.65rem" }}
+                  />
+                </Box>
+              </Stack>
+            </CardContent>
+          </Card>
         )}
         <Grid container spacing={3}>
           <Grid size={{ xs: 12, md: 6 }}>
-            <Paper sx={{ p: 2, height: "100%" }}>
-              <Typography
-                variant="h6"
-                sx={{
-                  mb: 2,
-                  borderBottom: "2px solid #7AA2C1",
-                  display: "inline-block",
-                }}
-              >
-                My Waste Requests
-              </Typography>
+            <Paper
+              elevation={0}
+              sx={{
+                p: 3,
+                height: "100%",
+                borderRadius: 6,
+                border: "1px solid",
+                borderColor: alpha(theme.palette.divider, 0.1),
+                bgcolor: "background.paper",
+              }}
+            >
+              <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 3 }}>
+                <DeleteSweep color="primary" />
+                <Typography variant="h6" sx={{ fontWeight: 800 }}>
+                  Waste Collection
+                </Typography>
+              </Stack>
               {wastes.length ? (
                 wastes.map((w, i) => {
-                  const isScheduled =
-                    w.status === "scheduled" && w.scheduledTime;
-                  const scheduledDate = isScheduled
-                    ? new Date(w.scheduledTime)
-                    : null;
+                  const isScheduled = w.status === "scheduled" && w.scheduledTime;
+                  const scheduledDate = isScheduled ? new Date(w.scheduledTime) : null;
                   const isPast = scheduledDate && new Date() > scheduledDate;
-                  const canReport =
-                    isPast &&
-                    (w.status === "scheduled" || w.status === "not-collected");
+                  const canReport = isPast && (w.status === "scheduled" || w.status === "not-collected");
 
                   return (
-                    <Paper
+                    <Card
                       key={w._id || i}
-                      variant="outlined"
-                      sx={{ p: 2, mb: 2, bgcolor: "#fafafaff" }}
-                    >
-                      <Typography variant="subtitle1" fontWeight="bold">
-                        {w.wasteType || "Waste Collection"}
-                      </Typography>
-                      <Typography variant="body2">{w.address}</Typography>
-
-                      {(isScheduled ||
-                        (w.assignedTo && w.status !== "collected")) && (
-                        <Box
-                          sx={{
-                            mt: 1,
-                            p: 1,
-                            bgcolor: "#e3f2fd",
-                            borderRadius: 1,
-                          }}
-                        >
-                          {isScheduled && (
-                            <Typography
-                              variant="caption"
-                              sx={{ fontWeight: "bold", color: "#1976d2" }}
-                            >
-                              📅 Scheduled: {scheduledDate.toLocaleString()}
-                            </Typography>
-                          )}
-                          {w.verificationPin &&
-                            w.status !== "Resolved" &&
-                            w.status !== "collected" && (
-                              <Typography
-                                variant="caption"
-                                sx={{
-                                  fontWeight: "bold",
-                                  color: "#d32f2f",
-                                  mt: 0.5,
-                                  display: "block",
-                                }}
-                              >
-                                🔐 Verification PIN: {w.verificationPin}
-                              </Typography>
-                            )}
-                        </Box>
-                      )}
-
-                      {w.reports && w.reports.length > 0 && (
-                        <Alert severity="warning" sx={{ mt: 1, py: 0.5 }}>
-                          {w.reports.length} report(s) submitted - Status:{" "}
-                          {w.status}
-                        </Alert>
-                      )}
-
-                      <Stack
-                        direction="row"
-                        spacing={1}
-                        sx={{ mt: 1, alignItems: "center" }}
-                      >
-                        <Chip
-                          label={w.status || "Pending"}
-                          size="small"
-                          color={
-                            w.status === "collected"
-                              ? "success"
-                              : w.status === "not-collected"
-                                ? "error"
-                                : "default"
-                          }
-                          variant="outlined"
-                        />
-                        {canReport && (
-                          <Button
-                            size="small"
-                            color="error"
-                            variant="outlined"
-                            onClick={() => {
-                              setSelectedWaste(w);
-                              setReportModalOpen(true);
-                            }}
-                          >
-                            Report Not Collected
-                          </Button>
-                        )}
-                      </Stack>
-                    </Paper>
-                  );
-                })
-              ) : (
-                <Typography color="text.secondary">
-                  No waste requests yet.
-                </Typography>
-              )}
-            </Paper>
-          </Grid>
-
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Paper sx={{ p: 2, height: "100%" }}>
-              <Typography
-                variant="h6"
-                sx={{
-                  mb: 2,
-                  borderBottom: "2px solid #467ce0ff",
-                  display: "inline-block",
-                }}
-              >
-                My Water Reports
-              </Typography>
-              {waters.length ? (
-                waters.map((w, i) => {
-                  const isScheduled =
-                    w.status === "scheduled" && w.scheduledTime;
-                  const scheduledDate = isScheduled
-                    ? new Date(w.scheduledTime)
-                    : null;
-                  const isPast = scheduledDate && new Date() > scheduledDate;
-                  const canReport =
-                    isPast &&
-                    (w.status === "scheduled" || w.status === "not-resolved");
-
-                  return (
-                    <Paper
-                      key={w._id || i}
-                      variant="outlined"
-                      sx={{ p: 2, mb: 2, bgcolor: "#fafafa" }}
-                    >
-                      <Typography variant="subtitle1" fontWeight="bold">
-                        {w.issueType || "Water Issue"}
-                      </Typography>
-                      <Typography variant="body2">{w.address}</Typography>
-                      {w.location && w.location.lat && (
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          display="block"
-                        >
-                          Location: {w.location.lat.toFixed(5)},{" "}
-                          {w.location.lng.toFixed(5)}
-                        </Typography>
-                      )}
-
-                      {(isScheduled ||
-                        (w.assignedTo && w.status !== "resolved")) && (
-                        <Box
-                          sx={{
-                            mt: 1,
-                            p: 1,
-                            bgcolor: "#e3f2fd",
-                            borderRadius: 1,
-                          }}
-                        >
-                          {isScheduled && (
-                            <Typography
-                              variant="caption"
-                              sx={{
-                                fontWeight: "bold",
-                                color: "#1976d2",
-                                display: "block",
-                              }}
-                            >
-                              📅 Scheduled: {scheduledDate.toLocaleString()}
-                            </Typography>
-                          )}
-                          {w.verificationPin &&
-                            w.status !== "Resolved" &&
-                            w.status !== "resolved" && (
-                              <Typography
-                                variant="caption"
-                                sx={{
-                                  fontWeight: "bold",
-                                  color: "#d32f2f",
-                                  mt: 0.5,
-                                  display: "block",
-                                }}
-                              >
-                                🔐 Verification PIN: {w.verificationPin}
-                              </Typography>
-                            )}
-                        </Box>
-                      )}
-
-                      {w.reports && w.reports.length > 0 && (
-                        <Alert severity="warning" sx={{ mt: 1, py: 0.5 }}>
-                          {w.reports.length} report(s) submitted - Status:{" "}
-                          {w.status}
-                        </Alert>
-                      )}
-
-                      <Stack
-                        direction="row"
-                        spacing={1}
-                        sx={{ mt: 1, alignItems: "center" }}
-                      >
-                        <Chip
-                          label={w.status || "Pending"}
-                          size="small"
-                          color={
-                            w.status === "resolved"
-                              ? "success"
-                              : w.status === "not-resolved"
-                                ? "error"
-                                : "default"
-                          }
-                          variant="outlined"
-                        />
-                        {canReport && (
-                          <Button
-                            size="small"
-                            color="error"
-                            variant="outlined"
-                            onClick={() => {
-                              setSelectedWater(w);
-                              setReportWaterModalOpen(true);
-                            }}
-                          >
-                            Report Not Resolved
-                          </Button>
-                        )}
-                      </Stack>
-                    </Paper>
-                  );
-                })
-              ) : (
-                <Typography color="text.secondary">
-                  No water reports yet.
-                </Typography>
-              )}
-            </Paper>
-          </Grid>
-
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Paper sx={{ p: 2, height: "100%" }}>
-              <Typography
-                variant="h6"
-                sx={{
-                  mb: 2,
-                  borderBottom: "2px solid #1976d2",
-                  display: "inline-block",
-                }}
-              >
-                My Grievances
-              </Typography>
-              {grievances.length ? (
-                grievances.map((g, i) => (
-                  <Paper
-                    key={g._id || i}
-                    variant="outlined"
-                    sx={{ p: 2, mb: 2, bgcolor: "#fafafa" }}
-                  >
-                    <Typography variant="subtitle1" fontWeight="bold">
-                      {g.subject}
-                    </Typography>
-                    <Typography variant="body2">{g.description}</Typography>
-                    {g.location && g.location.lat && (
-                      <Typography
-                        variant="caption"
-                        color="text.secondary"
-                        display="block"
-                      >
-                        Location: {g.location.lat.toFixed(5)},{" "}
-                        {g.location.lng.toFixed(5)}
-                      </Typography>
-                    )}
-                    <Typography
-                      variant="caption"
+                      elevation={0}
                       sx={{
-                        color: statusColor(g.status),
-                        fontWeight: "bold",
-                        mt: 1,
-                        display: "block",
+                        p: 2,
+                        mb: 2,
+                        borderRadius: 4,
+                        bgcolor: isDark ? alpha(theme.palette.background.default, 0.4) : alpha(theme.palette.background.default, 0.6),
+                        border: "1px solid",
+                        borderColor: alpha(theme.palette.divider, 0.05),
+                        transition: "all 0.3s ease",
+                        "&:hover": {
+                          borderColor: alpha(theme.palette.primary.main, 0.3),
+                          transform: "translateY(-4px)",
+                          boxShadow: "0 8px 24px rgba(0,0,0,0.05)"
+                        }
                       }}
                     >
-                      Status: {g.status || "Open"}
-                    </Typography>
-                  </Paper>
+                      <Stack direction="row" justifyContent="space-between" sx={{ mb: 1 }}>
+                        <Typography variant="subtitle1" fontWeight="bold">
+                          {w.wasteType || "Waste Collection"}
+                        </Typography>
+                        <Chip
+                          label={w.status || "Pending"}
+                          size="small"
+                          sx={{
+                            fontWeight: "bold",
+                            bgcolor: w.status === "collected" ? alpha(theme.palette.success.main, 0.1) : alpha(theme.palette.warning.main, 0.1),
+                            color: w.status === "collected" ? "success.main" : "warning.main",
+                            border: "none"
+                          }}
+                        />
+                      </Stack>
+                      <Typography variant="body2" color="text.secondary">{w.address}</Typography>
+
+                      {isScheduled && (
+                        <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 2, p: 1, bgcolor: alpha(theme.palette.primary.main, 0.05), borderRadius: 2 }}>
+                          <AccessTime sx={{ fontSize: 16, color: "primary.main" }} />
+                          <Typography variant="caption" sx={{ fontWeight: "bold", color: "primary.main" }}>
+                            Scheduled: {scheduledDate.toLocaleString()}
+                          </Typography>
+                        </Stack>
+                      )}
+
+                      {w.verificationPin && w.status !== "collected" && (
+                        <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 1, p: 1, bgcolor: alpha(theme.palette.secondary.main, 0.05), borderRadius: 2 }}>
+                          <VpnKey sx={{ fontSize: 16, color: "secondary.main" }} />
+                          <Typography variant="caption" sx={{ fontWeight: "bold", color: "secondary.main" }}>
+                            PIN: {w.verificationPin}
+                          </Typography>
+                        </Stack>
+                      )}
+
+                      {canReport && (
+                        <Button
+                          fullWidth
+                          size="small"
+                          color="error"
+                          variant="outlined"
+                          onClick={() => {
+                            setSelectedWaste(w);
+                            setReportModalOpen(true);
+                          }}
+                          sx={{ mt: 2, borderRadius: 50, textTransform: "none" }}
+                        >
+                          Report Not Collected
+                        </Button>
+                      )}
+                    </Card>
+                  );
+                })
+              ) : (
+                <Typography color="text.secondary" align="center" sx={{ py: 4 }}>
+                  No requests found
+                </Typography>
+              )}
+            </Paper>
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Paper
+              elevation={0}
+              sx={{
+                p: 3,
+                height: "100%",
+                borderRadius: 6,
+                border: "1px solid",
+                borderColor: alpha(theme.palette.divider, 0.1),
+                bgcolor: "background.paper",
+              }}
+            >
+              <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 3 }}>
+                <WaterDrop color="primary" />
+                <Typography variant="h6" sx={{ fontWeight: 800 }}>
+                  Water Supply
+                </Typography>
+              </Stack>
+              {waters.length ? (
+                waters.map((w, i) => {
+                  const isScheduled = w.status === "scheduled" && w.scheduledTime;
+                  const scheduledDate = isScheduled ? new Date(w.scheduledTime) : null;
+                  const isPast = scheduledDate && new Date() > scheduledDate;
+                  const canReport = isPast && (w.status === "scheduled" || w.status === "not-resolved");
+
+                  return (
+                    <Card
+                      key={w._id || i}
+                      elevation={0}
+                      sx={{
+                        p: 2,
+                        mb: 2,
+                        borderRadius: 4,
+                        bgcolor: isDark ? alpha(theme.palette.background.default, 0.4) : alpha(theme.palette.background.default, 0.6),
+                        border: "1px solid",
+                        borderColor: alpha(theme.palette.divider, 0.05),
+                        transition: "all 0.3s ease",
+                        "&:hover": {
+                          borderColor: alpha(theme.palette.primary.main, 0.3),
+                          transform: "translateY(-4px)"
+                        }
+                      }}
+                    >
+                      <Stack direction="row" justifyContent="space-between" sx={{ mb: 1 }}>
+                        <Typography variant="subtitle1" fontWeight="bold">
+                          {w.issueType || "Water Issue"}
+                        </Typography>
+                        <Chip
+                          label={w.status || "Pending"}
+                          size="small"
+                          sx={{
+                            fontWeight: "bold",
+                            bgcolor: w.status === "resolved" ? alpha(theme.palette.success.main, 0.1) : alpha(theme.palette.warning.main, 0.1),
+                            color: w.status === "resolved" ? "success.main" : "warning.main",
+                          }}
+                        />
+                      </Stack>
+                      <Typography variant="body2" color="text.secondary">{w.address}</Typography>
+
+                      {isScheduled && (
+                        <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 2, p: 1, bgcolor: alpha(theme.palette.primary.main, 0.05), borderRadius: 2 }}>
+                          <AccessTime sx={{ fontSize: 16, color: "primary.main" }} />
+                          <Typography variant="caption" sx={{ fontWeight: "bold", color: "primary.main" }}>
+                            Scheduled: {scheduledDate.toLocaleString()}
+                          </Typography>
+                        </Stack>
+                      )}
+
+                      {canReport && (
+                        <Button
+                          fullWidth
+                          size="small"
+                          color="error"
+                          variant="outlined"
+                          onClick={() => {
+                            setSelectedWater(w);
+                            setReportWaterModalOpen(true);
+                          }}
+                          sx={{ mt: 2, borderRadius: 50, textTransform: "none" }}
+                        >
+                          Report Not Resolved
+                        </Button>
+                      )}
+                    </Card>
+                  );
+                })
+              ) : (
+                <Typography color="text.secondary" align="center" sx={{ py: 4 }}>
+                  No reports found
+                </Typography>
+              )}
+            </Paper>
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Paper
+              elevation={0}
+              sx={{
+                p: 3,
+                height: "100%",
+                borderRadius: 6,
+                border: "1px solid",
+                borderColor: alpha(theme.palette.divider, 0.1),
+                bgcolor: "background.paper",
+              }}
+            >
+              <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 3 }}>
+                <ReportProblem color="primary" />
+                <Typography variant="h6" sx={{ fontWeight: 800 }}>
+                  Grievances
+                </Typography>
+              </Stack>
+              {grievances.length ? (
+                grievances.map((g, i) => (
+                  <Card
+                    key={g._id || i}
+                    elevation={0}
+                    sx={{
+                      p: 2,
+                      mb: 2,
+                      borderRadius: 4,
+                      bgcolor: isDark ? alpha(theme.palette.background.default, 0.4) : alpha(theme.palette.background.default, 0.6),
+                      border: "1px solid",
+                      borderColor: alpha(theme.palette.divider, 0.05),
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        borderColor: alpha(theme.palette.primary.main, 0.3),
+                        transform: "translateY(-4px)"
+                      }
+                    }}
+                  >
+                    <Stack direction="row" justifyContent="space-between" sx={{ mb: 1 }}>
+                      <Typography variant="subtitle1" fontWeight="bold">
+                        {g.subject}
+                      </Typography>
+                      <Chip
+                        label={g.status || "Open"}
+                        size="small"
+                        sx={{
+                          fontWeight: "bold",
+                          bgcolor: alpha(statusColor(g.status) === "green" ? theme.palette.success.main : theme.palette.error.main, 0.1),
+                          color: statusColor(g.status) === "green" ? "success.main" : "error.main",
+                        }}
+                      />
+                    </Stack>
+                    <Typography variant="body2" color="text.secondary">{g.description}</Typography>
+                  </Card>
                 ))
               ) : (
-                <Typography color="text.secondary">
-                  No grievances yet.
+                <Typography color="text.secondary" align="center" sx={{ py: 4 }}>
+                  No grievances found
                 </Typography>
               )}
             </Paper>

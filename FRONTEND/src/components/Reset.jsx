@@ -6,30 +6,21 @@ import {
   Button,
   TextField,
   Typography,
-  createTheme,
-  ThemeProvider,
-  CssBaseline,
+  Card,
+  alpha,
+  useTheme
 } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
-
-// 🌈 Theme
-const theme = createTheme({
-  palette: {
-    mode: 'light',
-    primary: { main: '#009688' },
-    secondary: { main: '#ff7043' },
-    background: { default: '#f0f4f8' },
-  },
-  typography: { fontFamily: 'Roboto, sans-serif' },
-});
 
 const Reset = () => {
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
 
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Example API call
     axios
       .post(`${API_BASE_URL}/api/forgot-password`, { email })
       .then(() => {
@@ -41,78 +32,111 @@ const Reset = () => {
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <Box
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        p: 2,
+        background: isDark
+          ? "radial-gradient(circle at 50% 50%, #1a2035 0%, #0b1221 100%)"
+          : "radial-gradient(circle at 50% 50%, #f0f7ff 0%, #ffffff 100%)",
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      {/* Background decoration */}
       <Box
         sx={{
-          backgroundImage: `url('https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1950&q=80')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          p: 2,
+          position: "absolute",
+          top: "10%",
+          left: "5%",
+          width: "30vw",
+          height: "30vw",
+          background: "radial-gradient(circle, rgba(255, 112, 67, 0.08) 0%, transparent 70%)",
+          borderRadius: "50%",
+          filter: "blur(60px)",
+        }}
+      />
+
+      <Card
+        elevation={0}
+        sx={{
+          width: '100%',
+          maxWidth: 400,
+          bgcolor: isDark ? alpha(theme.palette.background.paper, 0.8) : alpha("#fff", 0.8),
+          backdropFilter: "blur(20px)",
+          borderRadius: 6,
+          p: { xs: 4, md: 5 },
+          textAlign: 'center',
+          border: "1px solid",
+          borderColor: alpha(theme.palette.divider, 0.1),
+          boxShadow: "0 20px 60px rgba(0,0,0,0.1)",
+          zIndex: 1,
         }}
       >
-        <Box
+        <Typography
+          variant="h4"
+          gutterBottom
           sx={{
-            width: '100%',
-            maxWidth: 400,
-            bgcolor: 'rgba(255, 255, 255, 0.9)',
-            borderRadius: 4,
-            boxShadow: '0 8px 24px rgba(0,0,0,0.1)',
-            p: 4,
-            textAlign: 'center',
+            fontWeight: 800,
+            background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
           }}
         >
-          <Typography variant="h5" color="primary" gutterBottom>
-            Forgot Password
-          </Typography>
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{ mb: 3 }}
+          Recover Account
+        </Typography>
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ mb: 4 }}
+        >
+          No worries! Just enter your email and we'll send you instructions to reset your password.
+        </Typography>
+
+        <form onSubmit={handleSubmit}>
+          <TextField
+            fullWidth
+            label="Email Address"
+            variant="outlined"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            sx={{ mb: 3, "& .MuiOutlinedInput-root": { borderRadius: 3 } }}
+          />
+
+          <Button
+            fullWidth
+            variant="contained"
+            color="primary"
+            type="submit"
+            sx={{
+              py: 1.5,
+              borderRadius: 50,
+              fontWeight: 800,
+              textTransform: "none",
+              boxShadow: `0 8px 25px ${alpha(theme.palette.primary.main, 0.4)}`
+            }}
           >
-            Enter your email to receive a password reset link.
+            Send Instructions
+          </Button>
+        </form>
+
+        {message && (
+          <Typography variant="body2" sx={{ mt: 3, p: 2, bgcolor: alpha(theme.palette.info.main, 0.1), borderRadius: 2, color: "info.main", fontWeight: 600 }}>
+            {message}
           </Typography>
+        )}
 
-          <form onSubmit={handleSubmit}>
-            <TextField
-              fullWidth
-              label="Email"
-              variant="outlined"
-              margin="normal"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-
-            <Button
-              fullWidth
-              variant="contained"
-              color="primary"
-              type="submit"
-              sx={{ mt: 2, py: 1 }}
-            >
-              Send Reset Link
-            </Button>
-          </form>
-
-          {message && (
-            <Typography variant="body2" color="secondary" sx={{ mt: 2 }}>
-              {message}
-            </Typography>
-          )}
-
-          <Typography variant="body2" sx={{ mt: 3, color: 'text.secondary' }}>
-            <RouterLink to="/login" style={{ color: '#ff7043', textDecoration: 'none' }}>
-              Back to Login
-            </RouterLink>
-          </Typography>
-        </Box>
-      </Box>
-    </ThemeProvider>
+        <Typography variant="body2" sx={{ mt: 4 }}>
+          <RouterLink to="/login" style={{ color: theme.palette.primary.main, textDecoration: 'none', fontWeight: 700 }}>
+            ← Back to Sign In
+          </RouterLink>
+        </Typography>
+      </Card>
+    </Box>
   );
 };
 

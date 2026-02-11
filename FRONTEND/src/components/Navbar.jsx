@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   AppBar,
   Toolbar,
@@ -14,9 +14,12 @@ import {
   List,
   ListItem,
   ListItemButton,
+  useTheme,
+  alpha,
 } from "@mui/material";
 import { Link as RouterLink, useNavigate, useLocation } from "react-router-dom";
-import { Menu as MenuIcon, Close as CloseIcon } from "@mui/icons-material";
+import { Menu as MenuIcon, Close as CloseIcon, Brightness4, Brightness7 } from "@mui/icons-material";
+import { useColorMode } from "../context/ThemeContext";
 import RegistrationModal from "./RegistrationModal";
 import WasteModal from "./WasteModal";
 import WaterModal from "./WaterModal";
@@ -25,6 +28,8 @@ import GrievanceModal from "./GrievanceModal";
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const theme = useTheme();
+  const colorMode = useColorMode();
 
   const [anchorEl, setAnchorEl] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -58,34 +63,39 @@ const Navbar = () => {
   const menuItems = user
     ? user.role === "admin"
       ? [
-          { label: "Admin Panel", to: "/admin" },
+        { label: "Admin Panel", to: "/admin" },
+        { label: "About", to: "/about" },
+        { label: "Contact", to: "/contact" },
+      ]
+      : user.role === "worker"
+        ? [
+          { label: "Worker Dashboard", to: "/worker" },
           { label: "About", to: "/about" },
           { label: "Contact", to: "/contact" },
         ]
-      : user.role === "worker"
-        ? [
-            { label: "Worker Dashboard", to: "/worker" },
-            { label: "About", to: "/about" },
-            { label: "Contact", to: "/contact" },
-          ]
         : [
-            { label: "Dashboard", to: "/user" },
-            { label: "About", to: "/about" },
-            { label: "Contact", to: "/contact" },
-          ]
+          { label: "Dashboard", to: "/user" },
+          { label: "About", to: "/about" },
+          { label: "Contact", to: "/contact" },
+        ]
     : [
-        { label: "Home", to: "/home" },
-        { label: "About", to: "/about" },
-        { label: "Contact", to: "/contact" },
-        { label: "Register", to: "/signup" },
-      ];
+      { label: "Home", to: "/home" },
+      { label: "About", to: "/about" },
+      { label: "Contact", to: "/contact" },
+      { label: "Register", to: "/signup" },
+    ];
 
   return (
     <AppBar
-      position="static"
-      color="primary"
-      elevation={3}
-      sx={{ height: "70px", justifyContent: "center" }}
+      position="fixed"
+      color="transparent"
+      elevation={0}
+      sx={{
+        backdropFilter: "blur(10px)",
+        borderBottom: "1px solid",
+        borderColor: (theme) => alpha(theme.palette.divider, 0.1),
+        bgcolor: (theme) => alpha(theme.palette.background.default, 0.8),
+      }}
     >
       <Toolbar
         sx={{
@@ -101,135 +111,154 @@ const Navbar = () => {
             to="/home"
             sx={{
               textDecoration: "none",
-              fontWeight: "bold",
+              fontWeight: 800,
               fontFamily: "Roboto, sans-serif",
-              fontSize: { xs: "1.1rem", md: "1.5rem" },
-              color: "inherit",
-              letterSpacing: 1,
+              fontSize: { xs: "1.2rem", md: "1.5rem" },
+              letterSpacing: -0.5,
+              color: "text.primary"
             }}
           >
             SMART CITY
           </Typography>
         </Box>
 
-        {/* Desktop Navigation */}
+        {/* Desktop Navigation - Centered Pill */}
         <Box
           sx={{
             display: { xs: "none", md: "flex" },
             alignItems: "center",
-            gap: 1,
+            gap: 0.5,
+            position: "absolute",
+            left: "50%",
+            transform: "translateX(-50%)",
+            bgcolor: (theme) => alpha(theme.palette.text.primary, 0.05),
+            p: 0.5,
+            borderRadius: 50,
+            border: "1px solid",
+            borderColor: (theme) => alpha(theme.palette.divider, 0.1),
           }}
         >
-          {!user ? (
-            <>
-              <Button color="inherit" component={RouterLink} to="/home">
-                Home
-              </Button>
-              <Button color="inherit" component={RouterLink} to="/about">
-                About
-              </Button>
-              <Button color="inherit" component={RouterLink} to="/contact">
-                Contact
-              </Button>
-              <Button color="inherit" component={RouterLink} to="/signup">
-                Register
-              </Button>
-              <Button
-                variant="outlined"
-                color="inherit"
-                component={RouterLink}
-                to="/login"
-                sx={{ ml: 1, borderRadius: 20 }}
-              >
-                Sign In
-              </Button>
-            </>
-          ) : (
-            <>
-              {user.role === "user" && ( // Only show for citizens
-                <>
-                  <Button color="inherit" onClick={() => setShowWaste(true)}>
-                    Waste
-                  </Button>
-                  <Button color="inherit" onClick={() => setShowWater(true)}>
-                    Water
-                  </Button>
-                  <Button
-                    color="inherit"
-                    onClick={() => setShowGrievance(true)}
-                  >
-                    Grievance
-                  </Button>
-                </>
-              )}
-
-              {user.role === "admin" ? (
-                <>
-                  <Button
-                    color="inherit"
-                    component={RouterLink}
-                    to="/admin"
-                    sx={{ fontWeight: "bold" }}
-                  >
-                    Admin Panel
-                  </Button>
-                  <Button color="inherit" component={RouterLink} to="/about">
-                    About
-                  </Button>
-                  <Button color="inherit" component={RouterLink} to="/contact">
-                    Contact
-                  </Button>
-                </>
-              ) : user.role === "worker" ? (
-                <>
-                  <Button
-                    color="inherit"
-                    component={RouterLink}
-                    to="/worker"
-                    sx={{ fontWeight: "bold" }}
-                  >
-                    Worker Dashboard
-                  </Button>
-                  <Button color="inherit" component={RouterLink} to="/about">
-                    About
-                  </Button>
-                  <Button color="inherit" component={RouterLink} to="/contact">
-                    Contact
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button color="inherit" component={RouterLink} to="/user">
-                    Dashboard
-                  </Button>
-                  <Button color="inherit" component={RouterLink} to="/about">
-                    About
-                  </Button>
-                  <Button color="inherit" component={RouterLink} to="/contact">
-                    Contact
-                  </Button>
-                </>
-              )}
-
-              <IconButton
-                color="inherit"
-                onClick={(e) => setAnchorEl(e.currentTarget)}
-                sx={{ ml: 1 }}
-              >
-                <Avatar
-                  sx={{
-                    width: 35,
-                    height: 35,
-                    bgcolor: "secondary.main",
-                    fontSize: 16,
-                  }}
-                >
-                  {(user.fullName || user.email || "U")[0].toUpperCase()}
-                </Avatar>
-              </IconButton>
-            </>
-          )}
+          {(!user ? [
+            { label: "Home", to: "/home" },
+            { label: "About", to: "/about" },
+            { label: "Contact", to: "/contact" },
+          ] : user.role === "user" ? [
+            { label: "Waste", action: () => setShowWaste(true) },
+            { label: "Water", action: () => setShowWater(true) },
+            { label: "Grievance", action: () => setShowGrievance(true) },
+          ] : [
+            { label: "Dashboard", to: user.role === "admin" ? "/admin" : user.role === "worker" ? "/worker" : "/user" },
+            { label: "About", to: "/about" },
+            { label: "Contact", to: "/contact" }
+          ]).map((item) => (
+            <Button
+              key={item.label}
+              component={item.to ? RouterLink : "button"}
+              to={item.to}
+              onClick={item.action}
+              color="inherit"
+              sx={{
+                borderRadius: 50,
+                px: 2,
+                textTransform: "none",
+                color: "text.secondary",
+                "&:hover": {
+                  color: "text.primary",
+                  bgcolor: "background.paper",
+                }
+              }}
+            >
+              {item.label}
+            </Button>
+          ))}
         </Box>
+
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          {!user && (
+            <Button
+              component={RouterLink}
+              to="/login"
+              variant="outlined"
+              size="small"
+              sx={{
+                borderRadius: 50,
+                textTransform: "none",
+                px: 2,
+                borderColor: (theme) => alpha(theme.palette.divider, 0.2),
+                color: "text.primary"
+              }}
+            >
+              Sign In
+            </Button>
+          )}
+          {user && (
+            <IconButton
+              onClick={(e) => setAnchorEl(e.currentTarget)}
+              size="small"
+              sx={{
+                border: "1px solid",
+                borderColor: (theme) => alpha(theme.palette.divider, 0.1),
+              }}
+            >
+              <Avatar
+                sx={{
+                  width: 32,
+                  height: 32,
+                  fontSize: 14,
+                  bgcolor: "primary.main"
+                }}
+              >
+                {(user.fullName || user.email || "U")[0].toUpperCase()}
+              </Avatar>
+            </IconButton>
+          )}
+          <IconButton onClick={colorMode.toggleColorMode} color="inherit" size="small">
+            {theme.palette.mode === 'dark' ? <Brightness7 fontSize="small" /> : <Brightness4 fontSize="small" />}
+          </IconButton>
+        </Box>
+
+        <Menu
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleClose}
+          onClick={handleClose}
+          PaperProps={{
+            elevation: 0,
+            sx: {
+              overflow: 'visible',
+              filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.1))',
+              mt: 1.5,
+              borderRadius: 3,
+              minWidth: 150,
+              bgcolor: "background.paper",
+              border: "1px solid",
+              borderColor: "divider",
+              '&:before': {
+                content: '""',
+                display: 'block',
+                position: 'absolute',
+                top: 0,
+                right: 14,
+                width: 10,
+                height: 10,
+                bgcolor: 'background.paper',
+                transform: 'translateY(-50%) rotate(45deg)',
+                zIndex: 0,
+              },
+            },
+          }}
+          transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+          anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+        >
+          <MenuItem onClick={() => navigate(user?.role === 'admin' ? '/admin' : user?.role === 'worker' ? '/worker' : '/user')} sx={{ borderRadius: 1.5, mx: 0.5 }}>
+            Profile
+          </MenuItem>
+          <MenuItem onClick={logout} sx={{ borderRadius: 1.5, mx: 0.5, color: "error.main" }}>
+            Logout
+          </MenuItem>
+        </Menu>
+
+
 
         {/* Mobile Hamburger Menu */}
         <Box
@@ -368,7 +397,7 @@ const Navbar = () => {
                       sx={{
                         fontWeight:
                           item.label === "Admin Panel" ||
-                          item.label === "Dashboard"
+                            item.label === "Dashboard"
                             ? "bold"
                             : "normal",
                       }}
@@ -390,22 +419,22 @@ const Navbar = () => {
       <RegistrationModal
         open={showReg}
         onClose={() => setShowReg(false)}
-        onSuccess={() => {}}
+        onSuccess={() => { }}
       />
       <WasteModal
         open={showWaste}
         onClose={() => setShowWaste(false)}
-        onSuccess={() => {}}
+        onSuccess={() => { }}
       />
       <WaterModal
         open={showWater}
         onClose={() => setShowWater(false)}
-        onSuccess={() => {}}
+        onSuccess={() => { }}
       />
       <GrievanceModal
         open={showGrievance}
         onClose={() => setShowGrievance(false)}
-        onSuccess={() => {}}
+        onSuccess={() => { }}
       />
     </AppBar>
   );

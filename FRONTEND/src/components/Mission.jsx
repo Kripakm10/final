@@ -2,31 +2,16 @@ import React from "react";
 import {
   Box,
   Typography,
-  createTheme,
-  ThemeProvider,
-  CssBaseline,
   Grid,
   Paper,
 } from "@mui/material";
 import Navbar from "./Navbar";
 
-// 🎨 Same theme as Home and Contact pages
-const theme = createTheme({
-  palette: {
-    mode: "light",
-    primary: { main: "#1976d2" }, // Blue
-    secondary: { main: "#ff7043" }, // Coral
-    background: { default: "#f0f4f8" },
-  },
-  typography: {
-    fontFamily: "Roboto, sans-serif",
-  },
-});
+
 
 const Mission = () => {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       <Navbar />
 
       {/* 🔹 Hero Section */}
@@ -45,7 +30,7 @@ const Mission = () => {
       >
         <Box
           sx={{
-            bgcolor: "rgba(255,255,255,0.9)",
+            bgcolor: "background.paper", // Theme aware
             p: 5,
             borderRadius: 3,
             textAlign: "center",
@@ -73,7 +58,7 @@ const Mission = () => {
       </Box>
 
       {/* 🔹 Mission & Vision Section */}
-      <Box sx={{ py: 8, px: { xs: 2, md: 6 }, bgcolor: "#fff" }}>
+      <Box sx={{ py: 8, px: { xs: 2, md: 6 }, bgcolor: "background.paper" }}>
         <Grid container spacing={4} justifyContent="center">
           {/* Mission Statement */}
           <Grid size={{ xs: 12, md: 6 }}>
@@ -135,7 +120,7 @@ const Mission = () => {
       </Box>
 
       {/* 🔹 Core Values Section */}
-      <Box sx={{ py: 8, px: { xs: 2, md: 6 }, bgcolor: "#f7fafc" }}>
+      <Box sx={{ py: 8, px: { xs: 2, md: 6 }, bgcolor: "background.default" }}>
         <Typography
           variant="h4"
           color="primary"
@@ -190,7 +175,7 @@ const Mission = () => {
           ))}
         </Grid>
       </Box>
-    </ThemeProvider>
+    </>
   );
 };
 

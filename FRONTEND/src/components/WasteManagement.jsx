@@ -4,9 +4,6 @@ import API_BASE_URL from '../config/api';
 import {
   Box,
   Typography,
-  createTheme,
-  ThemeProvider,
-  CssBaseline,
   Grid,
   Paper,
   Card,
@@ -18,30 +15,22 @@ import {
   Stack,
   Alert,
   Snackbar,
-  CircularProgress
+  CircularProgress,
+  useTheme,
+  alpha
 } from "@mui/material";
 import SendIcon from '@mui/icons-material/Send';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import Navbar from "./Navbar";
-
-// 🎨 Same theme as the other pages
-const theme = createTheme({
-  palette: {
-    mode: "light",
-    primary: { main: "#1976d2" }, // Blue
-    secondary: { main: "#ff7043" }, // Coral
-    background: { default: "#f0f4f8" },
-  },
-  typography: {
-    fontFamily: "Roboto, sans-serif",
-  },
-});
 
 const WasteManagement = () => {
   const [formData, setFormData] = useState({ name: "", address: "", contact: "", wasteType: "" });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
+
+  const theme = useTheme();
+  const isDark = theme.palette.mode === "dark";
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -52,7 +41,6 @@ const WasteManagement = () => {
     setError('');
     setSuccess('');
 
-    // simple client-side validation
     if (!formData.name || formData.name.length < 2) return setError('Please provide a valid full name');
     if (!formData.address || formData.address.length < 5) return setError('Please provide a valid address');
     if (!formData.contact || !/^\+?[0-9\s-]{7,15}$/.test(formData.contact)) return setError('Please provide a valid contact number');
@@ -73,61 +61,93 @@ const WasteManagement = () => {
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       <Navbar />
 
       {/* 🔹 Hero Section */}
       <Box
         sx={{
-          height: "60vh",
-          backgroundImage:
-            "url('https://images.unsplash.com/photo-1590411208763-5e4c46dfc9b4?auto=format&fit=crop&w=1950&q=80')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
+          minHeight: "70vh",
+          position: "relative",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          pt: 12,
+          pb: 8,
           px: 3,
+          overflow: "hidden",
+          background: isDark
+            ? "radial-gradient(circle at 50% 50%, #1a2035 0%, #0b1221 100%)"
+            : "radial-gradient(circle at 50% 50%, #f0f7ff 0%, #ffffff 100%)",
         }}
       >
         <Box
           sx={{
-            bgcolor: "rgba(255,255,255,0.9)",
-            p: 5,
-            borderRadius: 3,
+            position: "absolute",
+            inset: 0,
+            backgroundImage: "url('https://images.unsplash.com/photo-1590411208763-5e4c46dfc9b4?auto=format&fit=crop&w=1950&q=80')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            opacity: isDark ? 0.15 : 0.08,
+            zIndex: 0,
+          }}
+        />
+
+        <Box
+          sx={{
+            position: "relative",
+            zIndex: 1,
+            bgcolor: isDark ? alpha(theme.palette.background.paper, 0.4) : alpha("#fff", 0.7),
+            backdropFilter: "blur(20px)",
+            p: { xs: 4, md: 8 },
+            borderRadius: 8,
             textAlign: "center",
-            maxWidth: 800,
+            maxWidth: 900,
+            border: "1px solid",
+            borderColor: alpha(theme.palette.divider, 0.1),
+            boxShadow: "0 20px 40px rgba(0,0,0,0.1)",
           }}
         >
           <Typography
-            variant="h3"
+            variant="h2"
             sx={{
-              background: "linear-gradient(90deg, #1976d2, #ff7043)",
+              fontWeight: 900,
+              mb: 3,
+              background: `linear-gradient(90deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
-              fontWeight: "bold",
-              mb: 2,
+              fontSize: { xs: "2.5rem", md: "3.5rem" },
             }}
           >
-            Smart Waste Management
+            Clean Cities, Smart Future
           </Typography>
 
-          <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
-            Using smart technologies to monitor, manage, and optimize city waste
-            collection for a cleaner and more sustainable environment.
+          <Typography variant="h6" color="text.secondary" sx={{ mb: 4, maxWidth: 700, mx: "auto", lineHeight: 1.6 }}>
+            Revolutionizing urban cleanliness with IoT-enabled waste monitoring, AI route optimization, and sustainable disposal solutions.
           </Typography>
 
-          {/* ✳️ Added line */}
-          <Typography variant="body1" color="text.secondary">
-            Track garbage collection, recycling, and smart bins across the city
-            to ensure cleanliness and sustainability.
-          </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            href="#apply-form"
+            sx={{
+              borderRadius: 50,
+              px: 5,
+              py: 1.5,
+              fontWeight: "bold",
+              textTransform: "none",
+              fontSize: "1.1rem",
+              boxShadow: `0 8px 25px ${alpha(theme.palette.primary.main, 0.4)}`,
+            }}
+          >
+            Get Started
+          </Button>
         </Box>
       </Box>
 
       {/* 🔹 About Section */}
-      <Box sx={{ py: 8, px: { xs: 2, md: 6 }, bgcolor: "#fff" }}>
+      <Box sx={{ py: 8, px: { xs: 2, md: 6 }, bgcolor: "background.paper" }}>
         <Typography
           variant="h4"
           color="primary"
@@ -153,12 +173,11 @@ const WasteManagement = () => {
       </Box>
 
       {/* 🔹 Key Features */}
-      <Box sx={{ py: 8, px: { xs: 2, md: 6 }, bgcolor: "#f7fafc" }}>
+      <Box sx={{ py: 12, px: { xs: 2, md: 6 }, bgcolor: "background.default" }}>
         <Typography
-          variant="h4"
-          color="primary"
+          variant="h3"
           align="center"
-          sx={{ fontWeight: "bold", mb: 6 }}
+          sx={{ fontWeight: 800, mb: 8 }}
         >
           Key Features
         </Typography>
@@ -166,50 +185,58 @@ const WasteManagement = () => {
         <Grid container spacing={4}>
           {[
             {
-              title: "Smart Bins with IoT Sensors",
-              desc: "Bins equipped with sensors detect fill levels and send data to the central system in real-time.",
+              title: "Smart Bins",
+              desc: "IoT sensors detect fill levels and transmit data for real-time monitoring.",
               img: "https://images.unsplash.com/photo-1624381977216-6b1f48e3bfa1?auto=format&fit=crop&w=1200&q=80",
             },
             {
-              title: "Route Optimization",
-              desc: "AI-powered algorithms create efficient routes for waste collection vehicles, saving fuel and time.",
+              title: "AI Routes",
+              desc: "Advanced algorithms optimize driver routes, reducing fuel and carbon footprint.",
               img: "https://images.unsplash.com/photo-1615397349750-8c4efb8e3177?auto=format&fit=crop&w=1200&q=80",
             },
             {
-              title: "Recycling Tracking",
-              desc: "Smart systems help monitor recycling rates, reduce contamination, and encourage waste segregation.",
+              title: "Live Tracking",
+              desc: "Real-time visibility into collection progress and bin status across the city.",
               img: "https://images.unsplash.com/photo-1618590999969-c397b9cb5a08?auto=format&fit=crop&w=1200&q=80",
             },
             {
-              title: "Real-time Monitoring Dashboard",
-              desc: "City officials can view live data on waste collection, bin status, and analytics for better planning.",
+              title: "Analytics",
+              desc: "Detailed insights into waste trends to help shape long-term city policies.",
               img: "https://images.unsplash.com/photo-1618342244436-94481ffde7b0?auto=format&fit=crop&w=1200&q=80",
             },
           ].map((feature, index) => (
             <Grid size={{ xs: 12, sm: 6, md: 3 }} key={index}>
               <Card
+                elevation={0}
                 sx={{
-                  borderRadius: 3,
-                  boxShadow: "0 8px 24px rgba(0,0,0,0.1)",
-                  transition: "transform 0.3s ease",
-                  "&:hover": { transform: "translateY(-8px)" },
+                  borderRadius: 6,
+                  bgcolor: "background.paper",
+                  border: "1px solid",
+                  borderColor: alpha(theme.palette.divider, 0.1),
+                  transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+                  height: "100%",
+                  "&:hover": {
+                    transform: "translateY(-12px)",
+                    boxShadow: "0 20px 40px rgba(0,0,0,0.08)",
+                    borderColor: "primary.main"
+                  },
                 }}
               >
                 <CardMedia
                   component="img"
-                  height="180"
+                  height="200"
                   image={feature.img}
                   alt={feature.title}
+                  sx={{ filter: isDark ? "brightness(0.8)" : "none" }}
                 />
-                <CardContent>
+                <CardContent sx={{ p: 3 }}>
                   <Typography
                     variant="h6"
-                    color="primary"
-                    sx={{ fontWeight: "bold", mb: 1 }}
+                    sx={{ fontWeight: "bold", mb: 1.5, color: "text.primary" }}
                   >
                     {feature.title}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
+                  <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6 }}>
                     {feature.desc}
                   </Typography>
                 </CardContent>
@@ -220,7 +247,7 @@ const WasteManagement = () => {
       </Box>
 
       {/* 🔹 Benefits Section */}
-      <Box sx={{ py: 8, px: { xs: 2, md: 6 }, bgcolor: "#fff" }}>
+      <Box sx={{ py: 8, px: { xs: 2, md: 6 }, bgcolor: "background.paper" }}>
         <Typography
           variant="h4"
           color="primary"
@@ -277,41 +304,44 @@ const WasteManagement = () => {
       </Box>
 
       {/* 🔹 Apply Form Section */}
-      <Box sx={{ py: 8, px: { xs: 2, md: 6 }, bgcolor: "#f7fafc" }}>
+      <Box id="apply-form" sx={{ py: 12, px: { xs: 2, md: 6 }, bgcolor: "background.default" }}>
         <Typography
-          variant="h4"
-          color="primary"
+          variant="h3"
           align="center"
-          sx={{ fontWeight: "bold", mb: 4 }}
+          sx={{ fontWeight: 800, mb: 6 }}
         >
-          Apply for Waste Collection
+          Request Collection
         </Typography>
 
         <Paper
-          elevation={6}
+          elevation={0}
           sx={{
-            maxWidth: 700,
+            maxWidth: 800,
             mx: "auto",
-            p: 4,
-            borderRadius: 3,
-            bgcolor: "rgba(255,255,255,0.98)",
+            p: { xs: 3, md: 6 },
+            borderRadius: 8,
+            bgcolor: isDark ? alpha(theme.palette.background.paper, 0.4) : "#fff",
+            backdropFilter: "blur(20px)",
+            border: "1px solid",
+            borderColor: alpha(theme.palette.divider, 0.1),
+            boxShadow: "0 20px 60px rgba(0,0,0,0.05)",
           }}
         >
           <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            <Grid container spacing={2}>
+            <Grid container spacing={3}>
               <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField label="Full Name" name="name" value={formData.name} onChange={handleChange} required variant="outlined" fullWidth />
+                <TextField label="Full Name" name="name" value={formData.name} onChange={handleChange} required variant="outlined" fullWidth sx={{ "& .MuiOutlinedInput-root": { borderRadius: 3 } }} />
               </Grid>
               <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField label="Contact Number" name="contact" value={formData.contact} onChange={handleChange} required variant="outlined" fullWidth />
+                <TextField label="Contact Number" name="contact" value={formData.contact} onChange={handleChange} required variant="outlined" fullWidth sx={{ "& .MuiOutlinedInput-root": { borderRadius: 3 } }} />
               </Grid>
 
               <Grid size={{ xs: 12 }}>
-                <TextField label="Address" name="address" value={formData.address} onChange={handleChange} required variant="outlined" fullWidth />
+                <TextField label="Address" name="address" value={formData.address} onChange={handleChange} required variant="outlined" fullWidth sx={{ "& .MuiOutlinedInput-root": { borderRadius: 3 } }} />
               </Grid>
 
               <Grid size={{ xs: 12, sm: 6 }}>
-                <TextField select label="Waste Type" name="wasteType" value={formData.wasteType} onChange={handleChange} required variant="outlined" fullWidth>
+                <TextField select label="Waste Type" name="wasteType" value={formData.wasteType} onChange={handleChange} required variant="outlined" fullWidth sx={{ "& .MuiOutlinedInput-root": { borderRadius: 3 } }}>
                   <MenuItem value="">Select Waste Type</MenuItem>
                   <MenuItem value="Municipal Solid Waste">Municipal Solid Waste</MenuItem>
                   <MenuItem value="Biomedical Waste">Biomedical Waste</MenuItem>
@@ -325,10 +355,10 @@ const WasteManagement = () => {
 
               <Grid size={{ xs: 12, sm: 6 }} sx={{ display: 'flex', alignItems: 'center' }}>
                 <Stack direction="row" spacing={2} sx={{ width: '100%' }}>
-                  <Button type="submit" variant="contained" color="secondary" size="large" sx={{ flex: 1, py: 1.2, fontWeight: 'bold' }} startIcon={loading ? <CircularProgress size={18} color="inherit" /> : <SendIcon />} disabled={loading}>
-                    {loading ? 'Submitting...' : 'Apply'}
+                  <Button type="submit" variant="contained" color="primary" size="large" sx={{ flex: 1, py: 1.5, borderRadius: 50, fontWeight: 'bold', textTransform: "none" }} startIcon={loading ? <CircularProgress size={18} color="inherit" /> : <SendIcon />} disabled={loading}>
+                    {loading ? 'Submitting...' : 'Submit Request'}
                   </Button>
-                  <Button variant="outlined" color="inherit" size="large" sx={{ py: 1.2 }} onClick={() => setFormData({ name: '', address: '', contact: '', wasteType: '' })}>
+                  <Button variant="outlined" color="inherit" size="large" sx={{ py: 1.5, borderRadius: 50, textTransform: "none", px: 3 }} onClick={() => setFormData({ name: '', address: '', contact: '', wasteType: '' })}>
                     Reset
                   </Button>
                 </Stack>
@@ -349,7 +379,7 @@ const WasteManagement = () => {
           </Box>
         </Paper>
       </Box>
-    </ThemeProvider>
+    </>
   );
 };
 
