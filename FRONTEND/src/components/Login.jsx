@@ -17,8 +17,6 @@ import {
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { Link as RouterLink, useNavigate } from "react-router-dom";
 
-
-
 const Login = () => {
   const [input, setInput] = useState({ email: "", password: "" });
   const [successMessage, setSuccessMessage] = useState("");
@@ -46,7 +44,10 @@ const Login = () => {
       .post(`${API_BASE_URL}/api/`, input)
       .then((response) => {
         console.log("Login Response:", response.data);
-        const { token, user, message } = response.data;
+        const data = response.data;
+        const token = data.token;
+        const user = data.user || data;
+        const message = data.message;
         const storage = remember ? localStorage : sessionStorage;
 
         if (token) storage.setItem("token", token);
@@ -113,7 +114,9 @@ const Login = () => {
           sx={{
             width: "100%",
             maxWidth: 420,
-            bgcolor: isDark ? alpha(theme.palette.background.paper, 0.8) : alpha("#fff", 0.8),
+            bgcolor: isDark
+              ? alpha(theme.palette.background.paper, 0.8)
+              : alpha("#fff", 0.8),
             backdropFilter: "blur(20px)",
             borderRadius: 6,
             boxShadow: isDark
@@ -228,7 +231,7 @@ const Login = () => {
                 fontWeight: "bold",
                 textTransform: "none",
                 fontSize: "1rem",
-                boxShadow: `0 8px 20px ${alpha(theme.palette.primary.main, 0.3)}`
+                boxShadow: `0 8px 20px ${alpha(theme.palette.primary.main, 0.3)}`,
               }}
             >
               Sign In

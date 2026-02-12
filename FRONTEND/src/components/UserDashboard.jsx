@@ -6,6 +6,13 @@ import {
   Card,
   CardContent,
   IconButton,
+  Box,
+  Stack,
+  Typography,
+  Avatar,
+  Chip,
+  Grid,
+  Paper,
 } from "@mui/material";
 import {
   Logout,
@@ -14,7 +21,7 @@ import {
   WaterDrop,
   ReportProblem,
   AccessTime,
-  VpnKey
+  VpnKey,
 } from "@mui/icons-material";
 import Navbar from "./Navbar";
 import API_BASE_URL from "../config/api";
@@ -124,7 +131,10 @@ const UserDashboard = () => {
           sx={{ mb: 4 }}
         >
           <Box>
-            <Typography variant="h4" sx={{ fontWeight: 800, color: "text.primary" }}>
+            <Typography
+              variant="h4"
+              sx={{ fontWeight: 800, color: "text.primary" }}
+            >
               Citizen Dashboard
             </Typography>
             <Typography variant="body1" color="text.secondary">
@@ -150,7 +160,9 @@ const UserDashboard = () => {
             sx={{
               mb: 5,
               borderRadius: 6,
-              bgcolor: isDark ? alpha(theme.palette.background.paper, 0.4) : "#fff",
+              bgcolor: isDark
+                ? alpha(theme.palette.background.paper, 0.4)
+                : "#fff",
               backdropFilter: "blur(20px)",
               border: "1px solid",
               borderColor: alpha(theme.palette.divider, 0.1),
@@ -164,20 +176,27 @@ const UserDashboard = () => {
                     bgcolor: "primary.main",
                     width: 70,
                     height: 70,
-                    boxShadow: `0 8px 16px ${alpha(theme.palette.primary.main, 0.2)}`
+                    boxShadow: `0 8px 16px ${alpha(theme.palette.primary.main, 0.2)}`,
                   }}
                 >
                   {(user.fullName || user.email || "U")[0].toUpperCase()}
                 </Avatar>
                 <Box>
-                  <Typography variant="h5" sx={{ fontWeight: "bold" }}>{user.fullName}</Typography>
+                  <Typography variant="h5" sx={{ fontWeight: "bold" }}>
+                    {user.fullName}
+                  </Typography>
                   <Typography variant="body1" color="text.secondary">
                     {user.email}
                   </Typography>
                   <Chip
                     label={user.role || "Citizen"}
                     size="small"
-                    sx={{ mt: 1, fontWeight: "bold", textTransform: "uppercase", fontSize: "0.65rem" }}
+                    sx={{
+                      mt: 1,
+                      fontWeight: "bold",
+                      textTransform: "uppercase",
+                      fontSize: "0.65rem",
+                    }}
                   />
                 </Box>
               </Stack>
@@ -197,7 +216,12 @@ const UserDashboard = () => {
                 bgcolor: "background.paper",
               }}
             >
-              <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 3 }}>
+              <Stack
+                direction="row"
+                spacing={1}
+                alignItems="center"
+                sx={{ mb: 3 }}
+              >
                 <DeleteSweep color="primary" />
                 <Typography variant="h6" sx={{ fontWeight: 800 }}>
                   Waste Collection
@@ -205,10 +229,15 @@ const UserDashboard = () => {
               </Stack>
               {wastes.length ? (
                 wastes.map((w, i) => {
-                  const isScheduled = w.status === "scheduled" && w.scheduledTime;
-                  const scheduledDate = isScheduled ? new Date(w.scheduledTime) : null;
+                  const isScheduled =
+                    w.status === "scheduled" && w.scheduledTime;
+                  const scheduledDate = isScheduled
+                    ? new Date(w.scheduledTime)
+                    : null;
                   const isPast = scheduledDate && new Date() > scheduledDate;
-                  const canReport = isPast && (w.status === "scheduled" || w.status === "not-collected");
+                  const canReport =
+                    isPast &&
+                    (w.status === "scheduled" || w.status === "not-collected");
 
                   return (
                     <Card
@@ -218,18 +247,24 @@ const UserDashboard = () => {
                         p: 2,
                         mb: 2,
                         borderRadius: 4,
-                        bgcolor: isDark ? alpha(theme.palette.background.default, 0.4) : alpha(theme.palette.background.default, 0.6),
+                        bgcolor: isDark
+                          ? alpha(theme.palette.background.default, 0.4)
+                          : alpha(theme.palette.background.default, 0.6),
                         border: "1px solid",
                         borderColor: alpha(theme.palette.divider, 0.05),
                         transition: "all 0.3s ease",
                         "&:hover": {
                           borderColor: alpha(theme.palette.primary.main, 0.3),
                           transform: "translateY(-4px)",
-                          boxShadow: "0 8px 24px rgba(0,0,0,0.05)"
-                        }
+                          boxShadow: "0 8px 24px rgba(0,0,0,0.05)",
+                        },
                       }}
                     >
-                      <Stack direction="row" justifyContent="space-between" sx={{ mb: 1 }}>
+                      <Stack
+                        direction="row"
+                        justifyContent="space-between"
+                        sx={{ mb: 1 }}
+                      >
                         <Typography variant="subtitle1" fontWeight="bold">
                           {w.wasteType || "Waste Collection"}
                         </Typography>
@@ -238,27 +273,65 @@ const UserDashboard = () => {
                           size="small"
                           sx={{
                             fontWeight: "bold",
-                            bgcolor: w.status === "collected" ? alpha(theme.palette.success.main, 0.1) : alpha(theme.palette.warning.main, 0.1),
-                            color: w.status === "collected" ? "success.main" : "warning.main",
-                            border: "none"
+                            bgcolor:
+                              w.status === "collected"
+                                ? alpha(theme.palette.success.main, 0.1)
+                                : alpha(theme.palette.warning.main, 0.1),
+                            color:
+                              w.status === "collected"
+                                ? "success.main"
+                                : "warning.main",
+                            border: "none",
                           }}
                         />
                       </Stack>
-                      <Typography variant="body2" color="text.secondary">{w.address}</Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {w.address}
+                      </Typography>
 
                       {isScheduled && (
-                        <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 2, p: 1, bgcolor: alpha(theme.palette.primary.main, 0.05), borderRadius: 2 }}>
-                          <AccessTime sx={{ fontSize: 16, color: "primary.main" }} />
-                          <Typography variant="caption" sx={{ fontWeight: "bold", color: "primary.main" }}>
+                        <Stack
+                          direction="row"
+                          spacing={1}
+                          alignItems="center"
+                          sx={{
+                            mt: 2,
+                            p: 1,
+                            bgcolor: alpha(theme.palette.primary.main, 0.05),
+                            borderRadius: 2,
+                          }}
+                        >
+                          <AccessTime
+                            sx={{ fontSize: 16, color: "primary.main" }}
+                          />
+                          <Typography
+                            variant="caption"
+                            sx={{ fontWeight: "bold", color: "primary.main" }}
+                          >
                             Scheduled: {scheduledDate.toLocaleString()}
                           </Typography>
                         </Stack>
                       )}
 
                       {w.verificationPin && w.status !== "collected" && (
-                        <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 1, p: 1, bgcolor: alpha(theme.palette.secondary.main, 0.05), borderRadius: 2 }}>
-                          <VpnKey sx={{ fontSize: 16, color: "secondary.main" }} />
-                          <Typography variant="caption" sx={{ fontWeight: "bold", color: "secondary.main" }}>
+                        <Stack
+                          direction="row"
+                          spacing={1}
+                          alignItems="center"
+                          sx={{
+                            mt: 1,
+                            p: 1,
+                            bgcolor: alpha(theme.palette.secondary.main, 0.05),
+                            borderRadius: 2,
+                          }}
+                        >
+                          <VpnKey
+                            sx={{ fontSize: 16, color: "secondary.main" }}
+                          />
+                          <Typography
+                            variant="caption"
+                            sx={{ fontWeight: "bold", color: "secondary.main" }}
+                          >
                             PIN: {w.verificationPin}
                           </Typography>
                         </Stack>
@@ -274,7 +347,11 @@ const UserDashboard = () => {
                             setSelectedWaste(w);
                             setReportModalOpen(true);
                           }}
-                          sx={{ mt: 2, borderRadius: 50, textTransform: "none" }}
+                          sx={{
+                            mt: 2,
+                            borderRadius: 50,
+                            textTransform: "none",
+                          }}
                         >
                           Report Not Collected
                         </Button>
@@ -283,7 +360,11 @@ const UserDashboard = () => {
                   );
                 })
               ) : (
-                <Typography color="text.secondary" align="center" sx={{ py: 4 }}>
+                <Typography
+                  color="text.secondary"
+                  align="center"
+                  sx={{ py: 4 }}
+                >
                   No requests found
                 </Typography>
               )}
@@ -302,7 +383,12 @@ const UserDashboard = () => {
                 bgcolor: "background.paper",
               }}
             >
-              <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 3 }}>
+              <Stack
+                direction="row"
+                spacing={1}
+                alignItems="center"
+                sx={{ mb: 3 }}
+              >
                 <WaterDrop color="primary" />
                 <Typography variant="h6" sx={{ fontWeight: 800 }}>
                   Water Supply
@@ -310,10 +396,15 @@ const UserDashboard = () => {
               </Stack>
               {waters.length ? (
                 waters.map((w, i) => {
-                  const isScheduled = w.status === "scheduled" && w.scheduledTime;
-                  const scheduledDate = isScheduled ? new Date(w.scheduledTime) : null;
+                  const isScheduled =
+                    w.status === "scheduled" && w.scheduledTime;
+                  const scheduledDate = isScheduled
+                    ? new Date(w.scheduledTime)
+                    : null;
                   const isPast = scheduledDate && new Date() > scheduledDate;
-                  const canReport = isPast && (w.status === "scheduled" || w.status === "not-resolved");
+                  const canReport =
+                    isPast &&
+                    (w.status === "scheduled" || w.status === "not-resolved");
 
                   return (
                     <Card
@@ -323,17 +414,23 @@ const UserDashboard = () => {
                         p: 2,
                         mb: 2,
                         borderRadius: 4,
-                        bgcolor: isDark ? alpha(theme.palette.background.default, 0.4) : alpha(theme.palette.background.default, 0.6),
+                        bgcolor: isDark
+                          ? alpha(theme.palette.background.default, 0.4)
+                          : alpha(theme.palette.background.default, 0.6),
                         border: "1px solid",
                         borderColor: alpha(theme.palette.divider, 0.05),
                         transition: "all 0.3s ease",
                         "&:hover": {
                           borderColor: alpha(theme.palette.primary.main, 0.3),
-                          transform: "translateY(-4px)"
-                        }
+                          transform: "translateY(-4px)",
+                        },
                       }}
                     >
-                      <Stack direction="row" justifyContent="space-between" sx={{ mb: 1 }}>
+                      <Stack
+                        direction="row"
+                        justifyContent="space-between"
+                        sx={{ mb: 1 }}
+                      >
                         <Typography variant="subtitle1" fontWeight="bold">
                           {w.issueType || "Water Issue"}
                         </Typography>
@@ -342,17 +439,40 @@ const UserDashboard = () => {
                           size="small"
                           sx={{
                             fontWeight: "bold",
-                            bgcolor: w.status === "resolved" ? alpha(theme.palette.success.main, 0.1) : alpha(theme.palette.warning.main, 0.1),
-                            color: w.status === "resolved" ? "success.main" : "warning.main",
+                            bgcolor:
+                              w.status === "resolved"
+                                ? alpha(theme.palette.success.main, 0.1)
+                                : alpha(theme.palette.warning.main, 0.1),
+                            color:
+                              w.status === "resolved"
+                                ? "success.main"
+                                : "warning.main",
                           }}
                         />
                       </Stack>
-                      <Typography variant="body2" color="text.secondary">{w.address}</Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {w.address}
+                      </Typography>
 
                       {isScheduled && (
-                        <Stack direction="row" spacing={1} alignItems="center" sx={{ mt: 2, p: 1, bgcolor: alpha(theme.palette.primary.main, 0.05), borderRadius: 2 }}>
-                          <AccessTime sx={{ fontSize: 16, color: "primary.main" }} />
-                          <Typography variant="caption" sx={{ fontWeight: "bold", color: "primary.main" }}>
+                        <Stack
+                          direction="row"
+                          spacing={1}
+                          alignItems="center"
+                          sx={{
+                            mt: 2,
+                            p: 1,
+                            bgcolor: alpha(theme.palette.primary.main, 0.05),
+                            borderRadius: 2,
+                          }}
+                        >
+                          <AccessTime
+                            sx={{ fontSize: 16, color: "primary.main" }}
+                          />
+                          <Typography
+                            variant="caption"
+                            sx={{ fontWeight: "bold", color: "primary.main" }}
+                          >
                             Scheduled: {scheduledDate.toLocaleString()}
                           </Typography>
                         </Stack>
@@ -368,7 +488,11 @@ const UserDashboard = () => {
                             setSelectedWater(w);
                             setReportWaterModalOpen(true);
                           }}
-                          sx={{ mt: 2, borderRadius: 50, textTransform: "none" }}
+                          sx={{
+                            mt: 2,
+                            borderRadius: 50,
+                            textTransform: "none",
+                          }}
                         >
                           Report Not Resolved
                         </Button>
@@ -377,7 +501,11 @@ const UserDashboard = () => {
                   );
                 })
               ) : (
-                <Typography color="text.secondary" align="center" sx={{ py: 4 }}>
+                <Typography
+                  color="text.secondary"
+                  align="center"
+                  sx={{ py: 4 }}
+                >
                   No reports found
                 </Typography>
               )}
@@ -396,7 +524,12 @@ const UserDashboard = () => {
                 bgcolor: "background.paper",
               }}
             >
-              <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 3 }}>
+              <Stack
+                direction="row"
+                spacing={1}
+                alignItems="center"
+                sx={{ mb: 3 }}
+              >
                 <ReportProblem color="primary" />
                 <Typography variant="h6" sx={{ fontWeight: 800 }}>
                   Grievances
@@ -411,17 +544,23 @@ const UserDashboard = () => {
                       p: 2,
                       mb: 2,
                       borderRadius: 4,
-                      bgcolor: isDark ? alpha(theme.palette.background.default, 0.4) : alpha(theme.palette.background.default, 0.6),
+                      bgcolor: isDark
+                        ? alpha(theme.palette.background.default, 0.4)
+                        : alpha(theme.palette.background.default, 0.6),
                       border: "1px solid",
                       borderColor: alpha(theme.palette.divider, 0.05),
                       transition: "all 0.3s ease",
                       "&:hover": {
                         borderColor: alpha(theme.palette.primary.main, 0.3),
-                        transform: "translateY(-4px)"
-                      }
+                        transform: "translateY(-4px)",
+                      },
                     }}
                   >
-                    <Stack direction="row" justifyContent="space-between" sx={{ mb: 1 }}>
+                    <Stack
+                      direction="row"
+                      justifyContent="space-between"
+                      sx={{ mb: 1 }}
+                    >
                       <Typography variant="subtitle1" fontWeight="bold">
                         {g.subject}
                       </Typography>
@@ -430,16 +569,30 @@ const UserDashboard = () => {
                         size="small"
                         sx={{
                           fontWeight: "bold",
-                          bgcolor: alpha(statusColor(g.status) === "green" ? theme.palette.success.main : theme.palette.error.main, 0.1),
-                          color: statusColor(g.status) === "green" ? "success.main" : "error.main",
+                          bgcolor: alpha(
+                            statusColor(g.status) === "green"
+                              ? theme.palette.success.main
+                              : theme.palette.error.main,
+                            0.1,
+                          ),
+                          color:
+                            statusColor(g.status) === "green"
+                              ? "success.main"
+                              : "error.main",
                         }}
                       />
                     </Stack>
-                    <Typography variant="body2" color="text.secondary">{g.description}</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {g.description}
+                    </Typography>
                   </Card>
                 ))
               ) : (
-                <Typography color="text.secondary" align="center" sx={{ py: 4 }}>
+                <Typography
+                  color="text.secondary"
+                  align="center"
+                  sx={{ py: 4 }}
+                >
                   No grievances found
                 </Typography>
               )}

@@ -14,7 +14,8 @@ import {
   Card,
   Chip,
   IconButton,
-  Avatar
+  Avatar,
+  CircularProgress,
 } from "@mui/material";
 import { Assignment, Map, CheckCircle, Lock } from "@mui/icons-material";
 import Navbar from "./Navbar";
@@ -128,11 +129,15 @@ const WorkerDashboard = () => {
     <Box sx={{ bgcolor: "background.default", minHeight: "100vh" }}>
       <Navbar />
       <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: 900, mx: "auto", mt: 10 }}>
-
         {/* Header */}
         <Box sx={{ mb: 5, animation: "fadeIn 0.5s ease-out" }}>
           <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 1 }}>
-            <Avatar sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), color: "primary.main" }}>
+            <Avatar
+              sx={{
+                bgcolor: alpha(theme.palette.primary.main, 0.1),
+                color: "primary.main",
+              }}
+            >
               <Assignment />
             </Avatar>
             <Typography variant="h4" sx={{ fontWeight: 900 }}>
@@ -145,7 +150,7 @@ const WorkerDashboard = () => {
         </Box>
 
         {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', py: 10 }}>
+          <Box sx={{ display: "flex", justifyContent: "center", py: 10 }}>
             <CircularProgress />
           </Box>
         ) : (
@@ -158,49 +163,113 @@ const WorkerDashboard = () => {
                     sx={{
                       p: 0,
                       borderRadius: 6,
-                      bgcolor: isDark ? alpha(theme.palette.background.paper, 0.4) : "#fff",
+                      bgcolor: isDark
+                        ? alpha(theme.palette.background.paper, 0.4)
+                        : "#fff",
                       backdropFilter: "blur(20px)",
                       border: "1px solid",
                       borderColor: alpha(theme.palette.divider, 0.1),
                       transition: "transform 0.2s ease",
-                      "&:hover": { transform: "translateY(-4px)" }
+                      "&:hover": { transform: "translateY(-4px)" },
                     }}
                   >
-                    <Box sx={{
-                      p: 3,
-                      borderLeft: "6px solid",
-                      borderColor: task.type === "waste" ? "secondary.main" : "primary.main"
-                    }}>
-                      <Stack direction={{ xs: "column", sm: "row" }} justifyContent="space-between" alignItems={{ sm: "start" }} spacing={2}>
+                    <Box
+                      sx={{
+                        p: 3,
+                        borderLeft: "6px solid",
+                        borderColor:
+                          task.type === "waste"
+                            ? "secondary.main"
+                            : "primary.main",
+                      }}
+                    >
+                      <Stack
+                        direction={{ xs: "column", sm: "row" }}
+                        justifyContent="space-between"
+                        alignItems={{ sm: "start" }}
+                        spacing={2}
+                      >
                         <Box flex={1}>
-                          <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+                          <Stack
+                            direction="row"
+                            alignItems="center"
+                            spacing={1}
+                            sx={{ mb: 1 }}
+                          >
                             <Chip
                               label={task.type.toUpperCase()}
                               size="small"
                               sx={{
                                 fontWeight: 800,
                                 fontSize: "0.7rem",
-                                bgcolor: alpha(task.type === "waste" ? theme.palette.secondary.main : theme.palette.primary.main, 0.1),
-                                color: task.type === "waste" ? "secondary.main" : "primary.main"
+                                bgcolor: alpha(
+                                  task.type === "waste"
+                                    ? theme.palette.secondary.main
+                                    : theme.palette.primary.main,
+                                  0.1,
+                                ),
+                                color:
+                                  task.type === "waste"
+                                    ? "secondary.main"
+                                    : "primary.main",
                               }}
                             />
-                            <Typography variant="caption" color="text.secondary">
+                            <Typography
+                              variant="caption"
+                              color="text.secondary"
+                            >
                               #{task._id.slice(-6)}
                             </Typography>
                           </Stack>
-                          <Typography variant="h6" sx={{ fontWeight: 800, mb: 1 }}>
-                            {task.type === "waste" ? task.wasteType : task.issueType}
+                          <Typography
+                            variant="h6"
+                            sx={{ fontWeight: 800, mb: 1 }}
+                          >
+                            {task.type === "waste"
+                              ? task.wasteType
+                              : task.issueType}
                           </Typography>
-                          <Typography variant="body2" color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 2 }}>
+                          <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 0.5,
+                              mb: 2,
+                            }}
+                          >
                             <Map fontSize="inherit" /> {task.address}
                           </Typography>
 
-                          <Paper variant="outlined" sx={{ p: 2, borderRadius: 3, bgcolor: alpha(theme.palette.background.default, 0.5) }}>
-                            <Typography variant="caption" sx={{ fontWeight: 700, color: "text.secondary", display: 'block', mb: 0.5 }}>
+                          <Paper
+                            variant="outlined"
+                            sx={{
+                              p: 2,
+                              borderRadius: 3,
+                              bgcolor: alpha(
+                                theme.palette.background.default,
+                                0.5,
+                              ),
+                            }}
+                          >
+                            <Typography
+                              variant="caption"
+                              sx={{
+                                fontWeight: 700,
+                                color: "text.secondary",
+                                display: "block",
+                                mb: 0.5,
+                              }}
+                            >
                               CITIZEN CONTACT
                             </Typography>
-                            <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                              {task.name || "N/A"} • {task.contact || task.phone || "No contact"}
+                            <Typography
+                              variant="body2"
+                              sx={{ fontWeight: 600 }}
+                            >
+                              {task.name || "N/A"} •{" "}
+                              {task.contact || task.phone || "No contact"}
                             </Typography>
                           </Paper>
                         </Box>
@@ -212,7 +281,11 @@ const WorkerDashboard = () => {
                               label="Completed"
                               color="success"
                               variant="outlined"
-                              sx={{ px: 1, fontWeight: "bold", borderRadius: 2 }}
+                              sx={{
+                                px: 1,
+                                fontWeight: "bold",
+                                borderRadius: 2,
+                              }}
                             />
                           ) : (
                             <Stack spacing={2}>
@@ -226,7 +299,11 @@ const WorkerDashboard = () => {
                                   setMessage("");
                                   setError("");
                                 }}
-                                sx={{ borderRadius: 50, textTransform: "none", fontWeight: "bold" }}
+                                sx={{
+                                  borderRadius: 50,
+                                  textTransform: "none",
+                                  fontWeight: "bold",
+                                }}
                               >
                                 Verify PIN
                               </Button>
@@ -249,8 +326,10 @@ const WorkerDashboard = () => {
                 </Grid>
               ))
             ) : (
-              <Box sx={{ width: '100%', py: 10, textAlign: 'center' }}>
-                <Typography color="text.secondary">No active tasks assigned.</Typography>
+              <Box sx={{ width: "100%", py: 10, textAlign: "center" }}>
+                <Typography color="text.secondary">
+                  No active tasks assigned.
+                </Typography>
               </Box>
             )}
           </Grid>
@@ -259,13 +338,19 @@ const WorkerDashboard = () => {
         <Modal
           open={modalOpen}
           onClose={() => !loading && setModalOpen(false)}
-          sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
         >
           <Box
             sx={{
               width: "100%",
               maxWidth: 400,
-              bgcolor: isDark ? alpha(theme.palette.background.paper, 0.9) : "#fff",
+              bgcolor: isDark
+                ? alpha(theme.palette.background.paper, 0.9)
+                : "#fff",
               backdropFilter: "blur(20px)",
               p: 4,
               borderRadius: 6,
@@ -279,7 +364,8 @@ const WorkerDashboard = () => {
               Complete Task
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              Enter the 4-digit verification PIN provided by the citizen to confirm service delivery.
+              Enter the 4-digit verification PIN provided by the citizen to
+              confirm service delivery.
             </Typography>
 
             <TextField
@@ -287,13 +373,29 @@ const WorkerDashboard = () => {
               label="Verification PIN"
               value={pin}
               onChange={(e) => setPin(e.target.value)}
-              inputProps={{ maxLength: 4, style: { textAlign: 'center', fontSize: '1.5rem', letterSpacing: '0.5rem', fontWeight: 900 } }}
+              inputProps={{
+                maxLength: 4,
+                style: {
+                  textAlign: "center",
+                  fontSize: "1.5rem",
+                  letterSpacing: "0.5rem",
+                  fontWeight: 900,
+                },
+              }}
               sx={{ mb: 3, "& .MuiOutlinedInput-root": { borderRadius: 3 } }}
               autoFocus
             />
 
-            {error && <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>{error}</Alert>}
-            {message && <Alert severity="success" sx={{ mb: 2, borderRadius: 2 }}>{message}</Alert>}
+            {error && (
+              <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
+                {error}
+              </Alert>
+            )}
+            {message && (
+              <Alert severity="success" sx={{ mb: 2, borderRadius: 2 }}>
+                {message}
+              </Alert>
+            )}
 
             <Button
               fullWidth
@@ -301,7 +403,12 @@ const WorkerDashboard = () => {
               size="large"
               onClick={handleVerify}
               disabled={!!message || loading}
-              sx={{ py: 1.5, borderRadius: 50, fontWeight: "bold", textTransform: "none" }}
+              sx={{
+                py: 1.5,
+                borderRadius: 50,
+                fontWeight: "bold",
+                textTransform: "none",
+              }}
             >
               Confirm Completion
             </Button>

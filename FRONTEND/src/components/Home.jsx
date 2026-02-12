@@ -61,7 +61,7 @@ const features = [
     description:
       "Real-time monitoring of water levels, leak detection, and distribution optimization.",
     image:
-      "https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?auto=format&fit=crop&w=800&q=80",
+      "https://images.unsplash.com/photo-1523362628408-3c2601a0d09c?auto=format&fit=crop&w=800&q=80",
     icon: <Opacity color="inherit" />,
     color: "#2196f3",
   },
@@ -81,7 +81,13 @@ const Home = () => {
   const isDark = theme.palette.mode === "dark";
 
   return (
-    <Box sx={{ bgcolor: "background.default", minHeight: "100vh", overflowX: "hidden" }}>
+    <Box
+      sx={{
+        bgcolor: "background.default",
+        minHeight: "100vh",
+        overflowX: "hidden",
+      }}
+    >
       <Navbar />
 
       {/* 🚀 Hero Section */}
@@ -268,7 +274,11 @@ const Home = () => {
                     <Typography variant="subtitle2" fontWeight="bold">
                       Water Quality
                     </Typography>
-                    <Typography variant="caption" color="success.main" fontWeight="bold">
+                    <Typography
+                      variant="caption"
+                      color="success.main"
+                      fontWeight="bold"
+                    >
                       98% Optimal
                     </Typography>
                   </Box>
@@ -320,9 +330,16 @@ const Home = () => {
           variant="body1"
           align="center"
           color="text.secondary"
-          sx={{ mb: 8, maxWidth: 650, mx: "auto", fontSize: "1.15rem", lineHeight: 1.6 }}
+          sx={{
+            mb: 8,
+            maxWidth: 650,
+            mx: "auto",
+            fontSize: "1.15rem",
+            lineHeight: 1.6,
+          }}
         >
-          A comprehensive ecosystem designed to manage urban infrastructure with real-time data, AI-driven insights, and citizen engagement.
+          A comprehensive ecosystem designed to manage urban infrastructure with
+          real-time data, AI-driven insights, and citizen engagement.
         </Typography>
 
         <Grid container spacing={4}>
@@ -332,9 +349,12 @@ const Home = () => {
                 sx={{
                   height: "100%",
                   borderRadius: 8,
-                  bgcolor: isDark ? alpha(theme.palette.background.paper, 0.4) : "#fff",
+                  bgcolor: isDark
+                    ? alpha(theme.palette.background.paper, 0.4)
+                    : "#fff",
                   backdropFilter: "blur(20px)",
-                  transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+                  transition:
+                    "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
                   border: "1px solid",
                   borderColor: alpha(theme.palette.divider, 0.1),
                   overflow: "hidden",
@@ -358,7 +378,10 @@ const Home = () => {
                     height="200"
                     image={f.image}
                     alt={f.title}
-                    sx={{ transition: "transform 0.5s", "&:hover": { transform: "scale(1.1)" } }}
+                    sx={{
+                      transition: "transform 0.5s",
+                      "&:hover": { transform: "scale(1.1)" },
+                    }}
                   />
                   <Box
                     sx={{
@@ -378,12 +401,25 @@ const Home = () => {
                   <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2 }}>
                     {f.title}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.7 }}>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ lineHeight: 1.7 }}
+                  >
                     {f.description}
                   </Typography>
                   <Button
                     endIcon={<ArrowForward />}
-                    sx={{ mt: 3, color: f.color, p: 0, textTransform: "none", "&:hover": { bgcolor: "transparent", textDecoration: "underline" } }}
+                    sx={{
+                      mt: 3,
+                      color: f.color,
+                      p: 0,
+                      textTransform: "none",
+                      "&:hover": {
+                        bgcolor: "transparent",
+                        textDecoration: "underline",
+                      },
+                    }}
                   >
                     Learn more
                   </Button>
@@ -412,22 +448,35 @@ const Home = () => {
             sx={{
               position: "absolute",
               inset: 0,
-              backgroundImage: "url('https://www.transparenttextures.com/patterns/cubes.png')",
+              backgroundImage:
+                "url('https://www.transparenttextures.com/patterns/cubes.png')",
               opacity: 0.1,
             }}
           />
 
           <Typography
             variant="h3"
-            sx={{ color: "white", fontWeight: "bold", mb: 2, position: "relative" }}
+            sx={{
+              color: "white",
+              fontWeight: "bold",
+              mb: 2,
+              position: "relative",
+            }}
           >
             Ready for the future?
           </Typography>
           <Typography
             variant="h6"
-            sx={{ color: "rgba(255,255,255,0.9)", mb: 5, position: "relative", maxWidth: 600, mx: "auto" }}
+            sx={{
+              color: "rgba(255,255,255,0.9)",
+              mb: 5,
+              position: "relative",
+              maxWidth: 600,
+              mx: "auto",
+            }}
           >
-            Join thousands of citizens and administrators building the cities of tomorrow, today.
+            Join thousands of citizens and administrators building the cities of
+            tomorrow, today.
           </Typography>
 
           <Button
@@ -445,7 +494,7 @@ const Home = () => {
               fontSize: "1.1rem",
               "&:hover": {
                 bgcolor: "rgba(255,255,255,0.9)",
-              }
+              },
             }}
           >
             Start Your Journey
@@ -461,33 +510,98 @@ const Home = () => {
               <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
                 Smart City
               </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 300 }}>
-                Redefining urban management with cutting-edge technology and human-centric design.
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ maxWidth: 300 }}
+              >
+                Redefining urban management with cutting-edge technology and
+                human-centric design.
               </Typography>
               <Stack direction="row" spacing={2} sx={{ mt: 3 }}>
-                <IconButton size="small"><Facebook /></IconButton>
-                <IconButton size="small"><Twitter /></IconButton>
-                <IconButton size="small"><Instagram /></IconButton>
+                <IconButton size="small">
+                  <Facebook />
+                </IconButton>
+                <IconButton size="small">
+                  <Twitter />
+                </IconButton>
+                <IconButton size="small">
+                  <Instagram />
+                </IconButton>
               </Stack>
             </Grid>
             <Grid size={{ xs: 6, md: 2 }}>
-              <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 2 }}>Platform</Typography>
+              <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 2 }}>
+                Platform
+              </Typography>
               <Stack spacing={1}>
-                <Typography variant="body2" color="text.secondary" component={RouterLink} to="/" sx={{ textDecoration: "none", color: "inherit" }}>Home</Typography>
-                <Typography variant="body2" color="text.secondary" component={RouterLink} to="/about" sx={{ textDecoration: "none", color: "inherit" }}>About</Typography>
-                <Typography variant="body2" color="text.secondary" component={RouterLink} to="/services" sx={{ textDecoration: "none", color: "inherit" }}>Services</Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  component={RouterLink}
+                  to="/"
+                  sx={{ textDecoration: "none", color: "inherit" }}
+                >
+                  Home
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  component={RouterLink}
+                  to="/about"
+                  sx={{ textDecoration: "none", color: "inherit" }}
+                >
+                  About
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  component={RouterLink}
+                  to="/services"
+                  sx={{ textDecoration: "none", color: "inherit" }}
+                >
+                  Services
+                </Typography>
               </Stack>
             </Grid>
             <Grid size={{ xs: 6, md: 2 }}>
-              <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 2 }}>Support</Typography>
+              <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 2 }}>
+                Support
+              </Typography>
               <Stack spacing={1}>
-                <Typography variant="body2" color="text.secondary" component={RouterLink} to="/contact" sx={{ textDecoration: "none", color: "inherit" }}>Contact</Typography>
-                <Typography variant="body2" color="text.secondary" component={RouterLink} to="/faq" sx={{ textDecoration: "none", color: "inherit" }}>FAQs</Typography>
-                <Typography variant="body2" color="text.secondary" component={RouterLink} to="/privacy" sx={{ textDecoration: "none", color: "inherit" }}>Privacy</Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  component={RouterLink}
+                  to="/contact"
+                  sx={{ textDecoration: "none", color: "inherit" }}
+                >
+                  Contact
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  component={RouterLink}
+                  to="/faq"
+                  sx={{ textDecoration: "none", color: "inherit" }}
+                >
+                  FAQs
+                </Typography>
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  component={RouterLink}
+                  to="/privacy"
+                  sx={{ textDecoration: "none", color: "inherit" }}
+                >
+                  Privacy
+                </Typography>
               </Stack>
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
-              <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 2 }}>Stay Updated</Typography>
+              <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 2 }}>
+                Stay Updated
+              </Typography>
               <Stack direction="row" spacing={1}>
                 <TextField
                   placeholder="Enter email"
@@ -499,7 +613,15 @@ const Home = () => {
               </Stack>
             </Grid>
           </Grid>
-          <Box sx={{ borderTop: "1px solid", borderColor: "divider", mt: 8, pt: 4, textAlign: "center" }}>
+          <Box
+            sx={{
+              borderTop: "1px solid",
+              borderColor: "divider",
+              mt: 8,
+              pt: 4,
+              textAlign: "center",
+            }}
+          >
             <Typography variant="caption" color="text.secondary">
               © 2026 Smart City Management. All rights reserved.
             </Typography>
