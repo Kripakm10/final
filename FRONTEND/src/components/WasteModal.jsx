@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, MenuItem, CircularProgress, Alert, Box, Typography } from '@mui/material';
 import axios from 'axios';
 import API_BASE_URL from '../config/api';
@@ -6,6 +6,21 @@ import LocationPicker from './LocationPicker';
 
 const WasteModal = ({ open, onClose, onSuccess }) => {
   const [formData, setFormData] = useState({ name: '', address: '', contact: '', wasteType: '', lat: null, lng: null });
+
+  useEffect(() => {
+    if (!open) return;
+    try {
+      const stored = sessionStorage.getItem('user') || localStorage.getItem('user');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && parsed.fullName) {
+          setFormData((s) => ({ ...s, name: parsed.fullName }));
+        }
+      }
+    } catch (err) {
+      // ignore parse errors
+    }
+  }, [open]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 

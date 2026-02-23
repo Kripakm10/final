@@ -32,6 +32,8 @@ import {
   ArrowForward,
 } from "@mui/icons-material";
 import Navbar from "./Navbar";
+import placeholder from "../assets/placeholder.svg";
+import waterImg from "../assets/water.svg";
 import { keyframes } from "@mui/system";
 
 // 🌟 Animations
@@ -60,8 +62,7 @@ const features = [
     title: "Water Supply",
     description:
       "Real-time monitoring of water levels, leak detection, and distribution optimization.",
-    image:
-      "https://images.unsplash.com/photo-1523362628408-3c2601a0d09c?auto=format&fit=crop&w=800&q=80",
+    image: waterImg,
     icon: <Opacity color="inherit" />,
     color: "#2196f3",
   },
@@ -376,8 +377,12 @@ const Home = () => {
                   <CardMedia
                     component="img"
                     height="200"
-                    image={f.image}
+                    src={f.image}
                     alt={f.title}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = placeholder;
+                    }}
                     sx={{
                       transition: "transform 0.5s",
                       "&:hover": { transform: "scale(1.1)" },

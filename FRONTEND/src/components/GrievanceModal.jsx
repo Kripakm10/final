@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, CircularProgress, Alert, Box, Typography } from '@mui/material';
 import axios from 'axios';
 import LocationPicker from './LocationPicker';
@@ -6,6 +6,21 @@ import API_BASE_URL from '../config/api';
 
 const GrievanceModal = ({ open, onClose, onSuccess }) => {
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', description: '', lat: null, lng: null });
+
+  useEffect(() => {
+    if (!open) return;
+    try {
+      const stored = sessionStorage.getItem('user') || localStorage.getItem('user');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed) {
+          setFormData((s) => ({ ...s, name: parsed.fullName || s.name, email: parsed.email || s.email }));
+        }
+      }
+    } catch (err) {
+      // ignore
+    }
+  }, [open]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
