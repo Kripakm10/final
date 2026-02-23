@@ -5,7 +5,7 @@ import LocationPicker from './LocationPicker';
 import API_BASE_URL from '../config/api';
 
 const GrievanceModal = ({ open, onClose, onSuccess }) => {
-  const [formData, setFormData] = useState({ name: '', email: '', subject: '', description: '', lat: null, lng: null });
+  const [formData, setFormData] = useState({ name: '', email: '', contact: '', address: '', subject: '', description: '', lat: null, lng: null });
 
   useEffect(() => {
     if (!open) return;
@@ -13,8 +13,15 @@ const GrievanceModal = ({ open, onClose, onSuccess }) => {
       const stored = sessionStorage.getItem('user') || localStorage.getItem('user');
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (parsed) {
-          setFormData((s) => ({ ...s, name: parsed.fullName || s.name, email: parsed.email || s.email }));
+        const u = parsed?.user || parsed?.data || parsed || {};
+        if (u) {
+          setFormData((s) => ({
+            ...s,
+            name: u.fullName || u.name || s.name,
+            email: u.email || s.email,
+            contact: u.phone || u.contact || u.mobile || s.contact,
+            address: u.address || u.city || (u.location && u.location.address) || s.address,
+          }));
         }
       }
     } catch (err) {
@@ -32,11 +39,11 @@ const GrievanceModal = ({ open, onClose, onSuccess }) => {
     try {
       setLoading(true);
       const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-      const payload = { name: formData.name, email: formData.email, subject: formData.subject, description: formData.description };
+      const payload = { name: formData.name, email: formData.email, contact: formData.contact, address: formData.address, subject: formData.subject, description: formData.description };
       if (formData.lat !== null && formData.lng !== null) { payload.lat = Number(formData.lat); payload.lng = Number(formData.lng); }
       const res = await axios.post(`${API_BASE_URL}/api/grievance`, payload, { headers: token ? { Authorization: `Bearer ${token}` } : {} });
       onSuccess && onSuccess(res.data);
-      setFormData({ name: '', email: '', subject: '', description: '', lat: null, lng: null });
+      setFormData({ name: '', email: '', contact: '', address: '', subject: '', description: '', lat: null, lng: null });
       onClose();
     } catch (err) {
       setError(err?.response?.data?.message || 'Submission failed');
@@ -49,7 +56,9 @@ const GrievanceModal = ({ open, onClose, onSuccess }) => {
       <DialogContent>
         <Box sx={{ display: 'grid', gap: 2, mt: 1 }}>
           <TextField label="Full Name" name="name" value={formData.name} onChange={handleChange} required />
+          <TextField label="Contact" name="contact" value={formData.contact} onChange={handleChange} />
           <TextField label="Email" name="email" value={formData.email} onChange={handleChange} />
+          <TextField label="Address" name="address" value={formData.address} onChange={handleChange} />
           <TextField label="Subject" name="subject" value={formData.subject} onChange={handleChange} required />
           <TextField label="Description" name="description" value={formData.description} onChange={handleChange} multiline rows={4} required />
         </Box>

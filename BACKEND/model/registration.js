@@ -7,7 +7,7 @@ const registrationSchema = new Schema(
     lastName: { type: String, trim: true },
     email: { type: String, required: true, lowercase: true, trim: true },
     phone: { type: String, required: true, trim: true },
-    address1: { type: String, trim: true },
+    address1: { type: String, trim: true ,required: true},
     address2: { type: String, trim: true },
     city: { type: String, trim: true },
     district: { type: String, trim: true },

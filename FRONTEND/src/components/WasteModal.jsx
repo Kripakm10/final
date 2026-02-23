@@ -13,8 +13,14 @@ const WasteModal = ({ open, onClose, onSuccess }) => {
       const stored = sessionStorage.getItem('user') || localStorage.getItem('user');
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (parsed && parsed.fullName) {
-          setFormData((s) => ({ ...s, name: parsed.fullName }));
+        const u = parsed?.user || parsed?.data || parsed || {};
+        if (u) {
+          setFormData((s) => ({
+            ...s,
+            name: u.fullName || u.name || s.name,
+            contact: u.phone || u.contact || u.mobile || s.contact,
+            address: u.address || u.city || (u.location && u.location.address) || s.address,
+          }));
         }
       }
     } catch (err) {

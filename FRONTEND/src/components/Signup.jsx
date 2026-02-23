@@ -235,7 +235,7 @@ const Signup = () => {
 
             <TextField
               fullWidth
-              label="Phone (optional)"
+              label="Phone"
               variant="outlined"
               margin="normal"
               name="phone"
@@ -245,7 +245,7 @@ const Signup = () => {
             />
             <TextField
               fullWidth
-              label="City (optional)"
+              label="City"
               variant="outlined"
               margin="normal"
               name="city"
